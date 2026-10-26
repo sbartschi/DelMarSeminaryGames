@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>/* Practice mode: when this page runs inside the site's practice page, use its pretend database and give this screen its own storage. Does nothing otherwise. */
+(function(){try{var P=window.parent!==window&&window.parent.PRACTICE;if(!P)return;window.fetch=P.fetch;var s=P.storage(window.name||location.href);Object.defineProperty(window,'localStorage',{configurable:true,get:function(){return s.local;}});Object.defineProperty(window,'sessionStorage',{configurable:true,get:function(){return s.session;}});}catch(e){}})();</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Old Testament: True or False</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-page:#0E1B2B; --bg-panel:#16273B; --bg-panel-raised:#1E3450;
+  --ink:#F1F6FB; --muted:#9FB4C9; --line:rgba(241,246,251,0.14);
+  --accent:#4FA3D1; --accent-strong:#2E7CB0; --ok:#3FA66B; --bad:#C65B5B;
+  color-scheme: dark;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;min-height:100%;background:var(--bg-page);color:var(--ink);
+  font-family:'Inter',-apple-system,Segoe UI,Roboto,sans-serif;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);}
+.wrap{max-width:760px;margin:0 auto;padding:20px 16px 50px;}
+.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:6px;}
+h1{font-family:'Fraunces',Georgia,serif;font-size:1.8rem;margin:0 0 6px;}
+h2{font-family:'Fraunces',Georgia,serif;font-size:1.3rem;margin:0 0 10px;}
+.card{background:var(--bg-panel);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px;}
+.muted{color:var(--muted);font-size:0.92rem;}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+input[type=text]{font:inherit;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:var(--bg-panel-raised);color:var(--ink);flex:1;min-width:160px;}
+.btn{font:inherit;font-weight:700;padding:14px 20px;border-radius:10px;border:1px solid var(--line);background:var(--bg-panel-raised);color:var(--ink);cursor:pointer;}
+.btn.primary{background:var(--accent);border-color:var(--accent-strong);color:#05131F;}
+.btn.big{font-size:1.1rem;width:100%;padding:18px;}
+.btn[disabled]{opacity:0.4;cursor:default;}
+.qr-box{display:flex;justify-content:center;padding:18px;background:#fff;border-radius:14px;margin:14px 0;}
+.code{font-family:'IBM Plex Mono',monospace;font-size:2.2rem;letter-spacing:0.15em;text-align:center;color:var(--accent);margin:8px 0;}
+.tag{display:inline-block;background:var(--bg-panel-raised);border-radius:20px;padding:6px 14px;margin:4px;font-size:0.9rem;}
+.lb{width:100%;border-collapse:collapse;margin-top:10px;}
+.lb td,.lb th{padding:8px 6px;border-bottom:1px solid var(--line);text-align:left;font-size:0.95rem;}
+.lb th{color:var(--muted);font-weight:600;font-size:0.78rem;text-transform:uppercase;}
+.q{font-size:1.4rem;line-height:1.4;margin:10px 0 18px;}
+.verse{font-size:1.25rem;line-height:1.5;font-style:italic;margin:10px 0 6px;}
+.ref{color:var(--muted);font-size:0.9rem;margin-bottom:16px;}
+.ans{display:block;width:100%;text-align:left;font:inherit;font-size:1.05rem;padding:16px;margin-bottom:10px;border-radius:12px;border:1px solid var(--line);background:var(--bg-panel-raised);color:var(--ink);cursor:pointer;}
+.ans.mine{border-color:var(--accent);background:rgba(79,163,209,0.18);}
+.ans.correct{border-color:var(--ok);background:rgba(63,166,107,0.22);}
+.ans.wrong{border-color:var(--bad);background:rgba(198,91,91,0.2);}
+.ans[disabled]{cursor:default;}
+.ph{text-align:center;padding:30px 10px;}
+.ph .big{display:flex;flex-direction:column;gap:12px;margin-top:16px;}
+.ph .ans.t{background:rgba(63,166,107,0.18);border-color:var(--ok);}
+.ph .ans.f{background:rgba(198,91,91,0.18);border-color:var(--bad);}
+.timer{font-family:'IBM Plex Mono',monospace;font-size:0.95rem;color:var(--muted);margin-bottom:10px;}
+.podium{display:flex;justify-content:center;align-items:flex-end;gap:14px;margin:20px 0;}
+.podium .spot{background:var(--bg-panel-raised);border-radius:10px 10px 0 0;padding:14px 16px;text-align:center;min-width:90px;}
+.podium .spot.g1{min-height:120px;background:linear-gradient(180deg,#F0CB77,#C9A227);color:#2b2418;}
+.podium .spot.g2{min-height:90px;}
+.podium .spot.g3{min-height:70px;}
+footer{text-align:center;color:var(--muted);font-size:0.8rem;margin-top:20px;}
+.ctx{margin-top:14px;padding:14px 16px;border-left:4px solid var(--accent);background:rgba(79,163,209,0.12);border-radius:10px;text-align:left;}
+.ctx .ctx-h{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:4px;}
+.ctx b{display:block;font-size:1.05rem;margin-bottom:6px;}
+.ctx p{margin:0;line-height:1.55;font-size:0.98rem;}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script>
+var CFG = {"title": "Old Testament: True or False", "kind": "tf", "questions": [{"text": "Noah built an ark and gathered animals two by two before the flood.", "answer": true, "ref": "Genesis 6-7", "expl": "Noah built the ark as the Lord commanded, and the animals came to him two by two.", "story": "Noah and the Flood (Genesis 6 to 9)", "ctx": "The earth had become filled with violence, so the Lord told Noah, a just man, to build an ark. Noah, his family, and the animals entered, and it rained forty days and forty nights. Afterward the Lord set a rainbow in the cloud as a token of His covenant never again to flood the whole earth."}, {"text": "Joseph's brothers sold him into slavery for thirty pieces of silver.", "answer": false, "ref": "Genesis 37:28", "expl": "Joseph was sold for twenty pieces of silver, not thirty.", "story": "Joseph sold into Egypt (Genesis 37)", "ctx": "Jacob loved Joseph and gave him a coat of many colours, and Joseph dreamed that his brothers would bow to him. Jealous, his brothers threw him into a pit, then sold him to traders for twenty pieces of silver. They dipped his coat in goat\u2019s blood and let their father believe he was dead."}, {"text": "Moses led the Israelites out of Egypt and across the Red Sea.", "answer": true, "ref": "Exodus 14", "expl": "The Lord parted the Red Sea and the Israelites crossed on dry ground.", "story": "Crossing the Red Sea (Exodus 14)", "ctx": "After the plagues, Pharaoh let Israel go, then changed his mind and chased them with his chariots. Trapped against the sea, the people were terrified, but Moses told them to \u201cstand still, and see the salvation of the Lord.\u201d The waters parted, Israel crossed on dry ground, and the waters returned on the Egyptian army."}, {"text": "The Israelites wandered in the wilderness for twenty years before entering the promised land.", "answer": false, "ref": "Numbers 14:33-34", "expl": "Because of their unbelief, they wandered for forty years, not twenty.", "story": "Wandering in the wilderness (Numbers 13 to 14)", "ctx": "Moses sent twelve spies into Canaan. Ten came back afraid of the giants there, and the people wanted to return to Egypt. Only Joshua and Caleb trusted the Lord. Because of the people\u2019s unbelief, Israel wandered forty years, one year for each day the spies searched the land."}, {"text": "Daniel was thrown into a den of lions for continuing to pray to God.", "answer": true, "ref": "Daniel 6", "expl": "Daniel prayed despite the king's decree, and the Lord shut the lions' mouths.", "story": "Daniel in the lions\u2019 den (Daniel 6)", "ctx": "Jealous officials tricked King Darius into making a law that no one could pray to anyone but the king for thirty days. Daniel kept praying three times a day with his windows open toward Jerusalem. He was thrown to the lions, but God sent His angel to shut their mouths, and Daniel was unharmed."}, {"text": "After Solomon's death, the kingdom split into two kingdoms called Judah and Egypt.", "answer": false, "ref": "1 Kings 12", "expl": "The kingdom split into Israel (the northern kingdom) and Judah (the southern kingdom), not Egypt.", "story": "The kingdom divides (1 Kings 12)", "ctx": "After Solomon died, his son Rehoboam ignored the counsel of the older men and promised to make the people\u2019s burdens even heavier. Ten tribes rebelled and made Jeroboam their king, forming the northern kingdom of Israel. Rehoboam kept only Judah and Benjamin in the south, the kingdom of Judah."}, {"text": "The northern kingdom of Israel was conquered and carried away captive by Assyria.", "answer": true, "ref": "2 Kings 17", "expl": "Assyria conquered the northern kingdom of Israel because of their wickedness.", "story": "The scattering of Israel (2 Kings 17)", "ctx": "The northern kingdom of Israel worshipped idols and ignored prophet after prophet. Around 722 BC, Assyria conquered its capital, Samaria, and carried the people away into other lands. These are often called the lost ten tribes, and the Book of Mormon teaches that the Lord will gather them again."}, {"text": "The southern kingdom of Judah was conquered and carried away captive by Assyria.", "answer": false, "ref": "2 Kings 25", "expl": "Judah was conquered by Babylon, not Assyria, more than a century later.", "story": "The fall of Jerusalem (2 Kings 25)", "ctx": "Judah lasted over a century longer than the northern kingdom, but it too turned from the Lord despite Jeremiah\u2019s warnings. Nebuchadnezzar of Babylon besieged Jerusalem, burned the temple, and carried the people captive to Babylon around 586 BC. Lehi\u2019s family had left Jerusalem shortly before, warned by the Lord."}, {"text": "King Cyrus of Persia allowed the Jews to return to Jerusalem after the Babylonian captivity.", "answer": true, "ref": "Ezra 1", "expl": "Cyrus issued a decree letting the Jews return home and rebuild the temple.", "story": "Cyrus lets the Jews return (Isaiah 44 to 45; Ezra 1)", "ctx": "More than a century before he was born, Isaiah recorded the Lord calling Cyrus by name as His \u201cshepherd\u201d who would see that Jerusalem and the temple were rebuilt. Cyrus became king of Persia, conquered Babylon, and issued a decree letting the Jews return home to rebuild."}, {"text": "Jonah gladly obeyed the Lord's command to preach to Nineveh right away.", "answer": false, "ref": "Jonah 1", "expl": "Jonah fled toward Tarshish instead, and was swallowed by a great fish before he obeyed.", "story": "Jonah and Nineveh (Jonah 1 to 4)", "ctx": "The Lord sent Jonah to warn Nineveh, an enemy city, but he fled by ship toward Tarshish. In a storm he was thrown overboard and swallowed by a great fish, where he prayed for three days and three nights. When he finally preached, the whole city repented and was spared. Jonah was angry, admitting he had run because he knew the Lord would be merciful."}, {"text": "Esther risked her life by approaching the king uninvited to save her people.", "answer": true, "ref": "Esther 4-5", "expl": "Esther went to the king without being called, knowing it could cost her life.", "story": "Esther saves her people (Esther 4 to 8)", "ctx": "Haman got a decree to destroy every Jew in Persia. Mordecai urged Esther to plead with the king, reminding her she may have become queen \u201cfor such a time as this.\u201d Anyone who went to the king uninvited could be put to death, so Esther and her people fasted three days. She went in, the king held out his golden sceptre, and her people were saved."}, {"text": "Ruth was an Israelite woman who married Boaz, a Moabite.", "answer": false, "ref": "Ruth 1, 4", "expl": "It was the other way around: Ruth was the Moabite, and Boaz was the Israelite she married.", "story": "Ruth and Naomi (Ruth 1 to 4)", "ctx": "Ruth was a Moabite woman whose Israelite husband died. Instead of going home, she stayed loyal to her mother-in-law Naomi, saying \u201cwhither thou goest, I will go.\u201d In Bethlehem she gleaned grain in the fields of Boaz, a kind relative, who married her. Their great-grandson was King David."}, {"text": "Gideon reduced his army to just 300 men before defeating the Midianites.", "answer": true, "ref": "Judges 7", "expl": "The Lord had Gideon narrow his army to 300 so the victory would be clearly His doing.", "story": "Gideon\u2019s 300 (Judges 6 to 7)", "ctx": "The Midianites were oppressing Israel when an angel called Gideon to deliver them. The Lord told him his army of 32,000 was too large, so Israel would not think they had saved themselves. With just 300 men carrying trumpets and torches hidden in pitchers, Gideon surrounded the enemy camp at night, and the Midianites fled in confusion."}, {"text": "Samson lost his strength when his hair was cut off by his mother.", "answer": false, "ref": "Judges 16", "expl": "It was Delilah who had Samson's hair cut while he slept, not his mother.", "story": "Samson and Delilah (Judges 16)", "ctx": "Samson was a Nazarite from birth, and his great strength was tied to his vow never to cut his hair. The Philistines paid Delilah to learn his secret. When he finally told her, she had his hair shaved while he slept, and the Philistines captured and blinded him. In his last act, he prayed for strength and pulled down the pillars of a Philistine temple."}, {"text": "Elijah called down fire from heaven to prove the Lord is God, on Mount Carmel.", "answer": true, "ref": "1 Kings 18", "expl": "Fire fell and consumed Elijah's sacrifice, proving to Israel that the Lord is God.", "story": "Elijah and the priests of Baal (1 Kings 18)", "ctx": "During a long drought, Elijah challenged 450 prophets of Baal to a contest on Mount Carmel. Each side prepared a sacrifice and prayed for fire. Baal\u2019s prophets cried out all day with no answer. Elijah soaked his altar with water, prayed, and fire from heaven consumed everything, and the people cried, \u201cThe LORD, he is the God.\u201d"}, {"text": "Naaman was healed of leprosy by washing in the Euphrates River seven times.", "answer": false, "ref": "2 Kings 5", "expl": "Naaman washed in the Jordan River, not the Euphrates, and was healed.", "story": "Naaman healed (2 Kings 5)", "ctx": "Naaman was a Syrian army captain with leprosy. A captive Israelite servant girl told his wife about the prophet Elisha. Elisha sent word to wash seven times in the Jordan River, and Naaman was offended by the simple instruction. His servants persuaded him to obey, and his skin became like a little child\u2019s."}, {"text": "Hannah prayed for a son and later dedicated Samuel to serve the Lord at the tabernacle.", "answer": true, "ref": "1 Samuel 1", "expl": "Hannah kept her vow and brought young Samuel to serve under Eli the priest.", "story": "Hannah\u2019s prayer (1 Samuel 1)", "ctx": "Hannah had no children and prayed in deep sorrow at the tabernacle, promising that if the Lord gave her a son, she would give him to the Lord\u2019s service. She bore Samuel, and when he was weaned she brought him to serve with Eli the priest. Samuel grew up to be a great prophet."}, {"text": "David's first wife was Abigail.", "answer": false, "ref": "1 Samuel 18", "expl": "David's first wife was Michal, the daughter of King Saul; he married Abigail later.", "story": "David and Michal (1 Samuel 18 to 25)", "ctx": "After David killed Goliath, King Saul offered his daughter Michal in marriage, hoping David would die fighting the Philistines to earn her. David succeeded, and Michal loved him and later helped him escape Saul through a window. David married Abigail years later, after her husband Nabal died."}, {"text": "Job remained faithful to God despite losing his family, health, and possessions.", "answer": true, "ref": "Job 1-2", "expl": "Job did not curse God even after losing everything, and the Lord later blessed him.", "story": "The Lord answers Job (Job 38 to 42)", "ctx": "After many chapters of asking why he was suffering, Job heard the Lord speak out of a whirlwind. The Lord asked him a series of questions about the Creation to show how far His wisdom is above man\u2019s. Job humbled himself, prayed for his friends, and the Lord gave him twice as much as he had before."}, {"text": "The book of Esther never directly mentions the name of God.", "answer": true, "ref": "Esther", "expl": "Esther is well known as the one Old Testament book that never states God's name directly, though His hand is seen throughout.", "story": "The book of Esther", "ctx": "Esther tells how a Jewish queen saved her people from Haman\u2019s plot in Persia. God\u2019s name never appears in it, yet His hand is everywhere: Esther\u2019s timely rise to queen, the king\u2019s sleepless night, and Haman\u2019s plot turning back on himself. Jews still celebrate this deliverance at the feast of Purim."}, {"text": "Abraham was 100 years old when Isaac was born.", "answer": true, "ref": "Genesis 21:5", "expl": "Sarah was about ninety", "story": "The birth of Isaac (Genesis 18 and 21)", "ctx": "Three visitors told Abraham that Sarah would bear a son. Sarah, about ninety, laughed, and the Lord asked, \u201cIs any thing too hard for the LORD?\u201d A year later Isaac was born, whose name means \u201che laughs,\u201d and Sarah said, \u201cGod hath made me to laugh.\u201d"}, {"text": "Jacob worked a total of seven years to marry both Leah and Rachel.", "answer": false, "ref": "Genesis 29:20-30", "expl": "He served fourteen years in all", "story": "Jacob marries Leah and Rachel (Genesis 29)", "ctx": "Jacob loved Rachel and served her father Laban seven years to marry her, and the years \u201cseemed unto him but a few days.\u201d Laban secretly gave him Leah, the older daughter, instead. Jacob married Rachel a week later and served seven more years."}, {"text": "Esau sold his birthright for a bowl of pottage.", "answer": true, "ref": "Genesis 25:29-34", "expl": "He traded an eternal blessing for one meal", "story": "Esau sells his birthright (Genesis 25)", "ctx": "Esau, the firstborn twin, came in from the field faint with hunger and asked Jacob for some red pottage. Jacob asked for his birthright in exchange, and Esau traded it for one meal, saying, \u201cWhat profit shall this birthright do to me?\u201d The story warns against trading eternal blessings for short-term wants."}, {"text": "Jericho\u2019s walls fell after Israel marched around the city for seven days.", "answer": true, "ref": "Joshua 6:15-20", "expl": "On the seventh day they circled it seven times", "story": "The walls of Jericho (Joshua 6)", "ctx": "The Lord told Joshua to have Israel march around Jericho once a day for six days, with priests blowing rams\u2019 horn trumpets before the ark. On the seventh day they circled it seven times, the people shouted, and the walls fell down flat. Victory came by obedience, not by strength."}, {"text": "David defeated Goliath using King Saul\u2019s sword and armor.", "answer": false, "ref": "1 Samuel 17:38-40, 49", "expl": "He refused the armor and used a sling and a stone", "story": "David and Goliath (1 Samuel 17)", "ctx": "For forty days the giant Goliath defied Israel\u2019s army. Young David, who had killed a lion and a bear while protecting his sheep, refused King Saul\u2019s armor and faced him with a sling and five smooth stones, saying, \u201cThe battle is the LORD\u2019s.\u201d His first stone struck Goliath in the forehead."}, {"text": "Moses saw a bush that burned but was not consumed.", "answer": true, "ref": "Exodus 3:2", "expl": "The Lord called to him from the bush", "story": "The burning bush (Exodus 3)", "ctx": "Moses was tending sheep near Mount Horeb when he saw a bush burning with fire that was not consumed. The Lord called to him from the bush, told him to take off his shoes on holy ground, and sent him to deliver Israel from Egypt, promising, \u201cCertainly I will be with thee.\u201d"}, {"text": "The Lord confounded the people\u2019s language at the Tower of Babel.", "answer": true, "ref": "Genesis 11:7-9", "expl": "He scattered them across the earth", "story": "The Tower of Babel (Genesis 11; Ether 1)", "ctx": "After the Flood, people built a city and a tower meant to reach heaven so they could make a name for themselves. The Lord confounded their language and scattered them across the earth. The Book of Mormon adds that the brother of Jared prayed, and his family\u2019s language was not confounded as they left for the promised land."}, {"text": "Lot\u2019s wife became a pillar of salt when she looked back.", "answer": true, "ref": "Genesis 19:26", "expl": "Jesus said, \u201cRemember Lot\u2019s wife\u201d", "story": "Lot\u2019s wife (Genesis 19)", "ctx": "Angels led Lot and his family out of the wicked city of Sodom before it was destroyed and warned them not to look back. Lot\u2019s wife looked back and became a pillar of salt. Jesus later warned His disciples, \u201cRemember Lot\u2019s wife\u201d (Luke 17:32), a caution against longing for what we should leave behind."}, {"text": "Joseph told his brothers they should be angry with themselves for selling him.", "answer": false, "ref": "Genesis 45:5", "expl": "He told them not to be grieved, because God sent him to preserve life", "story": "Joseph forgives his brothers (Genesis 45)", "ctx": "Joseph could not hold back any longer and told his brothers, \u201cI am Joseph.\u201d They were terrified, but he wept, kissed them, and told them not to be angry with themselves, because \u201cGod did send me before you to preserve life.\u201d It is one of the greatest examples of forgiveness in scripture."}, {"text": "Gideon was threshing wheat by a winepress when an angel appeared to him.", "answer": true, "ref": "Judges 6:11", "expl": "He was hiding the wheat from the Midianites", "story": "Gideon\u2019s 300 (Judges 6 to 7)", "ctx": "The Midianites were oppressing Israel when an angel called Gideon to deliver them. The Lord told him his army of 32,000 was too large, so Israel would not think they had saved themselves. With just 300 men carrying trumpets and torches hidden in pitchers, Gideon surrounded the enemy camp at night, and the Midianites fled in confusion."}], "seconds": 20, "root": "seminaryGames/otquiz"};
+var DB = "https://penny-project-fb5da-default-rtdb.firebaseio.com";
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function url(code, path){ return DB + '/' + CFG.root + '/' + code + (path ? '/' + path : '') + '.json'; }
+function dbErr(r){ return r && typeof r === 'object' && typeof r.error === 'string' ? r.error : null; }
+function jget(code, path){ return fetch(url(code, path), {cache:'no-store'}).then(function(r){ return r.json(); }).catch(function(){ return { error: 'network' }; }); }
+function jput(code, path, v){ return fetch(url(code, path), {method:'PUT', body: JSON.stringify(v)}).then(function(r){ return r.json(); }).catch(function(){ return { error: 'network' }; }); }
+function jpatch(code, path, v){ return fetch(url(code, path), {method:'PATCH', body: JSON.stringify(v)}).then(function(r){ return r.json(); }).catch(function(){ return { error: 'network' }; }); }
+function dbErrorScreen(msg){
+  return '<div class="card"><div class="eyebrow">Could not reach the database</div>' +
+    '<p>'+esc(msg)+'</p>' +
+    '<p class="muted">This usually means the Firebase Realtime Database rules need to allow read and write. In the Firebase console, go to Realtime Database, then Rules, and make sure they allow access (for example, <code>{"rules": {".read": true, ".write": true}}</code>), then reload this page.</p></div>';
+}
+function ranked(players){ var a=[]; for (var k in (players||{})) a.push({id:k, name:players[k].name, score:players[k].score||0}); a.sort(function(x,y){ return y.score-x.score || x.name.localeCompare(y.name); }); return a; }
+function store(k, v){ try{ if (v===undefined) return sessionStorage.getItem(k); sessionStorage.setItem(k, v); }catch(e){ return null; } }
+function ctxHtml(q){ if(!q||(!q.story&&!q.ctx)) return ''; return '<div class="ctx"><div class="ctx-h">The story</div>'+(q.story?'<b>'+esc(q.story)+'</b>':'')+(q.ctx?'<p>'+esc(q.ctx)+'</p>':'')+'</div>'; }
+function mkCode(){ var L='ABCDEFGHJKLMNPQRSTUVWXYZ', c=''; for (var i=0;i<4;i++) c+=L[Math.floor(Math.random()*L.length)]; return c; }
+
+(function(){
+var app=document.getElementById('app'),Q=CFG.questions,code=(new URLSearchParams(location.search).get('g')||'').toUpperCase(),pid=store('pid_'+code)||(function(){var v='p'+Math.random().toString(36).slice(2,10); store('pid_'+code,v); return v;})(),room=null,seenQ=-1,mine=null,busy=false;
+
+function render(){
+  var h='';
+  if (!code){ if (app.querySelector('#gc')) return; h='<div class="ph"><div class="eyebrow">'+esc(CFG.title)+'</div><h2>Enter the game code</h2><input id="gc" maxlength="4" placeholder="ABCD" autocapitalize="characters" style="text-align:center;font-size:1.4rem;letter-spacing:0.2em;"><button class="btn primary big" data-a="code">Continue</button></div>'; app.innerHTML=h; return; }
+  var meName = store('name_'+code);
+  if (!meName){ if (app.querySelector('#nm')) return; h='<div class="ph"><div class="eyebrow">'+esc(CFG.title)+'</div><h2>Join game '+esc(code)+'</h2><input id="nm" maxlength="16" placeholder="Your name"><button class="btn primary big" data-a="join">Join</button><div class="muted" id="err"></div></div>'; app.innerHTML=h; return; }
+  if (!room){ app.innerHTML='<div class="ph"><div class="muted">Connecting...</div></div>'; return; }
+  if (room.error){ app.innerHTML='<div class="ph">'+dbErrorScreen(room.error)+'</div>'; return; }
+  var m=room.meta, me=(room.players||{})[pid];
+  if (!me){ app.innerHTML='<div class="ph"><div class="muted">Not joined yet, one moment...</div></div>'; return; }
+  var r=ranked(room.players), rank=r.findIndex(function(x){ return x.id===pid; })+1;
+  if (m.phase==='lobby'){
+    h='<div class="ph"><div class="eyebrow">You are in</div><h2>'+esc(me.name)+'</h2><div class="muted">Watch the big screen. The game starts soon.</div></div>';
+  } else if (m.phase==='question'){
+    var q=Q[m.qids[m.q]];
+    if (seenQ!==m.q){ seenQ=m.q; var existing=((room.ans||{})[m.q]||{})[pid]; mine = existing ? existing.i : null; }
+    h='<div class="ph"><div class="eyebrow">Question '+(m.q+1)+' of '+m.qids.length+'</div>';
+    if (CFG.kind==='match'){
+      h+='<div class="muted">Which prophet said or wrote this?</div><div class="verse">&ldquo;'+esc(q.text)+'&rdquo;</div><div class="big">'+
+        q.options.map(function(o,i){ return '<button class="ans'+(mine===i?' mine':'')+'" data-a="pick" data-i="'+i+'"'+(mine!==null?' disabled':'')+'>'+esc(o)+'</button>'; }).join('')+'</div>';
+    } else {
+      h+='<div class="q">'+esc(q.text)+'</div><div class="big">'+
+        '<button class="ans t'+(mine===0?' mine':'')+'" data-a="pick" data-i="0"'+(mine!==null?' disabled':'')+'>True</button>'+
+        '<button class="ans f'+(mine===1?' mine':'')+'" data-a="pick" data-i="1"'+(mine!==null?' disabled':'')+'>False</button></div>';
+    }
+    h+=mine!==null?'<div class="muted">Answer locked in, waiting on the host...</div>':'';
+    h+='</div>';
+  } else if (m.phase==='reveal'){
+    var q=Q[m.qids[m.q]];
+    var correctIdx = CFG.kind==='match' ? q.answer : (q.answer?0:1);
+    var got = ((room.ans||{})[m.q]||{})[pid];
+    var right = got && got.i===correctIdx;
+    h='<div class="ph"><div class="eyebrow">'+(right?'Correct!':'Not quite')+'</div><h2>'+esc(q.ref)+'</h2><div class="muted">'+esc(q.expl)+'</div>'+ctxHtml(q)+
+      '<div class="card" style="margin-top:16px"><div class="muted">Your rank</div><h2>#'+rank+'</h2><div class="muted">'+me.score+' points</div></div></div>';
+  } else if (m.phase==='final'){
+    h='<div class="ph"><div class="eyebrow">Final rank</div><h2>#'+rank+' of '+r.length+'</h2><div class="muted">'+me.score+' points</div></div>';
+  }
+  app.innerHTML=h;
+}
+
+function poll(){
+  if (busy || !code) return; busy=true;
+  jget(code,'').then(function(d){ busy=false; if (d){ room=d; render(); } });
+}
+
+app.addEventListener('click', function(e){
+  var b=e.target.closest('[data-a]'); if (!b) return; var a=b.getAttribute('data-a');
+  if (a==='code'){ var v=(document.getElementById('gc').value||'').trim().toUpperCase(); if (v.length===4){ code=v; history.replaceState(null,'','?g='+v); render(); poll(); setInterval(poll,1500); } }
+  else if (a==='join'){
+    var nm=(document.getElementById('nm').value||'').trim().slice(0,16); if (!nm) return;
+    jget(code,'meta').then(function(meta){
+      var e = dbErr(meta);
+      if (e){ document.getElementById('err').textContent='Could not reach the database ('+e+'). Ask your teacher to check the Firebase rules.'; return; }
+      if (!meta){ document.getElementById('err').textContent='Game not found, check the code.'; return; }
+      store('name_'+code, nm);
+      jput(code,'players/'+pid,{name:nm, score:0}).then(function(r2){
+        var e2 = dbErr(r2);
+        if (e2){ document.getElementById('err').textContent='Could not join ('+e2+'). Ask your teacher to check the Firebase rules.'; return; }
+        render();
+      });
+    });
+  } else if (a==='pick'){
+    if (mine!==null) return;
+    var i=+b.getAttribute('data-i'); mine=i;
+    jput(code,'ans/'+room.meta.q+'/'+pid,{i:i, t:Date.now()}).then(function(){ render(); });
+  }
+});
+
+render();
+if (code){ poll(); setInterval(poll,1500); }
+})();
+</script>
+</body>
+</html>

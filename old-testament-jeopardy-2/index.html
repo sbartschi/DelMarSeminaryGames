@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>/* Practice mode: when this page runs inside the site's practice page, use its pretend database and give this screen its own storage. Does nothing otherwise. */
+(function(){try{var P=window.parent!==window&&window.parent.PRACTICE;if(!P)return;window.fetch=P.fetch;var s=P.storage(window.name||location.href);Object.defineProperty(window,'localStorage',{configurable:true,get:function(){return s.local;}});Object.defineProperty(window,'sessionStorage',{configurable:true,get:function(){return s.session;}});}catch(e){}})();</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Old Testament Jeopardy 2: Psalms to Malachi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#0B1D3A;
+    --navy-dark:#061225;
+    --navy-light:#132a52;
+    --gold:#D9A544;
+    --gold-light:#F0CB77;
+    --maroon:#7A2331;
+    --maroon-light:#9C3A48;
+    --cream:#F3ECD8;
+    --ink:#1F1A12;
+    --white:#FFFFFF;
+    --used:#0a1730;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Inter',sans-serif;
+    background:var(--navy-dark);
+    color:var(--white);
+    min-height:100vh;
+  }
+  h1,h2,h3,.display{
+    font-family:'Cinzel',serif;
+  }
+
+  /* ---------- SETUP SCREEN ---------- */
+  #setupScreen{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:radial-gradient(circle at top, var(--navy-light) 0%, var(--navy-dark) 70%);
+    padding:24px;
+  }
+  .setupCard{
+    background:var(--cream);
+    color:var(--ink);
+    border-radius:14px;
+    max-width:560px;
+    width:100%;
+    padding:40px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.45);
+    border:3px solid var(--gold);
+  }
+  .setupCard h1{
+    font-size:28px;
+    margin:0 0 6px;
+    color:var(--navy);
+    letter-spacing:0.5px;
+  }
+  .setupCard .sub{
+    font-size:14px;
+    color:var(--maroon);
+    margin:0 0 28px;
+    font-weight:600;
+  }
+  .field{margin-bottom:18px;}
+  .field label{
+    display:block;
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    font-weight:700;
+    margin-bottom:6px;
+    color:var(--navy);
+  }
+  select, input[type="text"], input[type="number"]{
+    width:100%;
+    padding:10px 12px;
+    border-radius:8px;
+    border:2px solid #cfc4a0;
+    font-size:15px;
+    font-family:'Inter',sans-serif;
+    background:var(--white);
+    color:var(--ink);
+  }
+  #teamNameFields{display:grid; gap:10px;}
+  .startBtn{
+    margin-top:10px;
+    width:100%;
+    padding:14px;
+    background:var(--maroon);
+    color:var(--white);
+    border:none;
+    border-radius:8px;
+    font-size:16px;
+    font-weight:700;
+    letter-spacing:0.03em;
+    cursor:pointer;
+    font-family:'Cinzel',serif;
+    transition:background .15s ease;
+  }
+  .startBtn:hover{background:var(--maroon-light);}
+
+  /* ---------- GAME SCREEN ---------- */
+  #gameScreen{display:none; padding:18px 22px 40px;}
+  .topBar{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+    margin-bottom:16px;
+  }
+  .roundTabs{display:flex; gap:8px;}
+  .roundTab{
+    padding:10px 18px;
+    border-radius:8px;
+    border:2px solid var(--gold);
+    background:transparent;
+    color:var(--gold-light);
+    font-family:'Cinzel',serif;
+    font-weight:700;
+    font-size:13px;
+    cursor:pointer;
+    letter-spacing:0.03em;
+  }
+  .roundTab.active{
+    background:var(--gold);
+    color:var(--navy-dark);
+  }
+  .utilBtns{display:flex; gap:8px; flex-wrap:wrap;}
+  .utilBtn{
+    padding:8px 14px;
+    border-radius:8px;
+    border:1px solid rgba(255,255,255,0.25);
+    background:var(--navy-light);
+    color:var(--white);
+    font-size:12px;
+    cursor:pointer;
+    font-weight:600;
+  }
+  .utilBtn:hover{background:#1c3a6b;}
+  .utilBtn.danger{border-color:var(--maroon-light); color:#ffb9c0;}
+
+  .doubleBanner{
+    display:none;
+    background:linear-gradient(90deg, var(--maroon), var(--maroon-light));
+    border-left:5px solid var(--gold);
+    padding:10px 16px;
+    border-radius:8px;
+    margin-bottom:14px;
+    font-size:13px;
+    line-height:1.5;
+  }
+  .doubleBanner.show{display:block;}
+  .doubleBanner b{font-family:'Cinzel',serif;}
+
+  /* Scoreboard */
+  #scoreboard{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
+    gap:12px;
+    margin-bottom:20px;
+  }
+  .teamCard{
+    background:var(--cream);
+    color:var(--ink);
+    border-radius:10px;
+    padding:12px 14px;
+    border:2px solid var(--gold);
+  }
+  .teamCard .tName{
+    font-weight:800;
+    font-size:14px;
+    margin-bottom:2px;
+    border:none;
+    background:transparent;
+    color:var(--navy);
+    width:100%;
+    font-family:'Inter',sans-serif;
+  }
+  .teamCard .tScore{
+    font-family:'Cinzel',serif;
+    font-size:26px;
+    font-weight:700;
+    color:var(--maroon);
+    margin:2px 0 8px;
+  }
+  .scoreAdjust{display:flex; gap:6px;}
+  .scoreAdjust input{
+    width:70px;
+    padding:6px;
+    font-size:13px;
+  }
+  .scoreAdjust button{
+    padding:6px 9px;
+    font-size:13px;
+    border-radius:6px;
+    border:none;
+    cursor:pointer;
+    font-weight:700;
+  }
+  .scoreAdjust .plusBtn{background:#2f7a4f; color:white;}
+  .scoreAdjust .minusBtn{background:var(--maroon); color:white;}
+
+  /* Board grid */
+  .roundTitle{
+    text-align:center;
+    font-size:20px;
+    margin:6px 0 16px;
+    color:var(--gold-light);
+    letter-spacing:0.04em;
+  }
+  .board{
+    display:none;
+    grid-template-columns:repeat(5, 1fr);
+    gap:6px;
+  }
+  .board.active{display:grid;}
+  .catHeader{
+    background:var(--navy);
+    border:2px solid var(--gold);
+    color:var(--white);
+    font-family:'Cinzel',serif;
+    font-size:13px;
+    font-weight:700;
+    text-align:center;
+    padding:12px 6px;
+    border-radius:6px;
+    min-height:64px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    letter-spacing:0.02em;
+    text-transform:uppercase;
+  }
+  .clueCell{
+    position:relative;
+    background:linear-gradient(160deg, var(--navy-light), var(--navy));
+    border:2px solid var(--gold);
+    border-radius:6px;
+    min-height:70px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    font-family:'Cinzel',serif;
+    font-size:24px;
+    font-weight:700;
+    color:var(--gold-light);
+    transition:transform .1s ease, background .15s ease;
+  }
+  .clueCell:hover{background:linear-gradient(160deg, #1c3a6b, var(--navy-light)); transform:scale(1.02);}
+  .clueCell.used{
+    background:var(--used);
+    color:#3c4a68;
+    cursor:default;
+    border-color:#2a3c60;
+  }
+  .clueCell.used:hover{transform:none;}
+  .toggleDot{
+    position:absolute;
+    top:4px;
+    right:4px;
+    width:16px;
+    height:16px;
+    border-radius:50%;
+    background:rgba(255,255,255,0.15);
+    border:1px solid rgba(255,255,255,0.4);
+    cursor:pointer;
+    font-size:10px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#fff;
+    line-height:1;
+  }
+  .toggleDot:hover{background:rgba(255,255,255,0.35);}
+
+  /* Modal */
+  #modalOverlay{
+    display:none;
+    position:fixed;
+    top:0; left:0; right:0; bottom:0;
+    background:rgba(0,0,0,0.75);
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    z-index:50;
+  }
+  #modalOverlay.show{display:flex;}
+  .modalCard{
+    background:var(--cream);
+    color:var(--ink);
+    border-radius:14px;
+    max-width:640px;
+    width:100%;
+    padding:32px;
+    border:3px solid var(--gold);
+    max-height:90vh;
+    overflow-y:auto;
+  }
+  .modalMeta{
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    font-weight:700;
+    color:var(--maroon);
+    margin-bottom:10px;
+  }
+  .modalQuestion{
+    font-size:19px;
+    font-weight:600;
+    line-height:1.4;
+    margin-bottom:18px;
+    color:var(--navy);
+  }
+  .revealBtn{
+    padding:10px 16px;
+    border-radius:8px;
+    border:none;
+    background:var(--navy);
+    color:var(--white);
+    font-weight:700;
+    cursor:pointer;
+    font-size:13px;
+    margin-bottom:16px;
+  }
+  .revealBox{
+    display:none;
+    background:var(--white);
+    border-left:4px solid var(--gold);
+    padding:14px 16px;
+    border-radius:8px;
+    margin-bottom:18px;
+    font-size:14px;
+    line-height:1.5;
+  }
+  .revealBox.show{display:block;}
+  .revealBox .refLine{font-weight:800; color:var(--maroon); margin-bottom:4px;}
+  .ctxBox{display:none;margin-top:12px;padding-top:12px;border-top:1px dashed #cfc4a0;}
+  .ctxBox.on{display:block;}
+  .ctxBox .ctxH{font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:800;color:var(--maroon);margin-bottom:4px;}
+  .ctxBox b{display:block;font-size:15px;color:var(--navy);margin-bottom:4px;}
+  .ctxBox p{margin:0;font-size:14px;line-height:1.55;color:#2b2418;}
+  .teamAwardGrid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(140px,1fr));
+    gap:8px;
+    margin-bottom:12px;
+  }
+  .awardBtn{
+    padding:10px 8px;
+    border-radius:8px;
+    border:2px solid #2f7a4f;
+    background:#eaf5ee;
+    color:#1f5c38;
+    font-weight:700;
+    font-size:13px;
+    cursor:pointer;
+  }
+  .awardBtn:hover{background:#d9efe0;}
+  .modalFooter{
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    margin-top:10px;
+    flex-wrap:wrap;
+  }
+  .footerBtn{
+    padding:10px 14px;
+    border-radius:8px;
+    border:none;
+    font-weight:700;
+    font-size:13px;
+    cursor:pointer;
+  }
+  .noAnswerBtn{background:#e0d9bf; color:var(--ink);}
+  .cancelBtn{background:transparent; color:var(--maroon); border:2px solid var(--maroon);}
+
+  @media (max-width:820px){
+    .board{grid-template-columns:repeat(5, minmax(70px,1fr)); overflow-x:auto;}
+    .catHeader{font-size:10px; padding:8px 4px;}
+    .clueCell{font-size:16px; min-height:56px;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ SETUP SCREEN ============ -->
+<div id="setupScreen">
+  <div class="setupCard">
+    <h1>Old Testament Jeopardy 2</h1>
+    <p class="sub">Psalms through Malachi, plus Esther and Nehemiah</p>
+
+    <div class="field">
+      <label for="numTeams">Number of teams</label>
+      <select id="numTeams">
+        <option value="2">2 teams</option>
+        <option value="3">3 teams</option>
+        <option value="4" selected>4 teams</option>
+        <option value="5">5 teams</option>
+        <option value="6">6 teams</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Team names</label>
+      <div id="teamNameFields"></div>
+    </div>
+
+    <button class="startBtn" onclick="startGame()">Start Game</button>
+  </div>
+</div>
+
+<!-- ============ GAME SCREEN ============ -->
+<div id="gameScreen">
+  <div class="topBar">
+    <div class="roundTabs">
+      <button class="roundTab active" id="tabSingle" onclick="switchRound('single')">Jeopardy</button>
+      <button class="roundTab" id="tabDouble" onclick="switchRound('double')">Daniel Double Jeopardy</button>
+    </div>
+    <div class="utilBtns">
+      <button class="utilBtn" onclick="resetBoard()">Reset board marks</button>
+      <button class="utilBtn danger" onclick="newGame()">New game / re-setup</button>
+    </div>
+  </div>
+
+  <div class="doubleBanner" id="doubleBanner">
+    <b>Daniel Double Jeopardy:</b> named for the prophet in whom "an excellent spirit" was found (Daniel 6:3). Values are doubled for this round.
+  </div>
+
+  <div id="scoreboard"></div>
+
+  <h2 class="roundTitle" id="roundTitle">Old Testament Jeopardy 2: Psalms to Malachi</h2>
+
+  <div class="board active" id="boardSingle"></div>
+  <div class="board" id="boardDouble"></div>
+</div>
+
+<!-- ============ MODAL ============ -->
+<div id="modalOverlay">
+  <div class="modalCard">
+    <div class="modalMeta" id="modalMeta"></div>
+    <div class="modalQuestion" id="modalQuestion"></div>
+    <button class="revealBtn" id="revealBtn" onclick="revealAnswer()">Reveal scripture reference and answer</button>
+    <div class="revealBox" id="revealBox">
+      <div class="refLine" id="refLine"></div>
+      <div id="answerLine"></div>
+      <div class="ctxBox" id="ctxBox"><div class="ctxH">The story</div><b id="ctxTitle"></b><p id="ctxText"></p></div>
+    </div>
+    <div style="font-size:12px; text-transform:uppercase; letter-spacing:0.06em; font-weight:700; color:var(--navy); margin-bottom:8px;">Award points to</div>
+    <div class="teamAwardGrid" id="teamAwardGrid"></div>
+    <div class="modalFooter">
+      <button class="footerBtn noAnswerBtn" onclick="noOneAnswered()">No one answered correctly</button>
+      <button class="footerBtn cancelBtn" onclick="closeModal(false)">Cancel, do not mark used</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ------------------ DATA ------------------ */
+const data = {
+ "single": {
+  "label": "Old Testament Jeopardy 2: Psalms to Malachi",
+  "values": [
+   100,
+   200,
+   300,
+   400,
+   500
+  ],
+  "categories": [
+   {
+    "title": "Psalms",
+    "clues": [
+     {
+      "q": "Finish the verse: \"The LORD is my shepherd; I shall not...\"",
+      "ref": "Psalm 23:1",
+      "a": "\"...want.\""
+     },
+     {
+      "q": "Finish the verse: \"Thy word is a ___ unto my feet, and a light unto my path.\"",
+      "ref": "Psalm 119:105",
+      "a": "A lamp"
+     },
+     {
+      "q": "Finish the verse: \"Be still, and know that I am...\"",
+      "ref": "Psalm 46:10",
+      "a": "\"...God.\""
+     },
+     {
+      "q": "Where did the captives of Judah sit down and weep when they remembered Zion?",
+      "ref": "Psalm 137:1",
+      "a": "By the rivers of Babylon"
+     },
+     {
+      "q": "In Psalm 51, David pleads for forgiveness. What does he ask God to create in him?",
+      "ref": "Psalm 51:10",
+      "a": "A clean heart, and to renew a right spirit within him"
+     }
+    ]
+   },
+   {
+    "title": "Proverbs and Ecclesiastes",
+    "clues": [
+     {
+      "q": "Finish the verse: \"Trust in the LORD with all thine heart; and lean not unto thine own...\"",
+      "ref": "Proverbs 3:5",
+      "a": "\"...understanding.\""
+     },
+     {
+      "q": "According to Proverbs, what kind of answer turneth away wrath?",
+      "ref": "Proverbs 15:1",
+      "a": "A soft answer"
+     },
+     {
+      "q": "Finish the verse: \"Train up a child in the way he should go: and when he is old...\"",
+      "ref": "Proverbs 22:6",
+      "a": "\"...he will not depart from it.\""
+     },
+     {
+      "q": "According to Ecclesiastes, to every thing there is a what?",
+      "ref": "Ecclesiastes 3:1",
+      "a": "A season, and a time to every purpose under the heaven"
+     },
+     {
+      "q": "What does the Preacher say is \"the conclusion of the whole matter\" and \"the whole duty of man\"?",
+      "ref": "Ecclesiastes 12:13",
+      "a": "Fear God, and keep his commandments"
+     }
+    ]
+   },
+   {
+    "title": "Isaiah",
+    "clues": [
+     {
+      "q": "What did Isaiah answer when the Lord asked, \"Whom shall I send, and who will go for us?\"",
+      "ref": "Isaiah 6:8",
+      "a": "\"Here am I; send me.\""
+     },
+     {
+      "q": "What did a seraph lay upon Isaiah's mouth to purge his sin?",
+      "ref": "Isaiah 6:6-7",
+      "a": "A live coal from off the altar"
+     },
+     {
+      "q": "What name, meaning \"God with us,\" did Isaiah prophesy the virgin's son would be called?",
+      "ref": "Isaiah 7:14",
+      "a": "Immanuel"
+     },
+     {
+      "q": "What did Isaiah prophesy would be established \"in the top of the mountains\" in the last days?",
+      "ref": "Isaiah 2:2",
+      "a": "The mountain of the LORD's house"
+     },
+     {
+      "q": "Finish the verse: \"But he was wounded for our transgressions... and with his stripes...\"",
+      "ref": "Isaiah 53:5",
+      "a": "\"...we are healed.\""
+     }
+    ]
+   },
+   {
+    "title": "Jeremiah",
+    "clues": [
+     {
+      "q": "When did the Lord say He knew Jeremiah and ordained him a prophet?",
+      "ref": "Jeremiah 1:5",
+      "a": "Before he was formed in the belly"
+     },
+     {
+      "q": "Jeremiah watched a craftsman remake a marred vessel. What was the craftsman's trade?",
+      "ref": "Jeremiah 18:3-6",
+      "a": "A potter; Israel was as clay in the Lord's hand"
+     },
+     {
+      "q": "Into what was Jeremiah let down by cords, where he sank in the mire?",
+      "ref": "Jeremiah 38:6",
+      "a": "A dungeon"
+     },
+     {
+      "q": "Whom did the Lord say He would send \"many\" of to gather scattered Israel?",
+      "ref": "Jeremiah 16:16",
+      "a": "Fishers and hunters"
+     },
+     {
+      "q": "In the new covenant Jeremiah prophesied, where would the Lord write His law?",
+      "ref": "Jeremiah 31:33",
+      "a": "In their hearts (their inward parts)"
+     }
+    ]
+   },
+   {
+    "title": "Exile and Return",
+    "clues": [
+     {
+      "q": "Which king of Persia made a proclamation letting the Jews go up to Jerusalem to build the house of the Lord?",
+      "ref": "Ezra 1:1-3",
+      "a": "Cyrus"
+     },
+     {
+      "q": "Who raised Esther as his own daughter after her parents died?",
+      "ref": "Esther 2:7",
+      "a": "Her cousin Mordecai"
+     },
+     {
+      "q": "Finish Mordecai's question: \"Who knoweth whether thou art come to the kingdom for such a...\"",
+      "ref": "Esther 4:14",
+      "a": "\"...time as this?\""
+     },
+     {
+      "q": "Nehemiah was cupbearer to which Persian king?",
+      "ref": "Nehemiah 1:11; 2:1",
+      "a": "Artaxerxes"
+     },
+     {
+      "q": "How long did it take Nehemiah and the people to finish the wall of Jerusalem?",
+      "ref": "Nehemiah 6:15",
+      "a": "Fifty and two days"
+     }
+    ]
+   }
+  ]
+ },
+ "double": {
+  "label": "Daniel Double Jeopardy",
+  "values": [
+   200,
+   400,
+   600,
+   800,
+   1000
+  ],
+  "categories": [
+   {
+    "title": "Ezekiel",
+    "clues": [
+     {
+      "q": "What did Ezekiel see in a valley that came together and received breath and life?",
+      "ref": "Ezekiel 37:1-10",
+      "a": "Dry bones"
+     },
+     {
+      "q": "The Lord made Ezekiel a ___ unto the house of Israel, to give them warning.",
+      "ref": "Ezekiel 3:17",
+      "a": "Watchman"
+     },
+     {
+      "q": "Ezekiel joined two sticks into one, one for Judah and one for Joseph. What do Latter-day Saints understand them to represent?",
+      "ref": "Ezekiel 37:15-17",
+      "a": "The Bible and the Book of Mormon"
+     },
+     {
+      "q": "If a watchman sees the sword coming and does not blow the trumpet, at whose hand will the Lord require the blood?",
+      "ref": "Ezekiel 33:6",
+      "a": "The watchman's"
+     },
+     {
+      "q": "In Ezekiel's temple vision, what came from under the threshold and healed the waters of the sea?",
+      "ref": "Ezekiel 47:1, 8-9",
+      "a": "Waters that grew into a river"
+     }
+    ]
+   },
+   {
+    "title": "Daniel",
+    "clues": [
+     {
+      "q": "What did Daniel and his friends ask to eat and drink instead of the king's meat and wine?",
+      "ref": "Daniel 1:12",
+      "a": "Pulse to eat and water to drink"
+     },
+     {
+      "q": "In Nebuchadnezzar's dream, what smote the image and then became a great mountain that filled the whole earth?",
+      "ref": "Daniel 2:34-35",
+      "a": "A stone cut out without hands"
+     },
+     {
+      "q": "How much hotter than usual did Nebuchadnezzar command the furnace to be heated?",
+      "ref": "Daniel 3:19",
+      "a": "Seven times"
+     },
+     {
+      "q": "What four words were written on the wall at Belshazzar's feast?",
+      "ref": "Daniel 5:25",
+      "a": "MENE, MENE, TEKEL, UPHARSIN"
+     },
+     {
+      "q": "How many times a day did Daniel kneel and pray toward Jerusalem, even after the king's decree?",
+      "ref": "Daniel 6:10",
+      "a": "Three times a day"
+     }
+    ]
+   },
+   {
+    "title": "Minor Prophets",
+    "clues": [
+     {
+      "q": "What did the people of Nineveh do after Jonah warned them?",
+      "ref": "Jonah 3:5",
+      "a": "Believed God, proclaimed a fast, and put on sackcloth"
+     },
+     {
+      "q": "Joel prophesied the Lord would pour out His spirit upon whom?",
+      "ref": "Joel 2:28",
+      "a": "All flesh; sons and daughters shall prophesy"
+     },
+     {
+      "q": "Which little town of Judah did Micah say the ruler of Israel would come from?",
+      "ref": "Micah 5:2",
+      "a": "Bethlehem Ephratah"
+     },
+     {
+      "q": "According to Micah, what three things does the Lord require of thee?",
+      "ref": "Micah 6:8",
+      "a": "To do justly, to love mercy, and to walk humbly with thy God"
+     },
+     {
+      "q": "Amos prophesied a famine \"not of bread, nor a thirst for water,\" but of what?",
+      "ref": "Amos 8:11",
+      "a": "Of hearing the words of the LORD"
+     }
+    ]
+   },
+   {
+    "title": "Doctrinal Mastery",
+    "clues": [
+     {
+      "q": "According to Psalm 24, who shall ascend into the hill of the Lord and stand in His holy place?",
+      "ref": "Psalm 24:3-4",
+      "a": "He that hath clean hands, and a pure heart"
+     },
+     {
+      "q": "Though your sins be as scarlet, what does the Lord promise they shall be?",
+      "ref": "Isaiah 1:18",
+      "a": "As white as snow"
+     },
+     {
+      "q": "What does Isaiah 58 counsel us to call the Sabbath?",
+      "ref": "Isaiah 58:13",
+      "a": "A delight"
+     },
+     {
+      "q": "What does the Lord promise to open for those who bring all the tithes into the storehouse?",
+      "ref": "Malachi 3:10",
+      "a": "The windows of heaven"
+     },
+     {
+      "q": "Isaiah prophesied the Lord would proceed to do what among the people in the latter days?",
+      "ref": "Isaiah 29:14",
+      "a": "A marvellous work and a wonder"
+     }
+    ]
+   },
+   {
+    "title": "Prophecies of Christ",
+    "clues": [
+     {
+      "q": "Name at least three of the titles Isaiah gave for the child who would be born.",
+      "ref": "Isaiah 9:6",
+      "a": "Wonderful, Counsellor, The mighty God, The everlasting Father, The Prince of Peace"
+     },
+     {
+      "q": "Zechariah prophesied the King would come to Jerusalem lowly, riding upon what?",
+      "ref": "Zechariah 9:9",
+      "a": "An ass, a colt the foal of an ass (fulfilled in Matthew 21:5)"
+     },
+     {
+      "q": "Isaiah described the Savior as a man of what, acquainted with what?",
+      "ref": "Isaiah 53:3",
+      "a": "A man of sorrows, and acquainted with grief"
+     },
+     {
+      "q": "Which words of Psalm 22:1 did Jesus cry out on the cross?",
+      "ref": "Psalm 22:1; Matthew 27:46",
+      "a": "\"My God, my God, why hast thou forsaken me?\""
+     },
+     {
+      "q": "Malachi said the Lord would send whom before the great and dreadful day of the Lord, and where did he come in 1836?",
+      "ref": "Malachi 4:5-6; D&C 110:13-16",
+      "a": "Elijah the prophet, to the Kirtland Temple"
+     }
+    ]
+   }
+  ]
+ }
+};
+/* Story shown after each answer, in board order (round, category, clue) */
+(function(){ var ST = [["The Shepherd’s psalm (Psalm 23)", "David was a shepherd before he became king, protecting his father’s flocks from lions and bears. In this psalm he describes the Lord as a shepherd who leads, feeds, restores, and protects His sheep, even through the valley of the shadow of death."], ["Thy word is a lamp (Psalm 119)", "Psalm 119 is the longest chapter in the Bible, with 176 verses arranged in 22 sections, one for each letter of the Hebrew alphabet. Nearly every verse celebrates God’s word. Verse 105 compares scripture to a lamp that lights the next step, not necessarily the whole road."], ["Be still (Psalm 46)", "Psalm 46 is a song of trust in times of trouble: even if the mountains shake, God is our refuge and strength. In the middle of the turmoil the Lord says, “Be still, and know that I am God.” He repeated those words to persecuted Latter-day Saints in Missouri (D&C 101:16)."], ["By the rivers of Babylon (Psalm 137)", "This psalm was written by Jewish captives in Babylon after Jerusalem was destroyed. They hung their harps on the willows and asked, “How shall we sing the LORD’s song in a strange land?” It expresses the grief of exile and a promise never to forget Jerusalem."], ["David’s prayer of repentance (Psalm 51)", "David wrote this psalm after the prophet Nathan confronted him about his sin with Bathsheba. He pleads, “Create in me a clean heart, O God,” and teaches that God desires “a broken and a contrite heart.” The resurrected Savior asked the Nephites for this same sacrifice (3 Nephi 9:20)."], ["Trusting the Lord (Proverbs 3)", "Proverbs is a collection of wise sayings, many attributed to King Solomon, written like a father’s counsel to his son. This passage teaches that when we trust the Lord with all our heart instead of relying only on our own understanding, He will direct our paths."], ["A soft answer (Proverbs 15)", "Many proverbs give practical wisdom about speech. Proverbs 15:1 teaches that responding gently can calm an angry situation, while harsh words make it worse, a principle that works with parents, friends, and online arguments alike."], ["Train up a child (Proverbs 22)", "Proverbs often speaks as a parent teaching a child. Proverbs 22:6 encourages parents to teach children the right way early so it stays with them. Latter-day revelation also asks parents to teach their children faith, repentance, and baptism (D&C 68:25)."], ["A time for everything (Ecclesiastes 3)", "Ecclesiastes is written by “the Preacher,” traditionally King Solomon, who reflects on what gives life meaning. In chapter 3 he lists the seasons of life, a time to be born and a time to die, a time to weep and a time to laugh, teaching that God has a purpose for each season."], ["The whole duty of man (Ecclesiastes 12)", "After exploring wealth, pleasure, work, and wisdom and calling them all vanity on their own, the Preacher reaches his conclusion: “Fear God, and keep his commandments: for this is the whole duty of man.” The same chapter begins, “Remember now thy Creator in the days of thy youth.”"], ["Isaiah’s call to be a prophet (Isaiah 6)", "In the year King Uzziah died, Isaiah saw the Lord on His throne surrounded by seraphim. Feeling unworthy, he cried that he was “a man of unclean lips,” but a seraph touched his lips with a live coal from the altar and his sin was purged. When the Lord asked, “Whom shall I send?” Isaiah answered, “Here am I; send me.”"], ["Isaiah’s call to be a prophet (Isaiah 6)", "In the year King Uzziah died, Isaiah saw the Lord on His throne surrounded by seraphim. Feeling unworthy, he cried that he was “a man of unclean lips,” but a seraph touched his lips with a live coal from the altar and his sin was purged. When the Lord asked, “Whom shall I send?” Isaiah answered, “Here am I; send me.”"], ["The sign of Immanuel (Isaiah 7)", "When King Ahaz of Judah feared an attack from Syria and Israel, Isaiah urged him to trust the Lord and offered a sign: a virgin would bear a son named Immanuel, meaning “God with us.” Matthew 1:23 teaches this was fulfilled in the birth of Jesus Christ to Mary."], ["The mountain of the Lord’s house (Isaiah 2)", "Isaiah saw that in the last days “the mountain of the LORD’s house” would be established in the top of the mountains, and all nations would flow unto it to learn His ways. Latter-day Saints see this fulfilled in temples, including the Salt Lake Temple in the Rocky Mountains. Nephi quoted this chapter in 2 Nephi 12."], ["The suffering servant (Isaiah 53)", "Isaiah 53 describes a servant who would be despised and rejected, wounded for our transgressions and bruised for our iniquities. Written centuries before Christ, it is one of the clearest Old Testament prophecies of the Savior’s Atonement. Abinadi quoted it to King Noah’s priests (Mosiah 14)."], ["The call of Jeremiah (Jeremiah 1)", "The Lord told Jeremiah that He knew him and ordained him a prophet before he was born. Jeremiah protested that he was only a child and could not speak. The Lord touched his mouth, put His words there, and told him not to be afraid. Jeremiah prophesied for about forty years, in the same era as Lehi."], ["The potter and the clay (Jeremiah 18)", "The Lord sent Jeremiah to a potter’s house, where he watched a clay vessel get marred and reshaped into something new. The Lord taught that Israel was like clay in His hands: if they repented, He could reshape them. God can remake our lives when we let Him."], ["Jeremiah in the dungeon (Jeremiah 38)", "During the Babylonian siege, Jeremiah warned that Jerusalem would fall and urged surrender. Angry princes lowered him into a muddy dungeon to die. Ebed-melech, an Ethiopian servant in the king’s house, got permission to rescue him with cords and old rags."], ["Fishers and hunters (Jeremiah 16)", "Jeremiah prophesied that the Lord would gather scattered Israel from the north country and all the lands where they had been driven. He would send “many fishers” and “many hunters” to find them. Latter-day Saints see missionaries as those fishers and hunters, gathering Israel today."], ["The new covenant (Jeremiah 31)", "Jeremiah lived as Judah was being conquered and carried away. Even while warning of destruction, he prophesied of a day when the Lord would gather Israel and make a new covenant with them, written not on stone tablets but in their hearts."], ["Cyrus lets the Jews return (Isaiah 44 to 45; Ezra 1)", "More than a century before he was born, Isaiah recorded the Lord calling Cyrus by name as His “shepherd” who would see that Jerusalem and the temple were rebuilt. Cyrus became king of Persia, conquered Babylon, and issued a decree letting the Jews return home to rebuild."], ["Esther becomes queen (Esther 2)", "After Queen Vashti refused the king’s command, King Ahasuerus searched the kingdom for a new queen. Esther, a Jewish orphan raised by her cousin Mordecai, was chosen and crowned. On Mordecai’s advice, she did not reveal at first that she was Jewish."], ["Esther saves her people (Esther 4 to 8)", "Haman got a decree to destroy every Jew in Persia. Mordecai urged Esther to plead with the king, reminding her she may have become queen “for such a time as this.” Anyone who went to the king uninvited could be put to death, so Esther and her people fasted three days. She went in, the king held out his golden sceptre, and her people were saved."], ["Nehemiah asks the king (Nehemiah 1 to 2)", "Nehemiah was cupbearer to King Artaxerxes of Persia. When he heard that Jerusalem’s walls were broken down and its gates burned, he wept, fasted, and prayed for days. The king noticed his sad face, and after a quick silent prayer, Nehemiah asked to go rebuild the city. The king agreed and sent letters to help him."], ["Rebuilding the wall (Nehemiah 4 to 6)", "As Nehemiah’s workers rebuilt Jerusalem’s walls, enemies mocked them and plotted to attack. Nehemiah set guards and had the builders carry weapons as they worked. When his enemies tried four times to lure him away to harm him, he answered, “I am doing a great work, so that I cannot come down.” The wall was finished in 52 days."], ["The valley of dry bones (Ezekiel 37)", "In vision, the Lord set Ezekiel in a valley full of very dry bones and asked, “Can these bones live?” As Ezekiel prophesied, the bones came together, received flesh, and were filled with breath. The Lord explained it represented the house of Israel being gathered and given new life, and it also points to the Resurrection."], ["Ezekiel the watchman (Ezekiel 3)", "Ezekiel was called as a prophet to the Jews in exile in Babylon. The Lord compared him to a watchman on a city wall whose job is to warn of approaching danger. If he warned the people and they ignored him, he was free of blame; if he stayed silent, he would be accountable. Modern prophets serve as watchmen in the same way."], ["The two sticks (Ezekiel 37)", "Right after the vision of the dry bones, the Lord told Ezekiel to take one stick for Judah and one for Joseph and join them in his hand. Latter-day Saints understand the stick of Judah as the Bible and the stick of Joseph as the Book of Mormon, which now testify together of Jesus Christ."], ["Ezekiel the watchman (Ezekiel 3)", "Ezekiel was called as a prophet to the Jews in exile in Babylon. The Lord compared him to a watchman on a city wall whose job is to warn of approaching danger. If he warned the people and they ignored him, he was free of blame; if he stayed silent, he would be accountable. Modern prophets serve as watchmen in the same way."], ["Ezekiel’s vision of the temple (Ezekiel 40 to 48)", "Ezekiel, a prophet in exile in Babylon, was shown a vision of a future temple in Jerusalem. Water flowed from under it, growing deeper until it became a river that healed the Dead Sea, with trees along its banks bearing fruit for food and leaves for medicine."], ["Daniel’s food test (Daniel 1)", "Daniel and three friends were young Jewish captives chosen for training in the Babylonian king’s court. Rather than defile themselves with the king’s food and wine, they asked to eat pulse (vegetables) and drink water for ten days. At the end they were healthier than the others, and God gave them knowledge and wisdom."], ["Nebuchadnezzar’s dream (Daniel 2)", "King Nebuchadnezzar demanded that his wise men tell him both his dream and its meaning, or die. Daniel and his friends prayed, and God revealed it. The great image stood for kingdoms that would rise and fall, and the stone cut out without hands stood for God’s kingdom in the last days, which would fill the whole earth."], ["The fiery furnace (Daniel 3)", "King Nebuchadnezzar set up a golden image and commanded everyone to bow to it or be thrown into a burning fiery furnace, heated seven times hotter than usual. Shadrach, Meshach, and Abed-nego refused, saying God could deliver them, “but if not,” they still would not bow. The king saw a fourth person in the fire, and they came out without even the smell of fire on them."], ["The writing on the wall (Daniel 5)", "King Belshazzar of Babylon held a great feast and drank from the sacred vessels taken from the temple in Jerusalem. Fingers of a man’s hand appeared and wrote on the wall, and only Daniel could read it: the kingdom had been weighed and found wanting. That very night Belshazzar was slain."], ["Daniel in the lions’ den (Daniel 6)", "Jealous officials tricked King Darius into making a law that no one could pray to anyone but the king for thirty days. Daniel kept praying three times a day with his windows open toward Jerusalem. He was thrown to the lions, but God sent His angel to shut their mouths, and Daniel was unharmed."], ["Jonah and Nineveh (Jonah 1 to 4)", "The Lord sent Jonah to warn Nineveh, an enemy city, but he fled by ship toward Tarshish. In a storm he was thrown overboard and swallowed by a great fish, where he prayed for three days and three nights. When he finally preached, the whole city repented and was spared. Jonah was angry, admitting he had run because he knew the Lord would be merciful."], ["Joel’s prophecy of the Spirit (Joel 2)", "Joel prophesied after a terrible plague of locusts, calling Israel to repent with fasting and weeping. He promised that in the last days the Lord would pour out His Spirit on all flesh. Peter quoted this on the day of Pentecost (Acts 2), and Moroni quoted it to Joseph Smith, saying it was soon to be fulfilled."], ["Bethlehem foretold (Micah 5)", "Micah prophesied that a ruler of Israel, “whose goings forth have been from of old, from everlasting,” would come out of little Bethlehem. Centuries later, when the wise men asked where the King of the Jews would be born, the chief priests quoted this verse to King Herod (Matthew 2:5-6)."], ["What the Lord requires (Micah 6)", "Micah prophesied in Judah around the same time as Isaiah. In this chapter the people ask whether the Lord wants thousands of rams or rivers of oil as offerings. The answer is no: what He truly wants is for us to do justly, love mercy, and walk humbly with Him."], ["A famine of the word (Amos 8)", "Amos warned of a coming famine, not of bread or water, but of hearing the words of the Lord, when people would search everywhere and not find it. Latter-day Saints see this fulfilled in the Great Apostasy after the deaths of the Apostles, a famine ended by the Restoration."], ["Worthy to enter the temple (Psalm 24)", "Psalm 24 may have been sung as worshippers went up to the temple in Jerusalem. It asks who is worthy to stand in the Lord’s holy place and answers: those with clean hands, meaning righteous actions, and a pure heart, meaning righteous desires."], ["Sins as scarlet (Isaiah 1)", "Isaiah opened his book by describing Judah as rebellious and spiritually sick, offering empty sacrifices. Yet in the middle of these warnings, the Lord invited them, “Come now, and let us reason together,” promising that even sins as deep red as scarlet could become white as snow through repentance."], ["Making the Sabbath a delight (Isaiah 58)", "In the same chapter as his teachings on fasting, Isaiah taught how to keep the Sabbath. Turning away from “doing thy pleasure” on the Lord’s holy day and calling it a delight brings the promise, “Then shalt thou delight thyself in the LORD.”"], ["Malachi on tithing (Malachi 3)", "Malachi was the last prophet of the Old Testament. The Lord asked, “Will a man rob God?” and explained the people robbed Him in tithes and offerings. He promised that if they brought their tithes into the storehouse, He would open the windows of heaven. The Savior later taught these same words to the Nephites (3 Nephi 24)."], ["A marvellous work and a wonder (Isaiah 29)", "Isaiah described people who honored God with their lips while their hearts were far from Him, and prophesied that the Lord would respond with “a marvellous work and a wonder.” The Savior quoted the first part to Joseph Smith in the First Vision (Joseph Smith, History 1:19). Latter-day Saints see the Restoration and the Book of Mormon as that marvellous work."], ["Isaiah’s prophecy of the Messiah (Isaiah 9)", "Isaiah prophesied about 700 years before the Savior’s birth, when Judah faced threats from Assyria. Amid warnings, he looked ahead to a child born to rule with peace and justice forever. The titles Wonderful, Counsellor, the mighty God, the everlasting Father, and the Prince of Peace all describe Jesus Christ."], ["The King on a donkey (Zechariah 9)", "Zechariah prophesied to the Jews rebuilding the temple after the exile. He foresaw their King coming to Jerusalem humbly, riding on a donkey’s colt. About 500 years later, Jesus fulfilled this at His triumphal entry, as crowds spread branches and cried “Hosanna” (Matthew 21:5)."], ["The suffering servant (Isaiah 53)", "Isaiah 53 describes a servant who would be despised and rejected, wounded for our transgressions and bruised for our iniquities. Written centuries before Christ, it is one of the clearest Old Testament prophecies of the Savior’s Atonement. Abinadi quoted it to King Noah’s priests (Mosiah 14)."], ["My God, my God (Psalm 22)", "Psalm 22 opens with the cry Jesus repeated on the cross, “My God, my God, why hast thou forsaken me?” The psalm also describes hands and feet being pierced and lots being cast for clothing, details fulfilled at the Crucifixion about a thousand years after David wrote it."], ["Elijah’s promised return (Malachi 4)", "In the last verses of the Old Testament, Malachi promised the Lord would send Elijah before His Second Coming to turn the hearts of the fathers and children to each other. Moroni quoted these verses to Joseph Smith in 1823, and Elijah came to the Kirtland Temple in 1836 to restore the sealing power that binds families forever (D&C 110)."]]; var n = 0; ['single','double'].forEach(function(r){ data[r].categories.forEach(function(c){ c.clues.forEach(function(q){ var s = ST[n++]; if (s) { q.story = s[0]; q.ctx = s[1]; } }); }); }); })();
+
+
+/* ------------------ STATE ------------------ */
+let teams = [];
+let usedState = { single: {}, double: {} };
+let currentRound = 'single';
+let pendingClue = null; // {round, catIdx, clueIdx, value}
+
+/* ------------------ SETUP SCREEN ------------------ */
+const numTeamsSelect = document.getElementById('numTeams');
+function renderTeamNameFields(){
+  const n = parseInt(numTeamsSelect.value, 10);
+  const container = document.getElementById('teamNameFields');
+  container.innerHTML = '';
+  for(let i=0; i<n; i++){
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.id = 'teamNameInput' + i;
+    input.value = 'Team ' + (i+1);
+    container.appendChild(input);
+  }
+}
+numTeamsSelect.addEventListener('change', renderTeamNameFields);
+renderTeamNameFields();
+
+function startGame(){
+  const n = parseInt(numTeamsSelect.value, 10);
+  teams = [];
+  for(let i=0; i<n; i++){
+    const nameInput = document.getElementById('teamNameInput' + i);
+    const name = (nameInput && nameInput.value.trim()) || ('Team ' + (i+1));
+    teams.push({name: name, score: 0});
+  }
+  initUsedState();
+  document.getElementById('setupScreen').style.display = 'none';
+  document.getElementById('gameScreen').style.display = 'block';
+  renderScoreboard();
+  renderBoard('single');
+  renderBoard('double');
+}
+
+function initUsedState(){
+  ['single','double'].forEach(roundKey => {
+    usedState[roundKey] = {};
+    data[roundKey].categories.forEach((cat, ci) => {
+      usedState[roundKey][ci] = {};
+      cat.clues.forEach((clue, qi) => {
+        usedState[roundKey][ci][qi] = false;
+      });
+    });
+  });
+}
+
+/* ------------------ SCOREBOARD ------------------ */
+function renderScoreboard(){
+  const board = document.getElementById('scoreboard');
+  board.innerHTML = '';
+  teams.forEach((team, idx) => {
+    const card = document.createElement('div');
+    card.className = 'teamCard';
+    card.innerHTML = `
+      <input class="tName" value="${escapeHtml(team.name)}" onchange="renameTeam(${idx}, this.value)">
+      <div class="tScore" id="scoreVal${idx}">${team.score}</div>
+      <div class="scoreAdjust">
+        <input type="number" id="adjInput${idx}" value="100" step="50">
+        <button class="plusBtn" onclick="adjustScore(${idx}, 1)">+</button>
+        <button class="minusBtn" onclick="adjustScore(${idx}, -1)">-</button>
+      </div>
+    `;
+    board.appendChild(card);
+  });
+}
+function renameTeam(idx, newName){
+  teams[idx].name = newName.trim() || teams[idx].name;
+}
+function adjustScore(idx, direction){
+  const input = document.getElementById('adjInput' + idx);
+  const amount = parseInt(input.value, 10) || 0;
+  teams[idx].score += (direction * amount);
+  document.getElementById('scoreVal' + idx).textContent = teams[idx].score;
+}
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+/* ------------------ BOARD ------------------ */
+function renderBoard(roundKey){
+  const boardEl = document.getElementById(roundKey === 'single' ? 'boardSingle' : 'boardDouble');
+  boardEl.innerHTML = '';
+  const round = data[roundKey];
+
+  round.categories.forEach(cat => {
+    const header = document.createElement('div');
+    header.className = 'catHeader';
+    header.textContent = cat.title;
+    boardEl.appendChild(header);
+  });
+
+  round.values.forEach((value, rowIdx) => {
+    round.categories.forEach((cat, catIdx) => {
+      const used = usedState[roundKey][catIdx][rowIdx];
+      const cell = document.createElement('div');
+      cell.className = 'clueCell' + (used ? ' used' : '');
+      cell.innerHTML = `$${value}<div class="toggleDot" title="Manually mark used or available" onclick="toggleManual(event,'${roundKey}',${catIdx},${rowIdx})">${used ? '✓' : ''}</div>`;
+      if(!used){
+        cell.addEventListener('click', (e) => {
+          if(e.target.classList.contains('toggleDot')) return;
+          openClue(roundKey, catIdx, rowIdx, value);
+        });
+      }
+      boardEl.appendChild(cell);
+    });
+  });
+}
+
+function toggleManual(e, roundKey, catIdx, rowIdx){
+  e.stopPropagation();
+  usedState[roundKey][catIdx][rowIdx] = !usedState[roundKey][catIdx][rowIdx];
+  renderBoard(roundKey);
+}
+
+function switchRound(roundKey){
+  currentRound = roundKey;
+  document.getElementById('tabSingle').classList.toggle('active', roundKey === 'single');
+  document.getElementById('tabDouble').classList.toggle('active', roundKey === 'double');
+  document.getElementById('boardSingle').classList.toggle('active', roundKey === 'single');
+  document.getElementById('boardDouble').classList.toggle('active', roundKey === 'double');
+  document.getElementById('roundTitle').textContent = data[roundKey].label;
+  document.getElementById('doubleBanner').classList.toggle('show', roundKey === 'double');
+}
+
+function resetBoard(){
+  if(!confirm('Reset all clue marks on both boards? Scores will not change.')) return;
+  initUsedState();
+  renderBoard('single');
+  renderBoard('double');
+}
+
+function newGame(){
+  if(!confirm('Start a brand new game? This clears all scores and board progress.')) return;
+  document.getElementById('gameScreen').style.display = 'none';
+  document.getElementById('setupScreen').style.display = 'flex';
+}
+
+/* ------------------ MODAL ------------------ */
+function openClue(roundKey, catIdx, clueIdx, value){
+  const cat = data[roundKey].categories[catIdx];
+  const clue = cat.clues[clueIdx];
+  pendingClue = {roundKey, catIdx, clueIdx, value};
+
+  document.getElementById('modalMeta').textContent = `${cat.title}: $${value}`;
+  document.getElementById('modalQuestion').textContent = clue.q;
+  document.getElementById('refLine').textContent = clue.ref;
+  document.getElementById('answerLine').textContent = clue.a;
+  var cb = document.getElementById('ctxBox');
+  if (clue.story) { document.getElementById('ctxTitle').textContent = clue.story; document.getElementById('ctxText').textContent = clue.ctx; cb.classList.add('on'); } else { cb.classList.remove('on'); }
+  document.getElementById('revealBox').classList.remove('show');
+  document.getElementById('revealBtn').style.display = 'inline-block';
+
+  const awardGrid = document.getElementById('teamAwardGrid');
+  awardGrid.innerHTML = '';
+  teams.forEach((team, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'awardBtn';
+    btn.textContent = `${team.name} (+$${value})`;
+    btn.onclick = () => awardPoints(idx);
+    awardGrid.appendChild(btn);
+  });
+
+  document.getElementById('modalOverlay').classList.add('show');
+}
+
+function revealAnswer(){
+  document.getElementById('revealBox').classList.add('show');
+}
+
+function awardPoints(teamIdx){
+  if(!pendingClue) return;
+  teams[teamIdx].score += pendingClue.value;
+  markUsedAndClose();
+}
+
+function noOneAnswered(){
+  markUsedAndClose();
+}
+
+function markUsedAndClose(){
+  if(pendingClue){
+    usedState[pendingClue.roundKey][pendingClue.catIdx][pendingClue.clueIdx] = true;
+    renderBoard(pendingClue.roundKey);
+  }
+  renderScoreboard();
+  closeModal(false);
+}
+
+function closeModal(){
+  document.getElementById('modalOverlay').classList.remove('show');
+  pendingClue = null;
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script>/* Practice mode: when this page runs inside the site's practice page, use its pretend database and give this screen its own storage. Does nothing otherwise. */
+(function(){try{var P=window.parent!==window&&window.parent.PRACTICE;if(!P)return;window.fetch=P.fetch;var s=P.storage(window.name||location.href);Object.defineProperty(window,'localStorage',{configurable:true,get:function(){return s.local;}});Object.defineProperty(window,'sessionStorage',{configurable:true,get:function(){return s.session;}});}catch(e){}})();</script><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rebuild the Wall: Play</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>:root{--bg-page:#0E1B2B;--bg-panel:#16273B;--bg-panel-raised:#1E3450;--ink:#F1F6FB;--muted:#9FB4C9;--line:rgba(241,246,251,0.14);--accent:#D9A544;--ok:#3FA66B;--bad:#C65B5B;color-scheme:dark;}
+*{box-sizing:border-box;}
+html,body{margin:0;min-height:100%;background:var(--bg-page);color:var(--ink);font-family:'Inter',-apple-system,Segoe UI,Roboto,sans-serif;}
+body{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);}
+.wrap{max-width:860px;margin:0 auto;padding:20px 16px 50px;}
+.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:6px;}
+h1{font-family:'Fraunces',Georgia,serif;font-size:1.9rem;margin:0 0 8px;}
+h2{font-family:'Fraunces',Georgia,serif;font-size:1.3rem;margin:0 0 10px;}
+.card{background:var(--bg-panel);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px;}
+.muted{color:var(--muted);font-size:0.95rem;}
+.btn{font:inherit;font-weight:700;padding:14px 20px;border-radius:10px;border:1px solid var(--line);background:var(--bg-panel-raised);color:var(--ink);cursor:pointer;}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#06121D;}
+.btn.big{font-size:1.1rem;width:100%;padding:18px;margin-top:6px;}
+.btn[disabled]{opacity:0.4;cursor:default;}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+input[type=text]{font:inherit;font-size:1.1rem;padding:14px;border-radius:10px;border:1px solid var(--line);background:var(--bg-panel-raised);color:var(--ink);width:100%;margin-bottom:10px;}
+.qr-box{display:flex;justify-content:center;padding:16px;background:#fff;border-radius:14px;margin:10px auto;width:max-content;max-width:100%;}
+.code{font-family:'IBM Plex Mono',monospace;font-size:2.4rem;letter-spacing:0.18em;text-align:center;color:var(--accent);margin:6px 0;}
+.tag{display:inline-block;background:var(--bg-panel-raised);border-radius:20px;padding:6px 14px;margin:4px;font-size:0.95rem;}
+.lb{width:100%;border-collapse:collapse;margin-top:6px;}
+.lb td,.lb th{padding:9px 6px;border-bottom:1px solid var(--line);text-align:left;font-size:1rem;}
+.lb th{color:var(--muted);font-weight:600;font-size:0.78rem;text-transform:uppercase;}
+.q{font-family:'Fraunces',Georgia,serif;font-size:1.6rem;line-height:1.35;margin:8px 0 16px;}
+.verse{font-family:'Fraunces',Georgia,serif;font-size:1.45rem;line-height:1.45;font-style:italic;margin:8px 0 16px;}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.opt{padding:16px;border-radius:12px;border:1px solid var(--line);background:var(--bg-panel-raised);font-size:1.1rem;}
+.opt.right{border-color:var(--ok);background:rgba(63,166,107,0.25);}
+.opt .n{font-family:'IBM Plex Mono',monospace;color:var(--muted);margin-right:8px;}
+.ans{display:block;width:100%;text-align:left;font:inherit;font-size:1.1rem;padding:18px 16px;margin-bottom:10px;border-radius:12px;border:1px solid var(--line);background:var(--bg-panel-raised);color:var(--ink);cursor:pointer;}
+.ans.t{background:rgba(63,166,107,0.2);border-color:var(--ok);text-align:center;font-size:1.4rem;font-weight:700;}
+.ans.f{background:rgba(198,91,91,0.2);border-color:var(--bad);text-align:center;font-size:1.4rem;font-weight:700;}
+.timerbar{height:8px;border-radius:4px;background:var(--bg-panel-raised);overflow:hidden;margin:6px 0 12px;}
+.timerbar i{display:block;height:100%;background:var(--accent);transition:width .25s linear;}
+.result-big{font-family:'Fraunces',Georgia,serif;font-size:2.2rem;font-weight:700;margin:6px 0;}
+.good{color:var(--ok);} .bad{color:var(--bad);}
+.reveal{background:var(--bg-panel-raised);border-radius:12px;padding:14px 16px;margin-top:6px;}
+.podium{display:flex;justify-content:center;align-items:flex-end;gap:14px;margin:20px 0;}
+.podium .spot{background:var(--bg-panel-raised);border-radius:10px 10px 0 0;padding:14px 16px;text-align:center;min-width:100px;}
+.podium .g1{min-height:130px;background:linear-gradient(180deg,#F0CB77,#C9A227);color:#2b2418;}
+.podium .g2{min-height:96px;} .podium .g3{min-height:72px;}
+.ph{max-width:480px;margin:0 auto;}
+.center{text-align:center;}
+@media (max-width:600px){ .opts{grid-template-columns:1fr;} .q{font-size:1.3rem;} .verse{font-size:1.2rem;} }
+.emoji{font-size:4rem;line-height:1.3;text-align:center;margin:10px 0 18px;letter-spacing:0.1em;}
+.order{margin:0 0 6px;padding-left:28px;font-size:1.15rem;line-height:1.7;}
+.order li::marker{color:var(--accent);font-weight:700;}
+.ans.picked{border-color:var(--accent);background:rgba(255,255,255,0.08);opacity:0.75;}
+.badge{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;border:1px solid var(--line);margin-right:10px;font-weight:700;font-family:'IBM Plex Mono',monospace;}
+.ans.picked .badge{background:var(--accent);color:#06121D;border-color:var(--accent);}
+.scene{font-size:1.15rem;line-height:1.5;margin:4px 0 10px;}
+.meters{display:grid;gap:10px;}
+.meter{font-size:0.95rem;}
+.mtrack{height:10px;border-radius:5px;background:var(--bg-panel-raised);overflow:hidden;margin-top:4px;}
+.mtrack i{display:block;height:100%;background:var(--accent);transition:width .4s ease;}
+.tally{display:grid;gap:8px;margin-top:8px;}
+.trow{padding:10px 12px;border-radius:10px;border:1px solid var(--line);}
+.trow.dec{border-color:var(--accent);background:rgba(255,255,255,0.05);}
+.trow .n,.opt .n{font-family:'IBM Plex Mono',monospace;color:var(--muted);margin-right:8px;}
+.did{border-color:var(--accent);}
+ul.plain{margin:0;padding-left:20px;line-height:1.6;}
+.pts{font-family:'IBM Plex Mono',monospace;font-size:0.8rem;color:var(--muted);margin-left:6px;white-space:nowrap;}
+.pts.top{color:var(--accent);font-weight:700;}
+</style></head><body><div class="wrap" id="app"></div>
+<script>var CFG={"title": "Rebuild the Wall", "mode": "wall", "seconds": 30, "accent": "#D9A544", "teams": ["Sheep Gate", "Fish Gate", "Valley Gate", "Water Gate"], "perMember": 3, "actions": [{"t": "Build", "pts": 0, "fx": {}, "hint": "Adds to your gate if your crew has supplies"}, {"t": "Guard the wall", "pts": 0, "fx": {}, "hint": "Protects your section if enemies come"}, {"t": "Gather supplies", "pts": 0, "fx": {}, "hint": "Brings 2 supplies for the builders"}, {"t": "Pray", "pts": 0, "fx": {}, "hint": "Strengthens your crew when spirits are low"}], "prompt": "What will you do this round?", "didLabel": "What Nehemiah and the people did", "how": "Students are split into crews, each rebuilding one gate of Jerusalem (Nehemiah 3). Each round an event from Nehemiah happens, and every student secretly chooses to build, guard, gather, or pray. Crews need the right mix to finish their section in 6 rounds. Builders need supplies, guards stop attacks, and prayer keeps the work going when the enemies mock. Crews that finish their wall get 500 bonus points each.", "waitText": "Watch the screen. You will be assigned to a gate crew when the game starts", "endText": "In the real story, the wall was finished in 52 days, and even the enemies \"perceived that this work was wrought of our God\" (Nehemiah 6:15-16).", "discuss": ["Which role did your crew need most, and how did you figure it out?", "In the last round, why did anyone go down to Ono? What are the \"Ono\" distractions in our lives?", "Nehemiah said \"I am doing a great work, so that I cannot come down\" (Nehemiah 6:3). What great work are you doing right now?"], "rounds": [{"title": "Let us rise up and build", "ref": "Nehemiah 2:12-18", "ev": "none", "scene": "Nehemiah has ridden around the broken walls of Jerusalem by night. He gathers the people and tells them how the hand of God has been with him. The work begins.", "did": "The people said, \"Let us rise up and build. So they strengthened their hands for this good work\" (Nehemiah 2:18)."}, {"title": "The enemies mock", "ref": "Nehemiah 4:1-4", "ev": "mock", "scene": "Sanballat and Tobiah laugh at the builders. Tobiah jokes that if a fox climbed the wall, it would break it down. Some workers are discouraged.", "did": "Nehemiah prayed, \"Hear, O our God; for we are despised,\" and the people kept building, \"for the people had a mind to work\" (Nehemiah 4:4, 6)."}, {"title": "A plot to attack", "ref": "Nehemiah 4:7-9", "ev": "attack", "scene": "Word comes that the enemies are conspiring to come and fight against Jerusalem and stop the work.", "did": "\"Nevertheless we made our prayer unto our God, and set a watch against them day and night\" (Nehemiah 4:9)."}, {"title": "One hand on the work", "ref": "Nehemiah 4:16-18", "ev": "onehand", "scene": "The threat continues. Nehemiah organizes the people so that half work while half stand guard. Guards this round also help build.", "did": "\"Every one with one of his hands wrought in the work, and with the other hand held a weapon\" (Nehemiah 4:17)."}, {"title": "The poor cry out", "ref": "Nehemiah 5:1-5", "ev": "debt", "scene": "There is a famine. Families have mortgaged their fields to buy grain, and some are hungry. Without food, the work could fall apart.", "did": "Nehemiah was angry at those taking advantage of the poor. He had the debts and lands restored and fed many at his own table (Nehemiah 5:6-18)."}, {"title": "Come down to the plain of Ono", "ref": "Nehemiah 6:2-3", "ev": "ono", "scene": "Sanballat sends a friendly message: come down and meet us in the plain of Ono. It sounds like a great opportunity, and there is a personal reward if you go.", "extra": {"t": "Go down to meet them at Ono", "pts": 0, "fx": {}, "hint": "Earn 300 points for yourself"}, "did": "Nehemiah answered, \"I am doing a great work, so that I cannot come down: why should the work cease, whilst I leave it, and come down to you?\" They asked four times, and he answered the same way each time (Nehemiah 6:3-4)."}], "root": "seminaryGames/rebuild-wall"};
+var DBURL = "https://penny-project-fb5da-default-rtdb.firebaseio.com";
+var FAKE = null; try{ if (window.parent && window.parent !== window && window.parent.FAKE) FAKE = window.parent.FAKE; }catch(e){}
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function dbPath(code, path){ return CFG.root + '/' + code + (path ? '/' + path : ''); }
+function req(method, code, path, v){
+  var p = dbPath(code, path);
+  if (FAKE) return FAKE.req(method, p, v);
+  var o = {method: method, cache: 'no-store'}; if (v !== undefined) o.body = JSON.stringify(v);
+  return fetch(DBURL + '/' + p + '.json', o).then(function(r){ return r.json(); }).catch(function(){ return null; });
+}
+function jget(c,p){ return req('GET',c,p); }
+function jput(c,p,v){ return req('PUT',c,p,v); }
+function jpatch(c,p,v){ return req('PATCH',c,p,v); }
+function jpost(c,p,v){ return req('POST',c,p,v); }
+var TS = {".sv":"timestamp"};
+function ranked(players){ var a=[]; for (var k in (players||{})) a.push({id:k, name:players[k].name, score:players[k].score||0}); a.sort(function(x,y){ return y.score-x.score || String(x.name).localeCompare(String(y.name)); }); return a; }
+var MEM={};
+function store(k, v){ if (FAKE){ if (v===undefined) return MEM[k]||null; MEM[k]=v; return; } try{ if (v===undefined) return sessionStorage.getItem(k); sessionStorage.setItem(k, v); }catch(e){ return null; } }
+function optsOf(q){ return CFG.kind==='tf' ? ['True','False'] : q.options; }
+function correctIdx(q){ return CFG.kind==='tf' ? (q.answer?0:1) : q.answer; }
+</script>
+<script>(function(){
+var app=document.getElementById('app'), R=CFG.rounds, code='', pid='', room=null, busy=false, lastKey='', sending=false;
+function param(n){ try{ return new URLSearchParams(location.search).get(n); }catch(e){ return null; } }
+code=(param('g')||'').toUpperCase();
+if (!code && FAKE && FAKE.latestCode) code=FAKE.latestCode(CFG.root);
+function me(){ return (room&&room.players||{})[pid]; }
+function rankOf(){ var r=ranked(room.players); for (var i=0;i<r.length;i++) if (r[i].id===pid) return i+1; return 0; }
+function optsFor(rd){ return CFG.mode==='wall' ? CFG.actions.concat(rd.extra?[rd.extra]:[]) : rd.options; }
+function joinScreen(msg){
+  app.innerHTML='<div class="ph"><div class="eyebrow">'+esc(CFG.title)+'</div><h1>Join the game</h1><div class="card">'+
+    (code?'':'<input type="text" id="cd" maxlength="4" placeholder="Game code" autocapitalize="characters">')+
+    '<input type="text" id="nm" maxlength="20" placeholder="Your first name" autocomplete="off">'+
+    '<button class="btn primary big" data-a="join">Join</button>'+(msg?'<p class="bad">'+esc(msg)+'</p>':'')+'</div></div>';
+}
+function myMeters(p){ if (CFG.mode!=='personal') return ''; var m=p.m||{}; return '<div class="card"><div class="meters">'+CFG.meters.map(function(x){ var v=m[x.k]!=null?m[x.k]:x.start; return '<div class="meter"><div class="row" style="justify-content:space-between"><span>'+esc(x.label)+'</span><span>'+Math.round(v)+'</span></div><div class="mtrack"><i style="width:'+v+'%;background:'+x.color+'"></i></div></div>'; }).join('')+'</div></div>'; }
+function render(){
+  var m=room.meta, p=me(), h='';
+  if (!p){ store('pid_'+code,''); pid=''; joinScreen('You were removed from this game. Join again.'); return; }
+  var team=CFG.mode==='wall'&&p.team!=null?' &middot; '+esc(CFG.teams[p.team]):'';
+  var head='<div class="row" style="justify-content:space-between;margin-bottom:10px"><span class="muted">'+esc(p.name)+team+'</span><span class="muted">'+(p.score||0).toLocaleString()+' points</span></div>';
+  if (m.phase==='lobby') h='<div class="card center"><h2>You are in</h2><p class="muted">'+esc(CFG.waitText)+'</p></div>';
+  else if (m.phase==='round'){
+    var rd=R[m.r], mine=((room.ans||{})[m.r]||{})[pid], o=optsFor(rd);
+    h='<div class="card"><div class="eyebrow">Round '+(m.r+1)+' of '+R.length+'</div><h2>'+esc(rd.title)+'</h2><p class="scene" style="font-size:1rem">'+esc(rd.scene)+'</p></div>';
+    if (mine) h+='<div class="card center"><h2>Choice locked in</h2><p class="muted">'+esc(o[mine.i].t)+'</p><p class="muted">Watch the screen for what happens</p></div>';
+    else { h+='<p class="muted"><b>'+esc(rd.prompt||CFG.prompt)+'</b></p>'+o.map(function(op,i){ return '<button class="ans" data-a="pick" data-i="'+i+'"><b>'+'ABCDE'[i]+'</b> &nbsp;'+esc(op.t)+(op.hint?'<div class="muted" style="font-size:0.85rem;margin-top:4px">'+esc(op.hint)+'</div>':'')+'</button>'; }).join(''); }
+    h+=myMeters(p);
+  } else if (m.phase==='reveal'){
+    var rd=R[m.r], o=optsFor(rd), pk=p.pick;
+    h='<div class="card center"><div class="eyebrow">Round '+(m.r+1)+' results</div>'+(pk>=0?'<p>You chose: <b>'+esc(o[pk].t)+'</b></p>':'<p class="muted">You did not choose in time</p>')+
+      '<div class="result-big">+'+(p.gain||0)+'</div><p class="muted">points</p>'+
+      (CFG.mode==='personal'&&pk>=0&&o[pk].out?'<p>'+esc(o[pk].out)+'</p>':'')+
+      (CFG.mode==='wall'&&m.res&&m.res.byTeam&&p.team!=null?'<p>'+esc(CFG.teams[p.team])+': '+esc(m.res.byTeam[p.team]||'')+'</p>':'')+
+      (CFG.mode==='class'&&m.res?'<p class="muted">The council chose: '+esc(rd.options[m.res.dec].t)+'</p>':'')+
+      '<p class="muted">Place '+rankOf()+' of '+Object.keys(room.players).length+'</p></div>'+myMeters(p);
+  } else if (m.phase==='final'){
+    h='<div class="card center"><h2>Game over</h2><div class="result-big">'+(p.score||0).toLocaleString()+'</div><p class="muted">points, place '+rankOf()+' of '+Object.keys(room.players).length+'</p><p class="muted">Look at the screen for the results</p></div>'+myMeters(p);
+  }
+  app.innerHTML='<div class="ph">'+head+h+'</div>';
+}
+function poll(){
+  if (busy||!code||!pid) return; busy=true;
+  jget(code,'').then(function(d){ busy=false; if (!d||!d.meta) return; room=d;
+    var m=d.meta, p=me(), mine=p&&((d.ans||{})[m.r]||{})[pid];
+    var k=[m.phase,m.r,!!p,!!mine,p&&p.score,p&&p.team,p&&p.gain,rankOf()].join('~'); if (k!==lastKey){ lastKey=k; render(); }
+  });
+}
+app.addEventListener('click', function(e){
+  var b=e.target.closest('[data-a]'); if (!b) return; var a=b.getAttribute('data-a');
+  if (a==='join'){
+    var nm=(document.getElementById('nm').value||'').trim(), cd=document.getElementById('cd');
+    if (cd) code=(cd.value||'').trim().toUpperCase();
+    if (!nm||!code) return; b.disabled=true;
+    jget(code,'meta').then(function(m){ if (!m){ joinScreen('That game code was not found'); return; }
+      return jpost(code,'players',{name:nm, score:0}).then(function(r){ pid=r&&r.name; store('pid_'+code,pid); lastKey=''; poll(); }); });
+  } else if (a==='pick' && !sending){
+    sending=true; var i=parseInt(b.getAttribute('data-i'),10), r=room.meta.r;
+    Array.prototype.forEach.call(app.querySelectorAll('[data-a=pick]'),function(x){ x.disabled=true; }); b.style.outline='3px solid var(--accent)';
+    jput(code,'ans/'+r+'/'+pid,{i:i, t:TS}).then(function(){ sending=false; lastKey=''; poll(); });
+  }
+});
+if (code) pid=store('pid_'+code)||'';
+if (pid) poll(); else joinScreen();
+setInterval(poll,1200);
+})();
+</script></body></html>

@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>/* Practice mode: when this page runs inside the site's practice page, use its pretend database and give this screen its own storage. Does nothing otherwise. */
+(function(){try{var P=window.parent!==window&&window.parent.PRACTICE;if(!P)return;window.fetch=P.fetch;var s=P.storage(window.name||location.href);Object.defineProperty(window,'localStorage',{configurable:true,get:function(){return s.local;}});Object.defineProperty(window,'sessionStorage',{configurable:true,get:function(){return s.session;}});}catch(e){}})();</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Iron Rod Maze: Bird’s Eye</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+:root {
+  color-scheme: light;
+  --bg-page: #FAF7F0;
+  --bg-panel: #FFFFFF;
+  --bg-panel-raised: #F2ECDE;
+  --ink: #2b2418;
+  --muted: #6b6455;
+  --line: #d9cfb8;
+  --accent: #b8860b;
+  --accent-strong: #8a6508;
+  --ok: #2f6b34;
+  --warn-bg: #fff1d6;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg-page); color: var(--ink); font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 16px; line-height: 1.5; }
+.wrap { max-width: 720px; margin: 0 auto; padding: 14px; }
+.wrap.wide { max-width: 1000px; }
+.px { font-family: "Press Start 2P", ui-monospace, Menlo, monospace; }
+h1.px { font-size: 18px; line-height: 1.5; margin: 6px 0 4px; color: var(--accent-strong); }
+h2 { font-size: 18px; margin: 0 0 8px; }
+.sub { color: var(--muted); margin: 0 0 14px; }
+.card { background: var(--bg-panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-bottom: 14px; }
+.banner { border-radius: 10px; padding: 8px 12px; font-size: 13px; margin-bottom: 12px; border: 1px solid var(--line); background: var(--bg-panel-raised); }
+.banner.warn { background: var(--warn-bg); border-color: #e2c27d; }
+.hidden { display: none !important; }
+.chips { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 8px; margin-top: 10px; }
+.chip { font: inherit; font-size: 15px; padding: 12px 6px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg-panel-raised); color: var(--ink); cursor: pointer; }
+.chip:active { transform: scale(0.97); }
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+input[type=text] { font: inherit; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: #fff; color: var(--ink); flex: 1; min-width: 160px; }
+.btn { font: inherit; font-weight: 600; padding: 12px 18px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg-panel-raised); color: var(--ink); cursor: pointer; }
+.btn.primary { background: var(--accent); border-color: var(--accent-strong); color: #1d1b16; }
+.btn.big { font-size: 20px; padding: 18px 22px; width: 100%; }
+.btn[disabled] { opacity: 0.45; cursor: default; }
+.btn.link { background: none; border: none; color: var(--muted); text-decoration: underline; font-weight: 400; padding: 6px; }
+.games { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0 14px; }
+.gcard { text-align: left; font: inherit; border: 2px solid var(--line); background: var(--bg-panel); border-radius: 12px; padding: 12px; cursor: pointer; color: var(--ink); }
+.gcard.sel { border-color: var(--accent); background: #fff8e6; }
+.gcard b { display: block; font-size: 15px; }
+.gcard span { font-size: 13px; color: var(--muted); }
+.status { text-align: center; padding: 14px; border-radius: 12px; background: var(--bg-panel-raised); margin-bottom: 12px; }
+.status .px { font-size: 11px; line-height: 1.6; color: var(--accent-strong); }
+table { width: 100%; border-collapse: collapse; font-size: 15px; }
+th, td { padding: 8px 6px; text-align: center; border-bottom: 1px solid var(--line); }
+th { color: var(--muted); font-weight: 600; font-size: 13px; }
+td.name, th.name { text-align: left; }
+td.total { font-weight: 700; }
+tr.me td { background: #fff8e6; }
+th.cur, td.cur { background: #fbf4e0; }
+.qr-box { display: flex; justify-content: center; padding: 16px; background: #fff; border-radius: 12px; margin: 14px 0; border: 1px solid var(--line); }
+.hostgrid { display: grid; grid-template-columns: 1fr; gap: 14px; }
+@media (min-width: 860px) { .hostgrid { grid-template-columns: 330px 1fr; align-items: start; } }
+.tabs { display: flex; gap: 6px; margin-bottom: 10px; }
+.tab { font: inherit; font-size: 14px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--bg-panel); cursor: pointer; color: var(--ink); }
+.tab.sel { background: var(--accent); border-color: var(--accent-strong); }
+.muted { color: var(--muted); font-size: 14px; }
+#playview { position: fixed; inset: 0; background: var(--bg-page); display: flex; flex-direction: column; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); z-index: 10; }
+#playbar { display: flex; justify-content: space-between; align-items: center; padding: 6px 12px; font-size: 13px; border-bottom: 1px solid var(--line); background: var(--bg-panel); }
+#frame { flex: 1; width: 100%; border: 0; background: var(--bg-page); }
+.foot { text-align: center; margin: 18px 0 6px; }
+</style>
+</head>
+<body>
+<div class="wrap" id="main">
+  <div id="banner" class="banner hidden"></div>
+  <div id="app"></div>
+  <div class="foot" id="foot"></div>
+</div>
+<div id="playview" class="hidden">
+  <div id="playbar"><span id="playinfo"></span><button class="btn link" data-act="quit" type="button">Leave game</button></div>
+  <iframe id="frame" title="Maze game"></iframe>
+</div>
+
+<script type="text/plain" id="src-bird"><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>The Iron Rod Maze</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #FAF7F0;
+  --panel: #FFFFFF;
+  --ink: #1d1b16;
+  --muted: #6b6455;
+  --accent: #b8860b;
+  --btn: #2b2b3a;
+  --btn-ink: #FFFFFF;
+  --btn-on: #b8860b;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #13121b;
+    --panel: #1f1d2b;
+    --ink: #f2eee3;
+    --muted: #b3ab98;
+    --accent: #f2c14e;
+    --btn: #3a3850;
+    --btn-ink: #FFFFFF;
+    --btn-on: #f2c14e;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #13121b;
+  --panel: #1f1d2b;
+  --ink: #f2eee3;
+  --muted: #b3ab98;
+  --accent: #f2c14e;
+  --btn: #3a3850;
+  --btn-ink: #FFFFFF;
+  --btn-on: #f2c14e;
+}
+html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+html, body { height: 100%; margin: 0; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Press Start 2P", ui-monospace, Menlo, Consolas, monospace;
+  overflow: hidden;
+  -webkit-user-select: none; user-select: none;
+  -webkit-touch-callout: none;
+  overscroll-behavior: none;
+}
+#app {
+  height: 100%;
+  max-width: 560px;
+  margin: 0 auto;
+  display: flex; flex-direction: column;
+  padding: 8px 10px 10px;
+  box-sizing: border-box;
+  gap: 8px;
+}
+#hud {
+  display: flex; align-items: center; justify-content: space-between; gap: 6px;
+  font-size: 8px; line-height: 1.4;
+}
+#hud .grp { display: flex; flex-direction: column; gap: 3px; }
+#hud .lbl { color: var(--muted); font-size: 6px; }
+#mute {
+  font-family: inherit; font-size: 7px;
+  background: var(--btn); color: var(--btn-ink);
+  border: 0; padding: 7px 6px; cursor: pointer;
+  box-shadow: 2px 2px 0 var(--ink);
+}
+#stage {
+  position: relative; flex: 1; min-height: 0;
+  display: flex; align-items: center; justify-content: center;
+  touch-action: none;
+}
+canvas {
+  image-rendering: pixelated;
+  border: 4px solid var(--ink);
+  background: #000;
+  touch-action: none;
+  display: block;
+}
+#toast {
+  position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+  background: #ffd23f; color: #1d1b16; border: 3px solid #1d1b16;
+  box-shadow: 3px 3px 0 #1d1b16;
+  font-size: 9px; padding: 8px 10px; white-space: nowrap;
+  pointer-events: none; opacity: 0; transition: opacity .2s;
+}
+#toast.show { opacity: 1; }
+#overlay {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(10, 8, 24, 0.55);
+  padding: 6px; box-sizing: border-box;
+}
+#overlay.hidden { display: none; }
+.panel {
+  background: var(--panel); color: var(--ink);
+  border: 4px solid var(--ink);
+  box-shadow: 6px 6px 0 var(--ink);
+  padding: 14px; max-height: 100%; overflow: auto;
+  width: 100%; max-width: 440px; box-sizing: border-box;
+  text-align: center;
+}
+.panel h1 { font-size: 15px; line-height: 1.5; margin: 0 0 8px; color: var(--accent); }
+.panel h2 { font-size: 12px; line-height: 1.5; margin: 0 0 8px; color: var(--accent); }
+.panel p { font-size: 9px; line-height: 1.8; margin: 0 0 10px; }
+.stars { font-size: 20px; letter-spacing: 4px; color: var(--accent); margin: 4px 0 8px; }
+.stats { display: flex; justify-content: center; flex-wrap: wrap; gap: 4px 14px; font-size: 8px; line-height: 1.8; margin-bottom: 10px; }
+.verse { font-family: Georgia, "Times New Roman", serif; font-size: 14px; line-height: 1.5; text-align: left; margin: 6px 0 12px; padding: 8px 10px; border-left: 4px solid var(--accent); background: rgba(128,128,128,0.12); }
+.verse .ref { display: block; font-family: "Press Start 2P", ui-monospace, monospace; font-size: 8px; color: var(--accent); margin-bottom: 6px; }
+.verse.gold { border-left-color: #ffd23f; }
+.note { font-size: 8px; line-height: 1.8; color: var(--muted); margin: 0 0 10px; }
+.btn {
+  font-family: inherit; font-size: 10px;
+  background: var(--btn); color: var(--btn-ink);
+  border: 0; padding: 12px 14px; margin: 4px 3px; cursor: pointer;
+  box-shadow: 3px 3px 0 var(--ink);
+  touch-action: manipulation;
+}
+.btn.primary { background: var(--accent); color: #1d1b16; }
+.btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
+table.res { width: 100%; border-collapse: collapse; font-size: 8px; line-height: 1.8; margin-bottom: 10px; }
+table.res th, table.res td { padding: 4px 2px; text-align: center; }
+table.res th { color: var(--muted); }
+#hint { font-size: 8px; line-height: 1.7; text-align: center; color: var(--muted); min-height: 28px; }
+#pad {
+  --s: min(21vw, 74px);
+  display: grid; grid-template-columns: repeat(3, var(--s)); grid-template-rows: repeat(3, var(--s));
+  gap: 4px; justify-content: center; margin: 0 auto;
+}
+.dp {
+  font-family: inherit; font-size: 20px;
+  background: var(--btn); color: var(--btn-ink);
+  border: 0; box-shadow: 3px 3px 0 var(--ink);
+  touch-action: none; cursor: pointer; padding: 0;
+}
+.dp.on { background: var(--btn-on); color: #1d1b16; transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
+.dp[data-d="up"] { grid-column: 2; grid-row: 1; }
+.dp[data-d="left"] { grid-column: 1; grid-row: 2; }
+.dp[data-d="right"] { grid-column: 3; grid-row: 2; }
+.dp[data-d="down"] { grid-column: 2; grid-row: 3; }
+@media (max-height: 640px) { #pad { --s: min(17vw, 56px); } }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="hud">
+    <div class="grp"><span class="lbl">LEVEL</span><span id="lvl">1/3</span></div>
+    <div class="grp"><span class="lbl">TIME</span><span id="time">0:00</span></div>
+    <div class="grp"><span class="lbl">WRONG</span><span id="wrong">0</span></div>
+    <div class="grp"><span class="lbl">FRUIT</span><span id="items">0/0</span></div>
+    <div class="grp"><span class="lbl">CHEST</span><span id="treasure">0/1</span></div>
+    <button id="mute" type="button" aria-label="Toggle sound">SOUND ON</button>
+  </div>
+  <div id="stage">
+    <canvas id="c"></canvas>
+    <div id="toast">TREASURE FOUND!</div>
+    <div id="overlay"><div class="panel" id="panel"></div></div>
+  </div>
+  <div id="hint"></div>
+  <div id="pad">
+    <button class="dp" data-d="up" type="button" aria-label="Up">&#9650;</button>
+    <button class="dp" data-d="left" type="button" aria-label="Left">&#9664;</button>
+    <button class="dp" data-d="right" type="button" aria-label="Right">&#9654;</button>
+    <button class="dp" data-d="down" type="button" aria-label="Down">&#9660;</button>
+  </div>
+</div>
+
+<script>
+/*IRCFG*/
+(function () {
+  var $ = function (s) { return document.querySelector(s); };
+  var canvas = $("#c"), ctx = canvas.getContext("2d");
+  var CFG = window.IR_CFG || null, GAME = "bird";
+  if (CFG) document.documentElement.setAttribute("data-theme", "light");
+  var stage = $("#stage"), overlay = $("#overlay"), panel = $("#panel"), toast = $("#toast");
+
+  var LEVELS = [
+    { title: "The Path Is Clear", mistP: 0.12, n: 8, fog: 0, memory: false, rodR: 99, gaps: 0, bld: 2, bridges: 1, items: 4, cap: 25,
+      hint: "Follow the iron rod to the tree. Bridges only go straight. Find the treasure chest and collect golden fruit!",
+      ref: "1 Nephi 8:24",
+      verse: "And it came to pass that I beheld others pressing forward, and they came forth and caught hold of the end of the rod of iron; and they did press forward through the mist of darkness, clinging to the rod of iron, even until they did come forth and partake of the fruit of the tree.",
+      tref: "Matthew 6:20",
+      tverse: "But lay up for yourselves treasures in heaven, where neither moth nor rust doth corrupt, and where thieves do not break through nor steal:" },
+    { title: "The Mist Rises", mistP: 0.15, n: 10, fog: 4.5, memory: true, rodR: 2.5, gaps: 0, bld: 3, bridges: 1, items: 5, cap: 40,
+      hint: "The mist of darkness is rising. Stay close to the rod and watch for the chest.",
+      ref: "1 Nephi 8:30",
+      verse: "But, to be short in writing, behold, he saw other multitudes pressing forward; and they came and caught hold of the end of the rod of iron; and they did press their way forward, continually holding fast to the rod of iron, until they came forth and fell down and partook of the fruit of the tree.",
+      tref: "Matthew 6:21",
+      tverse: "For where your treasure is, there will your heart be also." },
+    { title: "Hold Fast", mistP: 0.18, n: 12, fog: 3.5, memory: false, rodR: 2, gaps: 0.25, bld: 4, bridges: 2, items: 6, cap: 50,
+      hint: "A great mist! Hold fast to the rod, even where it fades.",
+      ref: "1 Nephi 11:25",
+      verse: "And it came to pass that I beheld that the rod of iron, which my father had seen, was the word of God, which led to the fountain of living waters, or to the tree of life; which waters are a representation of the love of God; and I also beheld that the tree of life was a representation of the love of God.",
+      tref: "Matthew 13:44",
+      tverse: "Again, the kingdom of heaven is like unto treasure hid in a field; the which when a man hath found, he hideth, and for joy thereof goeth and selleth all that he hath, and buyeth that field." }
+  ];
+
+  var state = "title", li = 0, G = null, results = [], seeds = [], muted = false, toastT = null;
+
+  function rng(seed) {
+    return function () {
+      seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+      var t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+  function newSeeds() { seeds = [0, 1, 2].map(function () { return Math.floor(Math.random() * 1e9); }); }
+
+  /* ---------- sprites ---------- */
+  function sprite(rows, pal) {
+    var c = document.createElement("canvas"); c.width = 8; c.height = 8;
+    var x = c.getContext("2d");
+    rows.forEach(function (r, y) {
+      for (var i = 0; i < 8; i++) {
+        var ch = r.charAt(i);
+        if (ch !== "." && pal[ch]) { x.fillStyle = pal[ch]; x.fillRect(i, y, 1, 1); }
+      }
+    });
+    return c;
+  }
+  function texture(base, colors, n, seed) {
+    var c = document.createElement("canvas"); c.width = 8; c.height = 8;
+    var x = c.getContext("2d"), r = rng(seed);
+    x.fillStyle = base; x.fillRect(0, 0, 8, 8);
+    for (var i = 0; i < n; i++) {
+      x.fillStyle = colors[Math.floor(r() * colors.length)];
+      x.fillRect(Math.floor(r() * 8), Math.floor(r() * 8), 1, 1);
+    }
+    return c;
+  }
+  var S = {
+    floor: [texture("#d9bd88", ["#c9a96c", "#e6cf9f"], 5, 11), texture("#d9bd88", ["#c9a96c", "#e6cf9f"], 5, 29)],
+    player: sprite([
+      "..hhhh..", ".hhhhhh.", ".skssks.", "..ssss..",
+      ".wwwwww.", "wwwwwwww", ".wwwwww.", ".bb..bb."
+    ], { h: "#5a3a1e", s: "#f2c38b", k: "#1b1b1b", w: "#f7f4ea", b: "#7a5230" }),
+    tree: sprite([
+      "..GGGG..", ".GGfGGG.", "GGGGGfGG", "GfGGGGGG",
+      ".GGGfGG.", "...tt...", "...tt...", "..tttt.."
+    ], { G: "#3cb043", f: "#ffffff", t: "#7a4a1c" }),
+    bld: sprite([
+      "..pppp..", ".pyppyp.", ".pppppp.", ".pyppyp.",
+      ".pppppp.", ".pyppyp.", ".pppppp.", "pppppppp"
+    ], { p: "#9b3d8f", y: "#ffd23f" }),
+    item: sprite([
+      "........", "...GG...", "..oooo..", ".oyyywo.",
+      ".oyyyyo.", ".oyyyyo.", "..oooo..", "........"
+    ], { G: "#3cb043", o: "#9a6a12", y: "#ffd23f", w: "#fff6c4" }),
+    chest: sprite([
+      ".oooooo.", "oOOOOOOo", "oOOOOOOo", "yyyyyyyy",
+      "oOOyyOOo", "oOOOOOOo", "oOOOOOOo", "oooooooo"
+    ], { o: "#5a3a1e", O: "#b06f33", y: "#ffd23f" }),
+    bridge: sprite([
+      "..wwww..", "rrrrrrrr", "pppppppp", "ppdppdpp",
+      "ppdppdpp", "pppppppp", "rrrrrrrr", "..wwww.."
+    ], { w: "#3b7dd8", r: "#5a3a1e", p: "#b98a4e", d: "#8a6030" })
+  };
+
+  /* ---------- maze (cell based, thin walls, every square used) ---------- */
+  var DX = { n: 0, e: 1, s: 0, w: -1 }, DY = { n: -1, e: 0, s: 1, w: 0 };
+  var OPP = { n: "s", s: "n", e: "w", w: "e" };
+
+  function solve(open, N, bridges) {
+    var key = function (x, y, a) { return x + "," + y + "," + a; };
+    var prev = {}, q = [[0, 0, -1]], goalState = null;
+    prev[key(0, 0, -1)] = null;
+    var dirs = ["n", "e", "s", "w"];
+    while (q.length) {
+      var s = q.shift(), x = s[0], y = s[1], a = s[2];
+      if (x === N - 1 && y === N - 1) { goalState = s; break; }
+      for (var i = 0; i < 4; i++) {
+        var d = dirs[i];
+        if (!open[y][x][d]) continue;
+        var axis = (d === "e" || d === "w") ? 0 : 1;
+        if (bridges[x + "," + y] && axis !== a) continue;
+        var nx = x + DX[d], ny = y + DY[d], k = key(nx, ny, axis);
+        if (!(k in prev)) { prev[k] = s; q.push([nx, ny, axis]); }
+      }
+    }
+    var path = [], c = goalState;
+    while (c) { path.unshift([c[0], c[1]]); c = prev[key(c[0], c[1], c[2])]; }
+    return path;
+  }
+
+  function build(lv, seed, tries) {
+    var r = rng(seed), N = lv.n, x, y, i, j;
+    var open = [];
+    for (y = 0; y < N; y++) { open.push([]); for (x = 0; x < N; x++) open[y].push({ n: false, e: false, s: false, w: false }); }
+    var vis = [];
+    for (y = 0; y < N; y++) { vis.push([]); for (x = 0; x < N; x++) vis[y].push(false); }
+    var stack = [[0, 0, null]]; vis[0][0] = true;
+    while (stack.length) {
+      var cur = stack[stack.length - 1], cx = cur[0], cy = cur[1], lastDir = cur[2];
+      var opts = ["n", "e", "s", "w"].filter(function (d) {
+        var nx = cx + DX[d], ny = cy + DY[d];
+        return nx >= 0 && ny >= 0 && nx < N && ny < N && !vis[ny][nx];
+      });
+      if (!opts.length) { stack.pop(); continue; }
+      // favor turning over continuing straight, so the maze has more twists and shorter corridors
+      var turnOpts = opts.filter(function (d) { return d !== lastDir; });
+      var pool = (turnOpts.length && r() < 0.75) ? turnOpts : opts;
+      var d = pool[Math.floor(r() * pool.length)], nx = cx + DX[d], ny = cy + DY[d];
+      open[cy][cx][d] = true; open[ny][nx][OPP[d]] = true; vis[ny][nx] = true; stack.push([nx, ny, d]);
+    }
+    // braiding: open a second wall at most dead ends, turning the single-path maze into one with many
+    // short branches and loops, so there are real choices and a group can split up to explore
+    var BRAID = 0.72;
+    for (y = 0; y < N; y++) for (x = 0; x < N; x++) {
+      var oc = open[y][x];
+      var deg = (oc.n ? 1 : 0) + (oc.e ? 1 : 0) + (oc.s ? 1 : 0) + (oc.w ? 1 : 0);
+      if (deg !== 1 || r() > BRAID) continue;
+      var closed = ["n", "e", "s", "w"].filter(function (d) {
+        var nx = x + DX[d], ny = y + DY[d];
+        return nx >= 0 && ny >= 0 && nx < N && ny < N && !oc[d];
+      });
+      if (!closed.length) continue;
+      var d2 = closed[Math.floor(r() * closed.length)], nx2 = x + DX[d2], ny2 = y + DY[d2];
+      open[y][x][d2] = true; open[ny2][nx2][OPP[d2]] = true;
+    }
+    // make sure the starting cell itself opens onto more than one path
+    var s0 = open[0][0];
+    if ((s0.e ? 1 : 0) + (s0.s ? 1 : 0) < 2) {
+      if (!s0.e) { open[0][0].e = true; open[0][1].w = true; }
+      else if (!s0.s) { open[0][0].s = true; open[1][0].n = true; }
+    }
+
+    // bridges: a straight east-west corridor cell gets a crossing north-south passage underneath
+    var bridges = {}, basePath = solve(open, N, {}), onBase = {};
+    basePath.forEach(function (p) { onBase[p[0] + "," + p[1]] = true; });
+    var cands = [];
+    for (y = 1; y < N - 1; y++) for (x = 1; x < N - 1; x++) {
+      var o = open[y][x];
+      if (o.e && o.w && !o.n && !o.s) cands.push([x, y, onBase[x + "," + y] ? 0 : 1, r()]);
+    }
+    cands.sort(function (a, b) { return a[2] - b[2] || a[3] - b[3]; });
+    function nearBridge(cx2, cy2) {
+      for (var k in bridges) { var p = k.split(","); if (Math.abs(p[0] - cx2) + Math.abs(p[1] - cy2) <= 3) return true; }
+      return false;
+    }
+    for (i = 0; i < cands.length && Object.keys(bridges).length < lv.bridges; i++) {
+      var bx = cands[i][0], by = cands[i][1];
+      if (nearBridge(bx, by)) continue;
+      open[by][bx].n = true; open[by][bx].s = true;
+      open[by - 1][bx].s = true; open[by + 1][bx].n = true;
+      bridges[bx + "," + by] = true;
+    }
+
+    var path = solve(open, N, bridges), onPath = {};
+    /* keep levels short: if this maze's path is unusually long, build the next one (same for every student) */
+    if (path.length - 1 > Math.round(N * 2.6) && (tries || 0) < 40) return build(lv, seed + 7, (tries || 0) + 1);
+    path.forEach(function (p) { onPath[p[0] + "," + p[1]] = true; });
+
+    var ends = [];
+    for (y = 0; y < N; y++) for (x = 0; x < N; x++) {
+      var cnt = (open[y][x].n ? 1 : 0) + (open[y][x].e ? 1 : 0) + (open[y][x].s ? 1 : 0) + (open[y][x].w ? 1 : 0);
+      if (cnt === 1 && !onPath[x + "," + y] && !(x === 0 && y === 0) && !(x === N - 1 && y === N - 1)) ends.push([x, y]);
+    }
+    for (i = ends.length - 1; i > 0; i--) { j = Math.floor(r() * (i + 1)); var t = ends[i]; ends[i] = ends[j]; ends[j] = t; }
+    var chest = ends.length ? { x: ends[0][0], y: ends[0][1], got: false } : null;
+    var blds = {};
+    ends.slice(1, 1 + lv.bld).forEach(function (e) { blds[e[0] + "," + e[1]] = { hit: false }; });
+    // golden fruit to collect: most sit off the main path so collecting costs time
+    var itemMap = {}, taken = { "0,0": 1 };
+    taken[(N - 1) + "," + (N - 1)] = 1;
+    if (chest) taken[chest.x + "," + chest.y] = 1;
+    for (var bk0 in blds) taken[bk0] = 1;
+    var offp = [], onp = [];
+    for (y = 0; y < N; y++) for (x = 0; x < N; x++) { var kk = x + "," + y; if (taken[kk]) continue; (onPath[kk] ? onp : offp).push(kk); }
+    [offp, onp].forEach(function (arr) { for (i = arr.length - 1; i > 0; i--) { j = Math.floor(r() * (i + 1)); var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp; } });
+    var k1 = Math.ceil(lv.items * 0.65);
+    var pick = offp.slice(0, k1).concat(onp).concat(offp.slice(k1)).slice(0, lv.items);
+    pick.forEach(function (kk2) { itemMap[kk2] = { got: false }; });
+    var gaps = {};
+    for (i = 2; i < path.length - 3; i++) if (r() < lv.gaps) gaps[i] = true;
+    var seen = [];
+    for (y = 0; y < N; y++) { seen.push([]); for (x = 0; x < N; x++) seen[y].push(false); }
+    return { lv: lv, N: N, open: open, bridges: bridges, path: path, gaps: gaps, blds: blds, chest: chest, items: itemMap, nItems: pick.length, got: 0,
+      goal: [N - 1, N - 1], px: 0, py: 0, lastAxis: -1, mist: 0, cool: 4, seen: seen, t: 16, wt: 3,
+      started: false, t0: 0, elapsed: 0, wrong: 0, flashAt: 0 };
+  }
+
+  /* ---------- rendering ---------- */
+  function resize() {
+    if (!G) return;
+    var avail = Math.min(stage.clientWidth, stage.clientHeight) - 8;
+    var t0 = Math.floor(avail / G.N), wt = Math.max(2, Math.round(t0 * 0.15));
+    var t = Math.max(6, Math.floor((avail - 2 * wt) / G.N));
+    G.t = t; G.wt = wt;
+    var dpr = window.devicePixelRatio || 1, size = t * G.N + 2 * wt;
+    canvas.style.width = size + "px"; canvas.style.height = size + "px";
+    canvas.width = Math.round(size * dpr); canvas.height = Math.round(size * dpr);
+    render();
+  }
+  function render() {
+    if (!G) return;
+    var N = G.N, t = G.t, wt = G.wt, half = Math.floor(wt / 2), lv = G.lv, x, y, dpr = window.devicePixelRatio || 1;
+    var size = t * N + 2 * wt;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.imageSmoothingEnabled = false;
+    ctx.fillStyle = "#1d1b2e"; ctx.fillRect(0, 0, size, size);
+    function ox(cx) { return wt + cx * t; }
+    for (y = 0; y < N; y++) for (x = 0; x < N; x++) ctx.drawImage(S.floor[(x * 7 + y * 13) % 2], ox(x), ox(y), t, t);
+
+    // thin walls between cells
+    ctx.fillStyle = "#1d1b2e";
+    for (y = 0; y <= N; y++) for (x = 0; x < N; x++) {
+      var hw = (y === 0 || y === N) ? true : !G.open[y - 1][x].s;
+      if (hw) ctx.fillRect(ox(x) - half, ox(y) - half, t + wt, wt);
+    }
+    for (x = 0; x <= N; x++) for (y = 0; y < N; y++) {
+      var vw = (x === 0 || x === N) ? true : !G.open[y][x - 1].e;
+      if (vw) ctx.fillRect(ox(x) - half, ox(y) - half, wt, t + wt);
+    }
+
+    var sz = Math.max(6, t - wt - 1), po = Math.floor((t - sz) / 2);
+    function put(img, cx, cy) { ctx.drawImage(img, ox(cx) + po, ox(cy) + po, sz, sz); }
+    for (var bk in G.bridges) { var bp = bk.split(","); ctx.drawImage(S.bridge, ox(+bp[0]), ox(+bp[1]), t, t); }
+    for (var k in G.blds) { var p2 = k.split(","); put(S.bld, +p2[0], +p2[1]); }
+    if (G.chest && !G.chest.got) put(S.chest, G.chest.x, G.chest.y);
+    for (var ik2 in G.items) if (!G.items[ik2].got && !G.items[ik2].gone) { var ip = ik2.split(","); put(S.item, +ip[0], +ip[1]); }
+    put(S.tree, G.goal[0], G.goal[1]);
+
+    // iron rod
+    var th = Math.max(2, Math.round(t * 0.2));
+    function cxy(p) { return [ox(p[0]) + t / 2, ox(p[1]) + t / 2]; }
+    function visible(p) { return G.lit || Math.hypot(p[0] - G.px, p[1] - G.py) <= lv.rodR; }
+    function rod(color, grow) {
+      ctx.fillStyle = color;
+      for (var i = 0; i < G.path.length; i++) {
+        if (G.gaps[i] && !G.lit) continue;
+        var p = G.path[i]; if (!visible(p)) continue;
+        var c = cxy(p), hh = th / 2 + grow;
+        ctx.fillRect(c[0] - hh, c[1] - hh, hh * 2, hh * 2);
+        var nx = G.path[i + 1];
+        if (nx && (!G.gaps[i + 1] || G.lit) && visible(nx)) {
+          var c2 = cxy(nx);
+          ctx.fillRect(Math.min(c[0], c2[0]) - hh, Math.min(c[1], c2[1]) - hh, Math.abs(c2[0] - c[0]) + hh * 2, Math.abs(c2[1] - c[1]) + hh * 2);
+        }
+      }
+    }
+    if (!G.mist) { rod("#4b515e", 1); rod("#c3cada", 0); }
+
+    // mist of darkness
+    if (lv.fog && !G.lit) {
+      for (y = 0; y < N; y++) for (x = 0; x < N; x++) {
+        var d = Math.hypot(x - G.px, y - G.py);
+        if (d <= lv.fog) G.seen[y][x] = true;
+        var a = Math.max(0, Math.min(1, (d - (lv.fog - 1.2)) / 1.4));
+        if (a <= 0) continue;
+        if (lv.memory && G.seen[y][x]) a = Math.min(a, 0.62);
+        if (x === G.goal[0] && y === G.goal[1]) a = Math.min(a, 0.12);
+        var x0 = x === 0 ? 0 : ox(x) - half, y0 = y === 0 ? 0 : ox(y) - half;
+        var x1 = x === N - 1 ? size : ox(x) - half + t, y1 = y === N - 1 ? size : ox(y) - half + t;
+        ctx.fillStyle = "rgba(10,8,24," + a.toFixed(2) + ")";
+        ctx.fillRect(x0, y0, x1 - x0, y1 - y0);
+      }
+    }
+    if (G.mist) { ctx.fillStyle = "rgba(150,150,185,0.38)"; ctx.fillRect(0, 0, size, size); }
+    put(S.player, G.px, G.py);
+    if (Date.now() - G.flashAt < 260) { ctx.fillStyle = "rgba(255,60,60,0.28)"; ctx.fillRect(0, 0, size, size); }
+  }
+
+  /* ---------- sound ---------- */
+  var ac = null;
+  function initAudio() {
+    try { ac = ac || new (window.AudioContext || window.webkitAudioContext)(); if (ac.state === "suspended") ac.resume(); } catch (e) {}
+  }
+  function beep(freq, dur, type, vol, delay) {
+    if (muted || !ac) return;
+    try {
+      var o = ac.createOscillator(), gn = ac.createGain(), s = ac.currentTime + (delay || 0);
+      o.type = type || "square"; o.frequency.value = freq;
+      gn.gain.setValueAtTime(vol || 0.04, s); gn.gain.exponentialRampToValueAtTime(0.0001, s + dur);
+      o.connect(gn); gn.connect(ac.destination); o.start(s); o.stop(s + dur + 0.02);
+    } catch (e) {}
+  }
+
+  /* ---------- game flow ---------- */
+  function fmt(ms) { var s = Math.floor(ms / 1000); return Math.floor(s / 60) + ":" + ("0" + (s % 60)).slice(-2); }
+  /* time limit: the light breaks through, leftover fruit is gone, and the whole rod shows the way */
+  function lightUp() {
+    G.lit = true; G.mist = 0;
+    for (var k in G.items) if (!G.items[k].got) G.items[k].gone = true;
+    flashToast("THE LIGHT BREAKS THROUGH! FOLLOW THE ROD TO THE TREE"); render();
+  }
+  function hud() {
+    if (G && G.started && state === "play" && !G.lit && G.lv.cap && Date.now() - G.t0 > G.lv.cap * 1000) lightUp();
+    $("#lvl").textContent = (li + 1) + "/3";
+    $("#wrong").textContent = G ? G.wrong : 0;
+    $("#treasure").textContent = (G && G.chest && G.chest.got ? 1 : 0) + "/1";
+    $("#items").textContent = G ? G.got + "/" + G.nItems : "0/0";
+    $("#time").textContent = G ? fmt(G.started && state === "play" ? Date.now() - G.t0 : G.elapsed) : "0:00";
+  }
+  function showOverlay(html) { panel.innerHTML = html; overlay.classList.remove("hidden"); panel.scrollTop = 0; }
+  function hideOverlay() { overlay.classList.add("hidden"); }
+  function flashToast(msg) {
+    toast.textContent = msg; toast.classList.add("show");
+    clearTimeout(toastT); toastT = setTimeout(function () { toast.classList.remove("show"); }, 2200);
+  }
+
+  function startLevel(i) {
+    li = i; G = build(LEVELS[i], seeds[i]); state = "play";
+    if (CFG) { G.started = true; G.t0 = Date.now(); }
+    $("#hint").textContent = LEVELS[i].hint;
+    hideOverlay(); resize(); hud();
+  }
+  function showTitle() {
+    state = "title"; li = 0; results = []; newSeeds();
+    G = build(LEVELS[0], seeds[0]); $("#hint").textContent = "Use the arrow buttons, swipe, or arrow keys to move.";
+    resize(); hud();
+    showOverlay(
+      "<h1>THE IRON ROD MAZE</h1>" +
+      "<p>1 NEPHI 8</p>" +
+      "<p>Lehi saw a rod of iron leading to the tree of life. Find your way through the mist of darkness and reach the tree.</p>" +
+      "<p>Avoid the great and spacious building. Cross bridges straight, go under them to switch paths, and hunt for the treasure chest. Sometimes a mist will hide the iron rod for a step or two.</p><p>Collect golden fruit for points, or race to the tree for a speed bonus.</p>" +
+      "<button class=\"btn primary\" data-act=\"start\" type=\"button\">PRESS START</button>"
+    );
+  }
+  function stars(w) { return w === 0 ? 3 : (w <= 2 ? 2 : 1); }
+  function reportScore(p) {
+    try { if (window.parent && window.parent !== window) { p.type = "ironrod-score"; p.game = GAME; window.parent.postMessage(p, "*"); } } catch (e) {}
+  }
+
+  function win() {
+    state = "win"; G.elapsed = Date.now() - G.t0;
+    var st = stars(G.wrong), got = !!(G.chest && G.chest.got);
+    results[li] = { time: G.elapsed, wrong: G.wrong, stars: st, treasure: got ? 1 : 0 };
+    var score = Math.max(100, 300 - 25 * G.wrong + 50 * G.got + (got ? 150 : 0));
+    reportScore({ level: li + 1, time: G.elapsed, wrong: G.wrong, treasure: got ? 1 : 0, items: G.got, nItems: G.nItems, stars: st, score: score });
+    hud(); render();
+    [523, 659, 784, 1047].forEach(function (f, i) { beep(f, 0.18, "square", 0.05, i * 0.12); });
+    var lv = LEVELS[li], last = li === LEVELS.length - 1;
+    var tre = got
+      ? "<div class=\"verse gold\"><span class=\"ref\">TREASURE FOUND: " + lv.tref.toUpperCase() + "</span>" + lv.tverse + "</div>"
+      : "<p class=\"note\">You did not find the treasure chest. Replay this level to look for it!</p>";
+    showOverlay(
+      "<h2>LEVEL CLEAR!</h2>" +
+      "<div class=\"stars\">" + "&#9733;".repeat(st) + "<span style=\"opacity:.25\">" + "&#9733;".repeat(3 - st) + "</span></div>" +
+      "<div class=\"stats\"><span>TIME " + fmt(G.elapsed) + "</span><span>WRONG TURNS " + G.wrong + "</span><span>FRUIT " + G.got + "/" + G.nItems + "</span><span>CHEST " + (got ? 1 : 0) + "/1</span><span>POINTS " + score + "</span></div>" +
+      "<div class=\"verse\"><span class=\"ref\">" + lv.ref.toUpperCase() + "</span>" + lv.verse + "</div>" +
+      tre +
+      (CFG
+        ? "<p class=\"note\">Score sent: " + score + " points, plus a speed bonus if you finished among the first three. Head back to the lobby to see the standings.</p><button class=\"btn primary\" data-act=\"exit\" type=\"button\">BACK TO LOBBY</button>"
+        : "<button class=\"btn primary\" data-act=\"" + (last ? "finish" : "next") + "\" type=\"button\">" + (last ? "FINISH" : "NEXT LEVEL") + "</button>" +
+          "<button class=\"btn\" data-act=\"replay\" type=\"button\">REPLAY</button>")
+    );
+  }
+  function finish() {
+    state = "final";
+    var tt = 0, tw = 0, ts = 0, tr = 0, rows = "";
+    results.forEach(function (r, i) {
+      tt += r.time; tw += r.wrong; ts += r.stars; tr += r.treasure;
+      rows += "<tr><td>" + (i + 1) + "</td><td>" + fmt(r.time) + "</td><td>" + r.wrong + "</td><td>" + r.treasure + "/1</td><td>" + r.stars + "/3</td></tr>";
+    });
+    showOverlay(
+      "<h1>YOU PARTOOK OF THE FRUIT!</h1>" +
+      "<p>You held fast to the rod through the mist of darkness.</p>" +
+      "<table class=\"res\"><tr><th>LEVEL</th><th>TIME</th><th>WRONG</th><th>CHEST</th><th>STARS</th></tr>" + rows +
+      "<tr><th>TOTAL</th><th>" + fmt(tt) + "</th><th>" + tw + "</th><th>" + tr + "/3</th><th>" + ts + "/9</th></tr></table>" +
+      "<button class=\"btn primary\" data-act=\"again\" type=\"button\">PLAY AGAIN</button>"
+    );
+  }
+
+  function move(dx, dy) {
+    if (state !== "play" || !G) return;
+    var d = dx === 1 ? "e" : dx === -1 ? "w" : dy === 1 ? "s" : "n";
+    var axis = dx !== 0 ? 0 : 1;
+    var onBridge = G.bridges[G.px + "," + G.py];
+    if (!G.open[G.py][G.px][d] || (onBridge && axis !== G.lastAxis)) { beep(110, 0.05, "square", 0.025); return; }
+    if (!G.started) { G.started = true; G.t0 = Date.now(); }
+    G.px += dx; G.py += dy; G.lastAxis = axis; beep(330, 0.04, "square", 0.02);
+    if (G.mist > 0) { G.mist--; if (!G.mist) flashToast("THE MIST CLEARS"); }
+    else if (G.cool > 0) { G.cool--; }
+    else if (!G.lit && Math.random() < G.lv.mistP) { G.mist = Math.random() < 0.5 ? 1 : 2; G.cool = 4; flashToast("MIST HIDES THE IRON ROD!"); }
+    var ik = G.px + "," + G.py;
+    if (G.items[ik] && !G.items[ik].got && !G.items[ik].gone) { G.items[ik].got = true; G.got++; beep(880, 0.06, "square", 0.04); beep(1319, 0.08, "square", 0.05, 0.05); }
+    var b = G.blds[G.px + "," + G.py];
+    if (b && !b.hit) {
+      b.hit = true; G.wrong++; G.flashAt = Date.now();
+      beep(160, 0.25, "sawtooth", 0.05); setTimeout(render, 280);
+    }
+    if (G.chest && !G.chest.got && G.px === G.chest.x && G.py === G.chest.y) {
+      G.chest.got = true; flashToast("TREASURE FOUND!");
+      [784, 988, 1175, 1568].forEach(function (f, i) { beep(f, 0.12, "square", 0.05, i * 0.08); });
+    }
+    render(); hud();
+    if (G.px === G.goal[0] && G.py === G.goal[1]) win();
+  }
+
+  /* ---------- input ---------- */
+  var DIRS = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
+  document.querySelectorAll(".dp").forEach(function (b) {
+    var d = DIRS[b.getAttribute("data-d")], iv = null;
+    function stop() { if (iv) clearInterval(iv); iv = null; b.classList.remove("on"); }
+    b.addEventListener("pointerdown", function (e) {
+      e.preventDefault(); initAudio(); b.classList.add("on");
+      move(d[0], d[1]); if (iv) clearInterval(iv);
+      iv = setInterval(function () { move(d[0], d[1]); }, 150);
+    });
+    ["pointerup", "pointerleave", "pointercancel"].forEach(function (ev) { b.addEventListener(ev, stop); });
+    b.addEventListener("contextmenu", function (e) { e.preventDefault(); });
+  });
+  document.addEventListener("keydown", function (e) {
+    var m = { ArrowUp: "up", ArrowDown: "down", ArrowLeft: "left", ArrowRight: "right", w: "up", s: "down", a: "left", d: "right" }[e.key];
+    if (m) { e.preventDefault(); initAudio(); move(DIRS[m][0], DIRS[m][1]); }
+  });
+  var sx = 0, sy = 0, swiping = false;
+  stage.addEventListener("pointerdown", function (e) {
+    if (e.target.closest("#overlay") && !overlay.classList.contains("hidden")) return;
+    swiping = true; sx = e.clientX; sy = e.clientY; initAudio();
+  });
+  stage.addEventListener("pointermove", function (e) {
+    if (!swiping || !G) return;
+    var dx = e.clientX - sx, dy = e.clientY - sy, th = Math.max(18, G.t * 1.1);
+    if (Math.abs(dx) < th && Math.abs(dy) < th) return;
+    if (Math.abs(dx) > Math.abs(dy)) move(dx > 0 ? 1 : -1, 0); else move(0, dy > 0 ? 1 : -1);
+    sx = e.clientX; sy = e.clientY;
+  });
+  ["pointerup", "pointercancel", "pointerleave"].forEach(function (ev) { stage.addEventListener(ev, function () { swiping = false; }); });
+
+  overlay.addEventListener("click", function (e) {
+    var a = e.target.getAttribute && e.target.getAttribute("data-act");
+    if (!a) return;
+    initAudio(); beep(440, 0.08, "square", 0.04);
+    if (a === "start") startLevel(0);
+    else if (a === "next") startLevel(li + 1);
+    else if (a === "replay") startLevel(li);
+    else if (a === "finish") finish();
+    else if (a === "again") showTitle();
+    else if (a === "exit") { try { window.parent.postMessage({ type: "ironrod-exit" }, "*"); } catch (e) {} }
+  });
+  $("#mute").addEventListener("click", function () {
+    muted = !muted; this.textContent = muted ? "SOUND OFF" : "SOUND ON"; initAudio();
+  });
+
+  if (window.ResizeObserver) new ResizeObserver(resize).observe(stage);
+  window.addEventListener("resize", resize);
+  setInterval(function () { if (state === "play" && G && G.started) hud(); }, 250);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { resize(); });
+  showTitle();
+  if (CFG) { if (CFG.seed) seeds = [CFG.seed, CFG.seed, CFG.seed]; startLevel(Math.max(0, Math.min(2, (CFG.level || 1) - 1))); }
+})();
+<\/script>
+</body>
+</html>
+</script>
+
+<script>
+(function () {
+  var ROSTER = ["Reef","Cohen","Jet","Sadie","Katie","Lauren","Grace","Davis","Addy","Lexi","Whitney","Sebastian","Adam","Griff","Charlie"];
+  var ROUNDS = 3;
+  var $ = function (s) { return document.querySelector(s); };
+  function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;" }[c]; }); }
+  function fmt(ms) { var s = Math.floor(ms / 1000); return Math.floor(s / 60) + ":" + ("0" + (s % 60)).slice(-2); }
+  function keyOf(n) { return String(n).replace(/[^A-Za-z0-9_\-]/g, "_").toLowerCase().slice(0, 60) || "player"; }
+  function srcOf(id) { return document.getElementById(id).textContent.replace(/<\\\/script/g, "</script"); }
+
+  var GAMES = {
+    bird: { label: "Bird’s Eye", desc: "", src: srcOf("src-bird") }
+  };
+
+  var DEFAULT_SESSION = { round: 1, status: "lobby", game: "bird", seed: 0 };
+  var me = lsGet("ir-name") || "", session = DEFAULT_SESSION, players = [];
+  var view = "loading", hostView = false, canHost = false, playing = null, boardMode = "total", resetArm = false, writeErr = "", ready = false;
+
+  /* ---------- storage adapter: Claude db, then window.storage, then this device only ---------- */
+  var Store = { mode: "local" };
+  function useLocal() {
+    Store.mode = "local";
+    var mem = { session: null, players: {} }, subs = [];
+    function fire() { subs.forEach(function (f) { f(); }); }
+    Store.setSession = function (o) { mem.session = o; fire(); return Promise.resolve(); };
+    Store.onSession = function (cb) { var f = function () { cb(mem.session); }; subs.push(f); f(); return function () { subs = subs.filter(function (x) { return x !== f; }); }; };
+    Store.join = function (name) { var k = keyOf(name); if (!mem.players[k]) mem.players[k] = { name: name, rounds: {} }; fire(); return Promise.resolve(); };
+    Store.setScore = function (name, round, rec) { var k = keyOf(name); var p = mem.players[k] || (mem.players[k] = { name: name, rounds: {} }); p.rounds[round] = rec; fire(); return Promise.resolve(); };
+    Store.onPlayers = function (cb) { var f = function () { cb(Object.keys(mem.players).map(function (k) { return mem.players[k]; })); }; subs.push(f); f(); return function () {}; };
+    Store.reset = function () { mem.players = {}; mem.session = DEFAULT_SESSION; fire(); return Promise.resolve(); };
+  }
+  function useStorage() {
+    Store.mode = "storage";
+    var S = window.storage;
+    function poll(fn, ms) { var stop = false; (function tick() { if (stop) return; Promise.resolve(fn()).catch(function () {}).then(function () { if (!stop) setTimeout(tick, ms); }); })(); return function () { stop = true; }; }
+    async function getJ(k) { try { var r = await S.get(k, true); return r ? JSON.parse(r.value) : null; } catch (e) { return null; } }
+    Store.setSession = async function (o) { await S.set("ir-session", JSON.stringify(o), true); };
+    Store.onSession = function (cb) { return poll(async function () { cb(await getJ("ir-session")); }, 2000); };
+    Store.join = async function (name) { var k = "ir-player-" + keyOf(name); var cur = await getJ(k); if (!cur) await S.set(k, JSON.stringify({ name: name, rounds: {} }), true); };
+    Store.setScore = async function (name, round, rec) { var k = "ir-player-" + keyOf(name); var cur = (await getJ(k)) || { name: name, rounds: {} }; cur.rounds = cur.rounds || {}; cur.rounds[round] = rec; await S.set(k, JSON.stringify(cur), true); };
+    Store.onPlayers = function (cb) { return poll(async function () { var l = await S.list("ir-player-", true); var out = []; var keys = (l && l.keys) || []; for (var i = 0; i < keys.length; i++) { var v = await getJ(keys[i]); if (v) out.push(v); } cb(out); }, 2500); };
+    Store.reset = async function () { var l = await S.list("ir-player-", true); var keys = (l && l.keys) || []; for (var i = 0; i < keys.length; i++) { try { await S.delete(keys[i], true); } catch (e) {} } await S.set("ir-session", JSON.stringify(DEFAULT_SESSION), true); };
+  }
+  function useDb(d) {
+    Store.mode = "db";
+    Store.setSession = function (o) { return d.doc("session/state").set(o); };
+    Store.onSession = function (cb) { return d.doc("session/state").onSnapshot(function (s) { cb(s.exists ? s.data() : null); }, function () {}); };
+    Store.join = async function (name) { var ref = d.doc("players/" + keyOf(name)); var s = await ref.get(); if (!s.exists) await ref.set({ name: name, rounds: {} }); };
+    Store.setScore = async function (name, round, rec) {
+      var ref = d.doc("players/" + keyOf(name)), s = await ref.get();
+      var cur = s.exists ? JSON.parse(JSON.stringify(s.data())) : { name: name, rounds: {} };
+      cur.name = name; cur.rounds = cur.rounds || {}; cur.rounds[round] = rec; await ref.set(cur);
+    };
+    Store.onPlayers = function (cb) { return d.collection("players").onSnapshot(function (q) { cb(q.docs.map(function (x) { return x.data(); })); }, function () {}); };
+    Store.reset = async function () { var q = await d.collection("players").get(); for (var i = 0; i < q.docs.length; i++) { try { await d.doc("players/" + q.docs[i].id).delete(); } catch (e) {} } await d.doc("session/state").set(DEFAULT_SESSION); };
+  }
+function useFirebase(root) {
+    Store.mode = "firebase";
+    var DB = "https://penny-project-fb5da-default-rtdb.firebaseio.com";
+    var ROOT = DB + "/" + root;
+    function poll(fn, ms) { var stop = false; (function tick() { if (stop) return; Promise.resolve(fn()).catch(function () {}).then(function () { if (!stop) setTimeout(tick, ms); }); })(); return function () { stop = true; }; }
+    function getJ(path) { return fetch(ROOT + path + ".json", { cache: "no-store" }).then(function (r) { return r.json(); }).catch(function () { return null; }); }
+    function putJ(path, v) { return fetch(ROOT + path + ".json", { method: "PUT", body: JSON.stringify(v) }); }
+    Store.setSession = function (o) { return putJ("/session", o); };
+    Store.onSession = function (cb) { return poll(async function () { cb(await getJ("/session")); }, 2000); };
+    Store.join = async function (name) { var k = "/players/" + keyOf(name); var cur = await getJ(k); if (!cur) await putJ(k, { name: name, rounds: {} }); };
+    Store.setScore = async function (name, round, rec) { var k = "/players/" + keyOf(name); var cur = (await getJ(k)) || { name: name, rounds: {} }; cur.rounds = cur.rounds || {}; cur.rounds[round] = rec; await putJ(k, cur); };
+    Store.onPlayers = function (cb) { return poll(async function () { var obj = await getJ("/players"); var out = []; if (obj) { for (var k in obj) out.push(obj[k]); } cb(out); }, 2500); };
+    Store.reset = async function () { await putJ("/players", null); await putJ("/session", DEFAULT_SESSION); };
+  }
+  async function initStore() {
+    try {
+      if (window.claude && window.claude.use) {
+        var d = await window.claude.use("db");
+        if (d) {
+          useDb(d);
+          try { var u = await window.claude.use("user"); if (u) canHost = !!((await u.canEdit()) || (await u.isOwner())); } catch (e) {}
+          return;
+        }
+      }
+    } catch (e) {}
+    if (window.storage) { useStorage(); canHost = true; return; }
+    try { useFirebase("seminaryGames/ironrod-bird"); canHost = true; return; } catch (e) {}
+    useLocal(); canHost = true;
+  }
+
+  /* ---------- scoring helpers ---------- */
+  var SPEED = [200, 100, 50];
+  function bonuses(round) {
+    var arr = players.filter(function (p) { return p.rounds && p.rounds[round]; })
+      .sort(function (a, b) { return a.rounds[round].time - b.rounds[round].time; });
+    var out = {};
+    arr.forEach(function (p, i) { if (i < SPEED.length) out[p.name] = SPEED[i]; });
+    return out;
+  }
+  function totals() {
+    var bon = {};
+    for (var i = 1; i <= ROUNDS; i++) bon[i] = bonuses(i);
+    return players.map(function (p) {
+      var r = p.rounds || {}, t = 0, tm = 0, per = {};
+      for (var k = 1; k <= ROUNDS; k++) if (r[k]) { per[k] = r[k].score + (bon[k][p.name] || 0); t += per[k]; tm += r[k].time; }
+      return { p: p, total: t, time: tm, per: per, bon: bon };
+    });
+  }
+  function ranked() {
+    var rows = totals(), rd = session.round;
+    if (boardMode === "round") {
+      rows.sort(function (a, b) { return (b.per[rd] || -1) - (a.per[rd] || -1) || ((a.p.rounds || {})[rd] && (b.p.rounds || {})[rd] ? a.p.rounds[rd].time - b.p.rounds[rd].time : 0); });
+    } else rows.sort(function (a, b) { return b.total - a.total || a.time - b.time; });
+    return rows;
+  }
+  function medal(rank) { return rank === 1 ? "\uD83E\uDD47" : rank === 2 ? "\uD83E\uDD48" : rank === 3 ? "\uD83E\uDD49" : rank; }
+  function boardHtml(limit, mine) {
+    var rows = ranked(), rd = session.round, cols = Math.max(1, Math.min(ROUNDS, rd));
+    if (!rows.length) return "<p class=\"muted\">No players yet.</p>";
+    var round = boardMode === "round";
+    var h = "<table><tr><th>#</th><th class=\"name\">Player</th>";
+    if (round) h += "<th>Fruit</th><th>Chest</th><th>Time</th><th>Speed bonus</th><th>Round pts</th>";
+    else for (var c = 1; c <= cols; c++) h += "<th class=\"" + (c === rd ? "cur" : "") + "\">R" + c + "</th>";
+    h += "<th>Total</th></tr>";
+    var shown = limit ? rows.slice(0, limit) : rows;
+    if (limit && mine) { var mi = rows.findIndex(function (r) { return r.p.name === mine; }); if (mi >= limit) shown = shown.concat([rows[mi]]); }
+    shown.forEach(function (r) {
+      var rank = rows.indexOf(r) + 1, rec = (r.p.rounds || {})[rd];
+      h += "<tr class=\"" + (mine && r.p.name === mine ? "me" : "") + "\"><td>" + medal(rank) + "</td><td class=\"name\">" + esc(r.p.name) + "</td>";
+      if (round) {
+        h += "<td>" + (rec ? rec.items + "/" + rec.nItems : "-") + "</td><td>" + (rec ? (rec.treasure ? "Yes" : "No") : "-") + "</td><td>" + (rec ? fmt(rec.time) : "-") + "</td><td>" + (rec ? (r.bon[rd][r.p.name] ? "+" + r.bon[rd][r.p.name] : "-") : "-") + "</td><td>" + (rec ? r.per[rd] : "-") + "</td>";
+      } else {
+        for (var c2 = 1; c2 <= cols; c2++) h += "<td class=\"" + (c2 === rd ? "cur" : "") + "\">" + (r.per[c2] != null ? r.per[c2] : "-") + "</td>";
+      }
+      h += "<td class=\"total\">" + r.total + "</td></tr>";
+    });
+    return h + "</table>";
+  }
+  function submitted(name, round) { var p = players.find(function (x) { return x.name === name; }); return !!(p && p.rounds && p.rounds[round]); }
+
+  /* ---------- views ---------- */
+  function doSetSession(obj) {
+    Store.setSession(obj).then(function () { writeErr = ""; render(); }).catch(function () {
+      writeErr = "Could not reach the game database from here. If you're testing this on its claude.ai preview link, that page can't reach outside services like Firebase — open the real link on your Netlify site to test this.";
+      banner();
+    });
+  }
+  function banner() {
+    var b = $("#banner");
+    if (!ready) { b.classList.add("hidden"); return; }
+    b.classList.remove("hidden");
+    if (Store.mode === "local") { b.className = "banner warn"; b.textContent = "Shared leaderboard is not available here, so scores stay on this device. Open this page from its published Claude link to sync everyone."; }
+    else { b.className = "banner"; b.textContent = "Live leaderboard connected."; }
+    if (writeErr) { b.className = "banner warn"; b.textContent = writeErr; }
+  }
+  function render() {
+    banner();
+    if (view === "play") return;
+    var app = $("#app"), foot = $("#foot"), wrap = $("#main");
+    wrap.classList.toggle("wide", hostView);
+    foot.innerHTML = canHost ? (hostView ? "<button class=\"btn link\" data-act=\"toplayer\" type=\"button\">Switch to player view</button>" : "<button class=\"btn link\" data-act=\"tohost\" type=\"button\">Host screen</button>") : "";
+    if (!ready) { app.innerHTML = "<div class=\"card\"><p class=\"muted\">Loading...</p></div>"; return; }
+    if (hostView) { app.innerHTML = hostHtml(); drawQr(); return; }
+    if (!me) { app.innerHTML = joinHtml(); return; }
+    app.innerHTML = lobbyHtml();
+  }
+  function head() { return "<h1 class=\"px\">THE IRON ROD MAZE</h1><p class=\"sub\">1 Nephi 8 seminary games</p>"; }
+
+  function joinHtml() {
+    return head() + "<div class=\"card\"><h2>Who are you?</h2><p class=\"muted\">Tap your name to join.</p><div class=\"chips\">" +
+      ROSTER.map(function (n) { return "<button class=\"chip\" data-act=\"name\" data-name=\"" + esc(n) + "\" type=\"button\">" + esc(n) + "</button>"; }).join("") +
+      "</div><p class=\"muted\" style=\"margin-top:14px\">Not on the list?</p><div class=\"row\"><input type=\"text\" id=\"customName\" maxlength=\"20\" placeholder=\"Type your first name\"><button class=\"btn\" data-act=\"custom\" type=\"button\">Join</button></div></div>";
+  }
+  function lobbyHtml() {
+    var r = session.round, st = session.status, done = submitted(me, r), h = head();
+    h += "<div class=\"card\"><div class=\"row\" style=\"justify-content:space-between\"><b>" + esc(me) + "</b><button class=\"btn link\" data-act=\"switch\" type=\"button\">Not you?</button></div>";
+    var msg;
+    if (st === "setup") msg = "<span class=\"px\">GET READY</span><br>Waiting for the host to pick the game.";
+    else if (st === "lobby") msg = "<span class=\"px\">ROUND " + r + "</span><br>Tonight\u2019s game: " + GAMES[session.game].label + ". Waiting for the host to open the round.";
+    else if (st === "open") msg = done ? "<span class=\"px\">SCORE SENT</span><br>Waiting for the host to show results." : "<span class=\"px\">ROUND " + r + " IS OPEN</span><br>Tap play. Race to the tree for a speed bonus, or collect golden fruit for points.";
+    else msg = "<span class=\"px\">ROUND " + r + " RESULTS</span><br>" + (r >= ROUNDS ? "Final standings below." : "Waiting for the next round.");
+    h += "<div class=\"status\" style=\"margin-top:10px\">" + msg + "</div>";
+    h += "<button class=\"btn primary big\" data-act=\"play\" type=\"button\"" + (st === "open" && !done ? "" : " disabled") + ">PLAY ROUND " + r + "</button></div>";
+    if (st === "results") { var bm = boardMode; boardMode = "total"; h += "<div class=\"card\"><h2>Standings</h2>" + boardHtml(r >= ROUNDS ? 0 : 5, me) + "</div>"; boardMode = bm; }
+    return h;
+  }
+  function hostHtml() {
+    var r = session.round, st = session.status;
+    if (st === "setup") {
+      return "<h1 class=\"px\">HOST SCREEN</h1><p class=\"sub\">Step 1: choose the game everyone will play.</p><div class=\"card\"><div class=\"games\">" +
+        Object.keys(GAMES).map(function (k) {
+          return "<button class=\"gcard\" data-act=\"pickgame\" data-game=\"" + k + "\" type=\"button\"><b>" + GAMES[k].label + "</b><span>" + GAMES[k].desc + "</span></button>";
+        }).join("") + "</div><p class=\"muted\">After you choose, the join QR code appears so students can scan and enter.</p></div>";
+    }
+    var n = players.length, sub = players.filter(function (p) { return p.rounds && p.rounds[r]; }).length;
+    var waiting = players.filter(function (p) { return !(p.rounds && p.rounds[r]); }).map(function (p) { return esc(p.name); });
+    var btn;
+    if (st === "lobby") btn = "<button class=\"btn primary big\" data-act=\"open\" type=\"button\">Open Round " + r + "</button>";
+    else if (st === "open") btn = "<button class=\"btn primary big\" data-act=\"results\" type=\"button\">Show results (" + sub + " of " + n + " in)</button>";
+    else if (r < ROUNDS) btn = "<button class=\"btn primary big\" data-act=\"next\" type=\"button\">Next round</button>";
+    else btn = "<div class=\"status\"><span class=\"px\">GAME OVER</span><br>Final standings are on the board.</div>";
+    var h = "<h1 class=\"px\">HOST SCREEN</h1><p class=\"sub\">" + GAMES[session.game].label + " | Round " + r + " of " + ROUNDS + ": " + (st === "lobby" ? "waiting to open" : st === "open" ? "round open" : "results") + "</p>";
+    h += "<div class=\"hostgrid\"><div>";
+    h += "<div class=\"card\"><h2>Scan to join on your phone</h2><div id=\"qrHolder\"></div></div>";
+    h += "<div class=\"card\"><h2>Round control</h2>" + btn;
+    if (st === "open" && waiting.length) h += "<p class=\"muted\" style=\"margin-top:10px\">Still playing: " + waiting.join(", ") + "</p>";
+    h += "<div class=\"row\" style=\"margin-top:10px\">" + "<button class=\"btn\" data-act=\"reset\" type=\"button\">" + (resetArm ? "Tap again to erase everything" : "Reset game") + "</button></div></div>";
+    h += "</div><div class=\"card\"><div class=\"row\" style=\"justify-content:space-between\"><h2 style=\"margin:0\">Leaderboard</h2><div class=\"tabs\" style=\"margin:0\">" +
+      "<button class=\"tab " + (boardMode === "total" ? "sel" : "") + "\" data-act=\"bm\" data-m=\"total\" type=\"button\">Total</button>" +
+      "<button class=\"tab " + (boardMode === "round" ? "sel" : "") + "\" data-act=\"bm\" data-m=\"round\" type=\"button\">This round</button></div></div>" +
+      "<p class=\"muted\">" + n + " player" + (n === 1 ? "" : "s") + " joined. Finish is 300 points, minus 25 per wrong turn, plus 50 per golden fruit and 150 for the treasure chest. The three fastest finishers each round earn 200, 100, and 50 bonus points.</p>" + boardHtml(0, "") + "</div></div>";
+    return h;
+  }
+  function drawQr() {
+    var link = location.href.split("#")[0], holder = $("#qrHolder");
+    if (!holder || typeof QRCode === "undefined") return;
+    holder.innerHTML = "<div class=\"qr-box\" id=\"qrBox\"></div><p class=\"muted\" style=\"text-align:center\">or go to this page's link directly</p>";
+    new QRCode($("#qrBox"), { text: link, width: 220, height: 220 });
+  }
+
+  /* ---------- play ---------- */
+  function startPlay() {
+    if (session.status !== "open" || !GAMES[session.game] || submitted(me, session.round)) return;
+    var game = session.game;
+    playing = { round: session.round, game: game };
+    var cfg = "window.IR_CFG={level:" + session.round + ",seed:" + ((session.seed | 0) || 12345) + "};";
+    $("#frame").srcdoc = GAMES[game].src.replace("/*IRCFG*/", cfg);
+    $("#playinfo").textContent = me + "  |  Round " + session.round + "  |  " + GAMES[game].label;
+    view = "play"; $("#playview").classList.remove("hidden"); $("#main").classList.add("hidden");
+  }
+  function closePlay() {
+    playing = null; view = "lobby"; $("#frame").srcdoc = "";
+    $("#playview").classList.add("hidden"); $("#main").classList.remove("hidden"); render();
+  }
+  window.addEventListener("message", function (e) {
+    if (!playing || e.source !== $("#frame").contentWindow) return;
+    var d = e.data || {};
+    if (d.type === "ironrod-score") {
+      var num = function (v, lo, hi) { v = +v; return isFinite(v) ? Math.max(lo, Math.min(hi, Math.round(v))) : 0; };
+      var rec = { score: num(d.score, 0, 2000), time: num(d.time, 0, 3600000), wrong: num(d.wrong, 0, 999), treasure: num(d.treasure, 0, 1), items: num(d.items, 0, 99), nItems: num(d.nItems, 0, 99), game: playing.game };
+      Store.setScore(me, playing.round, rec).then(function () { writeErr = ""; render(); }).catch(function () {
+        writeErr = "Your score could not be saved. Ask your teacher to open access for players.";
+        banner();
+      });
+    } else if (d.type === "ironrod-exit") closePlay();
+  });
+
+  /* ---------- actions ---------- */
+  function setName(n) {
+    n = String(n || "").trim().slice(0, 20); if (!n) return;
+    me = n; lsSet("ir-name", me);
+    Store.join(me).catch(function () { writeErr = "Could not join. Ask your teacher to open access for players."; banner(); });
+    render();
+  }
+  document.addEventListener("click", function (e) {
+    var t = e.target.closest("[data-act]"); if (!t) return;
+    var a = t.getAttribute("data-act");
+    if (a === "name") setName(t.getAttribute("data-name"));
+    else if (a === "custom") setName(($("#customName") || {}).value);
+    else if (a === "switch") { me = ""; lsSet("ir-name", ""); render(); }
+    else if (a === "pickgame") doSetSession({ round: 1, status: "lobby", game: t.getAttribute("data-game"), seed: 0 });
+    else if (a === "changegame") doSetSession({ round: 1, status: "setup", game: "", seed: 0 });
+    else if (a === "play") startPlay();
+    else if (a === "quit") closePlay();
+    else if (a === "tohost") { hostView = true; render(); }
+    else if (a === "toplayer") { hostView = false; render(); }
+    else if (a === "bm") { boardMode = t.getAttribute("data-m"); render(); }
+    else if (a === "qr") { var v = ($("#linkInput") || {}).value || ""; if (v.trim()) { lsSet("ir-link", v.trim()); drawQr(); } }
+    else if (a === "open") doSetSession({ round: session.round, status: "open", game: session.game, seed: 1 + Math.floor(Math.random() * 2000000000) });
+    else if (a === "results") doSetSession({ round: session.round, status: "results", game: session.game, seed: session.seed });
+    else if (a === "next") doSetSession({ round: Math.min(ROUNDS, session.round + 1), status: "lobby", game: session.game, seed: 0 });
+    else if (a === "reset") {
+      if (!resetArm) { resetArm = true; render(); setTimeout(function () { resetArm = false; render(); }, 4000); }
+      else { resetArm = false; Store.reset(); render(); }
+    }
+  });
+
+  /* ---------- start ---------- */
+  initStore().then(function () {
+    ready = true; view = "lobby";
+    if (/[?&]host=1/.test(location.search) && canHost) hostView = true;
+    Store.onSession(function (s) { session = s || DEFAULT_SESSION; if (view !== "play") render(); });
+    Store.onPlayers(function (l) { players = l || []; if (view !== "play") render(); });
+    if (me) Store.join(me).catch(function () {});
+    render();
+  });
+  render();
+})();
+</script>
+</body>
+</html>

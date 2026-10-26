@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>/* Practice mode: when this page runs inside the site's practice page, use its pretend database and give this screen its own storage. Does nothing otherwise. */
+(function(){try{var P=window.parent!==window&&window.parent.PRACTICE;if(!P)return;window.fetch=P.fetch;var s=P.storage(window.name||location.href);Object.defineProperty(window,'localStorage',{configurable:true,get:function(){return s.local;}});Object.defineProperty(window,'sessionStorage',{configurable:true,get:function(){return s.session;}});}catch(e){}})();</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>New Testament Jeopardy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#0B1D3A;
+    --navy-dark:#061225;
+    --navy-light:#132a52;
+    --gold:#D9A544;
+    --gold-light:#F0CB77;
+    --maroon:#7A2331;
+    --maroon-light:#9C3A48;
+    --cream:#F3ECD8;
+    --ink:#1F1A12;
+    --white:#FFFFFF;
+    --used:#0a1730;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Inter',sans-serif;
+    background:var(--navy-dark);
+    color:var(--white);
+    min-height:100vh;
+  }
+  h1,h2,h3,.display{
+    font-family:'Cinzel',serif;
+  }
+
+  /* ---------- SETUP SCREEN ---------- */
+  #setupScreen{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:radial-gradient(circle at top, var(--navy-light) 0%, var(--navy-dark) 70%);
+    padding:24px;
+  }
+  .setupCard{
+    background:var(--cream);
+    color:var(--ink);
+    border-radius:14px;
+    max-width:560px;
+    width:100%;
+    padding:40px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.45);
+    border:3px solid var(--gold);
+  }
+  .setupCard h1{
+    font-size:28px;
+    margin:0 0 6px;
+    color:var(--navy);
+    letter-spacing:0.5px;
+  }
+  .setupCard .sub{
+    font-size:14px;
+    color:var(--maroon);
+    margin:0 0 28px;
+    font-weight:600;
+  }
+  .field{margin-bottom:18px;}
+  .field label{
+    display:block;
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    font-weight:700;
+    margin-bottom:6px;
+    color:var(--navy);
+  }
+  select, input[type="text"], input[type="number"]{
+    width:100%;
+    padding:10px 12px;
+    border-radius:8px;
+    border:2px solid #cfc4a0;
+    font-size:15px;
+    font-family:'Inter',sans-serif;
+    background:var(--white);
+    color:var(--ink);
+  }
+  #teamNameFields{display:grid; gap:10px;}
+  .startBtn{
+    margin-top:10px;
+    width:100%;
+    padding:14px;
+    background:var(--maroon);
+    color:var(--white);
+    border:none;
+    border-radius:8px;
+    font-size:16px;
+    font-weight:700;
+    letter-spacing:0.03em;
+    cursor:pointer;
+    font-family:'Cinzel',serif;
+    transition:background .15s ease;
+  }
+  .startBtn:hover{background:var(--maroon-light);}
+
+  /* ---------- GAME SCREEN ---------- */
+  #gameScreen{display:none; padding:18px 22px 40px;}
+  .topBar{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+    margin-bottom:16px;
+  }
+  .roundTabs{display:flex; gap:8px;}
+  .roundTab{
+    padding:10px 18px;
+    border-radius:8px;
+    border:2px solid var(--gold);
+    background:transparent;
+    color:var(--gold-light);
+    font-family:'Cinzel',serif;
+    font-weight:700;
+    font-size:13px;
+    cursor:pointer;
+    letter-spacing:0.03em;
+  }
+  .roundTab.active{
+    background:var(--gold);
+    color:var(--navy-dark);
+  }
+  .utilBtns{display:flex; gap:8px; flex-wrap:wrap;}
+  .utilBtn{
+    padding:8px 14px;
+    border-radius:8px;
+    border:1px solid rgba(255,255,255,0.25);
+    background:var(--navy-light);
+    color:var(--white);
+    font-size:12px;
+    cursor:pointer;
+    font-weight:600;
+  }
+  .utilBtn:hover{background:#1c3a6b;}
+  .utilBtn.danger{border-color:var(--maroon-light); color:#ffb9c0;}
+
+  .doubleBanner{
+    display:none;
+    background:linear-gradient(90deg, var(--maroon), var(--maroon-light));
+    border-left:5px solid var(--gold);
+    padding:10px 16px;
+    border-radius:8px;
+    margin-bottom:14px;
+    font-size:13px;
+    line-height:1.5;
+  }
+  .doubleBanner.show{display:block;}
+  .doubleBanner b{font-family:'Cinzel',serif;}
+
+  /* Scoreboard */
+  #scoreboard{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
+    gap:12px;
+    margin-bottom:20px;
+  }
+  .teamCard{
+    background:var(--cream);
+    color:var(--ink);
+    border-radius:10px;
+    padding:12px 14px;
+    border:2px solid var(--gold);
+  }
+  .teamCard .tName{
+    font-weight:800;
+    font-size:14px;
+    margin-bottom:2px;
+    border:none;
+    background:transparent;
+    color:var(--navy);
+    width:100%;
+    font-family:'Inter',sans-serif;
+  }
+  .teamCard .tScore{
+    font-family:'Cinzel',serif;
+    font-size:26px;
+    font-weight:700;
+    color:var(--maroon);
+    margin:2px 0 8px;
+  }
+  .scoreAdjust{display:flex; gap:6px;}
+  .scoreAdjust input{
+    width:70px;
+    padding:6px;
+    font-size:13px;
+  }
+  .scoreAdjust button{
+    padding:6px 9px;
+    font-size:13px;
+    border-radius:6px;
+    border:none;
+    cursor:pointer;
+    font-weight:700;
+  }
+  .scoreAdjust .plusBtn{background:#2f7a4f; color:white;}
+  .scoreAdjust .minusBtn{background:var(--maroon); color:white;}
+
+  /* Board grid */
+  .roundTitle{
+    text-align:center;
+    font-size:20px;
+    margin:6px 0 16px;
+    color:var(--gold-light);
+    letter-spacing:0.04em;
+  }
+  .board{
+    display:none;
+    grid-template-columns:repeat(5, 1fr);
+    gap:6px;
+  }
+  .board.active{display:grid;}
+  .catHeader{
+    background:var(--navy);
+    border:2px solid var(--gold);
+    color:var(--white);
+    font-family:'Cinzel',serif;
+    font-size:13px;
+    font-weight:700;
+    text-align:center;
+    padding:12px 6px;
+    border-radius:6px;
+    min-height:64px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    letter-spacing:0.02em;
+    text-transform:uppercase;
+  }
+  .clueCell{
+    position:relative;
+    background:linear-gradient(160deg, var(--navy-light), var(--navy));
+    border:2px solid var(--gold);
+    border-radius:6px;
+    min-height:70px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    font-family:'Cinzel',serif;
+    font-size:24px;
+    font-weight:700;
+    color:var(--gold-light);
+    transition:transform .1s ease, background .15s ease;
+  }
+  .clueCell:hover{background:linear-gradient(160deg, #1c3a6b, var(--navy-light)); transform:scale(1.02);}
+  .clueCell.used{
+    background:var(--used);
+    color:#3c4a68;
+    cursor:default;
+    border-color:#2a3c60;
+  }
+  .clueCell.used:hover{transform:none;}
+  .toggleDot{
+    position:absolute;
+    top:4px;
+    right:4px;
+    width:16px;
+    height:16px;
+    border-radius:50%;
+    background:rgba(255,255,255,0.15);
+    border:1px solid rgba(255,255,255,0.4);
+    cursor:pointer;
+    font-size:10px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#fff;
+    line-height:1;
+  }
+  .toggleDot:hover{background:rgba(255,255,255,0.35);}
+
+  /* Modal */
+  #modalOverlay{
+    display:none;
+    position:fixed;
+    top:0; left:0; right:0; bottom:0;
+    background:rgba(0,0,0,0.75);
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    z-index:50;
+  }
+  #modalOverlay.show{display:flex;}
+  .modalCard{
+    background:var(--cream);
+    color:var(--ink);
+    border-radius:14px;
+    max-width:640px;
+    width:100%;
+    padding:32px;
+    border:3px solid var(--gold);
+    max-height:90vh;
+    overflow-y:auto;
+  }
+  .modalMeta{
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    font-weight:700;
+    color:var(--maroon);
+    margin-bottom:10px;
+  }
+  .modalQuestion{
+    font-size:19px;
+    font-weight:600;
+    line-height:1.4;
+    margin-bottom:18px;
+    color:var(--navy);
+  }
+  .revealBtn{
+    padding:10px 16px;
+    border-radius:8px;
+    border:none;
+    background:var(--navy);
+    color:var(--white);
+    font-weight:700;
+    cursor:pointer;
+    font-size:13px;
+    margin-bottom:16px;
+  }
+  .revealBox{
+    display:none;
+    background:var(--white);
+    border-left:4px solid var(--gold);
+    padding:14px 16px;
+    border-radius:8px;
+    margin-bottom:18px;
+    font-size:14px;
+    line-height:1.5;
+  }
+  .revealBox.show{display:block;}
+  .revealBox .refLine{font-weight:800; color:var(--maroon); margin-bottom:4px;}
+  .ctxBox{display:none;margin-top:12px;padding-top:12px;border-top:1px dashed #cfc4a0;}
+  .ctxBox.on{display:block;}
+  .ctxBox .ctxH{font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:800;color:var(--maroon);margin-bottom:4px;}
+  .ctxBox b{display:block;font-size:15px;color:var(--navy);margin-bottom:4px;}
+  .ctxBox p{margin:0;font-size:14px;line-height:1.55;color:#2b2418;}
+  .teamAwardGrid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(140px,1fr));
+    gap:8px;
+    margin-bottom:12px;
+  }
+  .awardBtn{
+    padding:10px 8px;
+    border-radius:8px;
+    border:2px solid #2f7a4f;
+    background:#eaf5ee;
+    color:#1f5c38;
+    font-weight:700;
+    font-size:13px;
+    cursor:pointer;
+  }
+  .awardBtn:hover{background:#d9efe0;}
+  .modalFooter{
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    margin-top:10px;
+    flex-wrap:wrap;
+  }
+  .footerBtn{
+    padding:10px 14px;
+    border-radius:8px;
+    border:none;
+    font-weight:700;
+    font-size:13px;
+    cursor:pointer;
+  }
+  .noAnswerBtn{background:#e0d9bf; color:var(--ink);}
+  .cancelBtn{background:transparent; color:var(--maroon); border:2px solid var(--maroon);}
+
+  @media (max-width:820px){
+    .board{grid-template-columns:repeat(5, minmax(70px,1fr)); overflow-x:auto;}
+    .catHeader{font-size:10px; padding:8px 4px;}
+    .clueCell{font-size:16px; min-height:56px;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ SETUP SCREEN ============ -->
+<div id="setupScreen">
+  <div class="setupCard">
+    <h1>New Testament Jeopardy</h1>
+    <p class="sub">The Gospels, Acts, and the Epistles</p>
+
+    <div class="field">
+      <label for="numTeams">Number of teams</label>
+      <select id="numTeams">
+        <option value="2">2 teams</option>
+        <option value="3">3 teams</option>
+        <option value="4" selected>4 teams</option>
+        <option value="5">5 teams</option>
+        <option value="6">6 teams</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Team names</label>
+      <div id="teamNameFields"></div>
+    </div>
+
+    <button class="startBtn" onclick="startGame()">Start Game</button>
+  </div>
+</div>
+
+<!-- ============ GAME SCREEN ============ -->
+<div id="gameScreen">
+  <div class="topBar">
+    <div class="roundTabs">
+      <button class="roundTab active" id="tabSingle" onclick="switchRound('single')">Jeopardy</button>
+      <button class="roundTab" id="tabDouble" onclick="switchRound('double')">Berean Double Jeopardy</button>
+    </div>
+    <div class="utilBtns">
+      <button class="utilBtn" onclick="resetBoard()">Reset board marks</button>
+      <button class="utilBtn danger" onclick="newGame()">New game / re-setup</button>
+    </div>
+  </div>
+
+  <div class="doubleBanner" id="doubleBanner">
+    <b>Berean Double Jeopardy:</b> named for the Bereans in Acts 17:11, who were called "more noble" because they searched the scriptures daily to double-check what they were taught. Values are doubled for this round.
+  </div>
+
+  <div id="scoreboard"></div>
+
+  <h2 class="roundTitle" id="roundTitle">New Testament Jeopardy</h2>
+
+  <div class="board active" id="boardSingle"></div>
+  <div class="board" id="boardDouble"></div>
+</div>
+
+<!-- ============ MODAL ============ -->
+<div id="modalOverlay">
+  <div class="modalCard">
+    <div class="modalMeta" id="modalMeta"></div>
+    <div class="modalQuestion" id="modalQuestion"></div>
+    <button class="revealBtn" id="revealBtn" onclick="revealAnswer()">Reveal scripture reference and answer</button>
+    <div class="revealBox" id="revealBox">
+      <div class="refLine" id="refLine"></div>
+      <div id="answerLine"></div>
+      <div class="ctxBox" id="ctxBox"><div class="ctxH">The story</div><b id="ctxTitle"></b><p id="ctxText"></p></div>
+    </div>
+    <div style="font-size:12px; text-transform:uppercase; letter-spacing:0.06em; font-weight:700; color:var(--navy); margin-bottom:8px;">Award points to</div>
+    <div class="teamAwardGrid" id="teamAwardGrid"></div>
+    <div class="modalFooter">
+      <button class="footerBtn noAnswerBtn" onclick="noOneAnswered()">No one answered correctly</button>
+      <button class="footerBtn cancelBtn" onclick="closeModal(false)">Cancel, do not mark used</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ------------------ DATA ------------------ */
+const data = {
+  single: {
+    label: "New Testament Jeopardy",
+    values: [100,200,300,400,500],
+    categories: [
+      {
+        title: "The Life of Jesus Christ",
+        clues: [
+          {q:"In which small town was Jesus born?", ref:"Luke 2:4-7", a:"Bethlehem."},
+          {q:"What did the angel Gabriel tell Mary she would conceive and bear?", ref:"Luke 1:30-31", a:"The Son of God."},
+          {q:"Jesus grew up in which town in Galilee?", ref:"Matthew 2:23", a:"Nazareth."},
+          {q:"At Jesus' baptism, what did the voice from heaven say?", ref:"Matthew 3:17", a:"\"This is my beloved Son, in whom I am well pleased.\""},
+          {q:"For how many days did Jesus fast in the wilderness before being tempted?", ref:"Matthew 4:2", a:"Forty days and forty nights."}
+        ]
+      },
+      {
+        title: "Apostles and Disciples",
+        clues: [
+          {q:"Which two brothers, both fishermen, were among the first Jesus called to follow Him?", ref:"Matthew 4:18-20", a:"Peter (Simon) and Andrew."},
+          {q:"Which apostle doubted the resurrection until he could touch the wounds of Christ?", ref:"John 20:24-28", a:"Thomas."},
+          {q:"Which apostle denied knowing Jesus three times?", ref:"Matthew 26:69-75", a:"Peter."},
+          {q:"Which apostle betrayed Jesus for thirty pieces of silver?", ref:"Matthew 26:14-16", a:"Judas Iscariot."},
+          {q:"Which apostle had once persecuted the Church before his conversion on the road to Damascus?", ref:"Acts 9:1-6", a:"Paul (Saul)."}
+        ]
+      },
+      {
+        title: "Parables and Teachings",
+        clues: [
+          {q:"In the parable of the sower, what happened to the seed that fell on good ground?", ref:"Matthew 13:8", a:"It brought forth fruit."},
+          {q:"What did the good Samaritan do for the man who had been robbed and beaten?", ref:"Luke 10:33-34", a:"He bound up his wounds and cared for him."},
+          {q:"In the parable of the prodigal son, how did the father react when his son returned?", ref:"Luke 15:20", a:"He ran to him, fell on his neck, and kissed him."},
+          {q:"What did Jesus say is the first and great commandment?", ref:"Matthew 22:37-38", a:"To love God with all thy heart, soul, and mind."},
+          {q:"In the Sermon on the Mount, what does Jesus say belongs to the poor in spirit?", ref:"Matthew 5:3", a:"The kingdom of heaven."}
+        ]
+      },
+      {
+        title: "Miracles",
+        clues: [
+          {q:"What was Jesus' first miracle, performed at a wedding?", ref:"John 2:1-11", a:"Turning water into wine."},
+          {q:"How many people did Jesus feed with five loaves and two fishes?", ref:"Matthew 14:17-21", a:"Five thousand."},
+          {q:"What did Jesus do for Lazarus, who had been dead four days?", ref:"John 11:43-44", a:"Raised him from the dead."},
+          {q:"What did Jesus say to calm the storm on the Sea of Galilee?", ref:"Mark 4:39", a:"\"Peace, be still.\""},
+          {q:"What happened to the man born blind after Jesus anointed his eyes with clay?", ref:"John 9:6-7", a:"He received his sight."}
+        ]
+      },
+      {
+        title: "The Crucifixion and Resurrection",
+        clues: [
+          {q:"On which hill was Jesus crucified?", ref:"Matthew 27:33", a:"Golgotha, also called Calvary."},
+          {q:"What did the soldiers do with Jesus' garments at the cross?", ref:"John 19:23-24", a:"They cast lots and parted them."},
+          {q:"Who asked Pilate for the body of Jesus and laid it in his own new tomb?", ref:"Matthew 27:57-60", a:"Joseph of Arimathaea."},
+          {q:"What did the angel tell the women who came to the tomb on the first day of the week?", ref:"Matthew 28:5-6", a:"\"He is not here: for he is risen.\""},
+          {q:"To whom did the resurrected Jesus first appear, according to John's gospel?", ref:"John 20:14-16", a:"Mary Magdalene."}
+        ]
+      }
+    ]
+  },
+  double: {
+    label: "Berean Double Jeopardy",
+    values: [200,400,600,800,1000],
+    categories: [
+      {
+        title: "Epistles and Doctrine",
+        clues: [
+          {q:"In 1 Corinthians 13, what does Paul say is greater than faith and hope?", ref:"1 Corinthians 13:13", a:"Charity."},
+          {q:"According to Paul, faith is the substance of things hoped for, and the evidence of what?", ref:"Hebrews 11:1", a:"Things not seen."},
+          {q:"What does James say faith without works is?", ref:"James 2:17, 20", a:"Dead."},
+          {q:"According to Paul, what is the wages of sin, and what is the gift of God?", ref:"Romans 6:23", a:"Death; eternal life through Jesus Christ."},
+          {q:"What does Paul say we are saved by, not of works, lest any man should boast?", ref:"Ephesians 2:8-9", a:"Grace, through faith."}
+        ]
+      },
+      {
+        title: "Book of Mormon Connections",
+        clues: [
+          {q:"Which resurrected being visited the Nephites and taught a sermon much like the Sermon on the Mount?", ref:"3 Nephi 11-14", a:"Jesus Christ."},
+          {q:"What did Samuel the Lamanite prophesy would be the sign of Christ's birth?", ref:"Helaman 14:2-6", a:"A night with no darkness."},
+          {q:"What sign did Samuel the Lamanite prophesy would mark Christ's death?", ref:"Helaman 14:20-27", a:"Three days of darkness."},
+          {q:"What does Moroni 10:4-5 say can help us know the truth of the Book of Mormon?", ref:"Moroni 10:4-5", a:"Asking God with a sincere heart and real intent, having faith in Christ; the Holy Ghost will manifest the truth."},
+          {q:"What did the Nephites do with their weapons of war after Christ's visit, according to 4 Nephi?", ref:"4 Nephi 1:17", a:"They had no more wars, and lived in peace."}
+        ]
+      },
+      {
+        title: "Acts of the Apostles",
+        clues: [
+          {q:"On the day of Pentecost, what appeared and sat upon the apostles?", ref:"Acts 2:3", a:"Cloven tongues like as of fire."},
+          {q:"Who was struck blind on the road to Damascus before his conversion?", ref:"Acts 9:3-8", a:"Saul, later called Paul."},
+          {q:"Which deacon was stoned to death, becoming the first Christian martyr?", ref:"Acts 7:58-60", a:"Stephen."},
+          {q:"Which Roman centurion became one of the first Gentile converts baptized by Peter?", ref:"Acts 10", a:"Cornelius."},
+          {q:"According to Acts 17:11, why were the Bereans called \"more noble\" than those in Thessalonica?", ref:"Acts 17:11", a:"They searched the scriptures daily to see whether Paul's teachings were so."}
+        ]
+      },
+      {
+        title: "Faith and Testimony",
+        clues: [
+          {q:"What did Peter say when Jesus asked, \"Whom say ye that I am?\"", ref:"Matthew 16:16", a:"\"Thou art the Christ, the Son of the living God.\""},
+          {q:"According to Romans 10:17, faith cometh by what?", ref:"Romans 10:17", a:"Hearing the word of God."},
+          {q:"What did the father of the boy with an unclean spirit say to Jesus, asking for help?", ref:"Mark 9:24", a:"\"Lord, I believe; help thou mine unbelief.\""},
+          {q:"What does John say is the purpose for which his gospel was written?", ref:"John 20:31", a:"That we might believe Jesus is the Christ, the Son of God, and have life through His name."},
+          {q:"What did Jesus tell Thomas about those who believe without seeing?", ref:"John 20:29", a:"\"Blessed are they that have not seen, and yet have believed.\""}
+        ]
+      },
+      {
+        title: "Latter-day Saint History and Doctrine",
+        clues: [
+          {q:"Who appeared to Joseph Smith in the Sacred Grove, answering his prayer about which church to join?", ref:"Joseph Smith-History 1:17", a:"God the Father and Jesus Christ."},
+          {q:"Which ancient prophet restored the keys of the gathering of Israel to Joseph Smith in the Kirtland Temple?", ref:"Doctrine and Covenants 110:11", a:"Moses."},
+          {q:"What three distinct beings, united in purpose, make up the Godhead?", ref:"general doctrine", a:"The Father, the Son, and the Holy Ghost."},
+          {q:"Who ordained Joseph Smith and Oliver Cowdery to the Aaronic Priesthood?", ref:"Joseph Smith-History 1:68-72", a:"John the Baptist."},
+          {q:"According to the Articles of Faith, what are the first principles and ordinances of the Gospel?", ref:"Articles of Faith 1:4", a:"Faith in the Lord Jesus Christ, repentance, baptism by immersion for the remission of sins, and laying on of hands for the gift of the Holy Ghost."}
+        ]
+      }
+    ]
+  }
+};
+/* Story shown after each answer, in board order (round, category, clue) */
+(function(){ var ST = [["The birth of Jesus (Luke 2)", "A decree from Caesar Augustus required everyone to be taxed in their family’s city, so Joseph and Mary traveled to Bethlehem. With no room in the inn, Mary laid her newborn son in a manger. That night an angel announced the Savior’s birth to shepherds, fulfilling Micah’s prophecy about Bethlehem."], ["Gabriel visits Mary (Luke 1)", "The angel Gabriel appeared to Mary, a young woman in Nazareth, and told her she would bear the Son of the Highest and call His name Jesus. Mary asked how this could be, and Gabriel said, “With God nothing shall be impossible.” Mary answered, “Behold the handmaid of the Lord; be it unto me according to thy word.”"], ["Jesus grows up in Nazareth (Matthew 2; Luke 2)", "After fleeing to Egypt to escape King Herod, Joseph and Mary settled in the small town of Nazareth in Galilee. There Jesus grew up as a carpenter’s son, and Luke says He “increased in wisdom and stature, and in favour with God and man.”"], ["The baptism of Jesus (Matthew 3)", "Jesus came to John at the Jordan River to be baptized. John felt unworthy, but Jesus said it was needed “to fulfil all righteousness.” As He came up out of the water, the Spirit descended like a dove and the Father spoke from heaven, showing three distinct members of the Godhead. Nephi explains why Jesus was baptized in 2 Nephi 31."], ["Jesus is tempted (Matthew 4)", "After His baptism, Jesus went into the wilderness and fasted forty days. Satan tempted Him three times: to turn stones into bread, to throw Himself from the temple, and to gain the world’s kingdoms by worshipping Satan. Each time Jesus answered with scripture, beginning, “It is written.”"], ["Fishers of men (Matthew 4)", "Walking by the Sea of Galilee, Jesus saw the brothers Peter and Andrew casting a net into the sea. He said, “Follow me, and I will make you fishers of men,” and they straightway left their nets. James and John soon followed too."], ["Thomas sees the risen Lord (John 20)", "Thomas was not with the other Apostles when the resurrected Jesus first appeared, and he said he would not believe unless he touched the wounds. Eight days later Jesus appeared again and invited him to do so. Thomas exclaimed, “My Lord and my God,” and Jesus said, “Blessed are they that have not seen, and yet have believed.”"], ["Peter denies Jesus (Matthew 26; John 21)", "At the Last Supper, Peter promised he would never deny Jesus, but Jesus said he would do so three times before the cock crew. That night, afraid in the high priest’s courtyard, Peter did, then went out and wept bitterly. After the Resurrection, Jesus asked Peter three times, “Lovest thou me?” and told him, “Feed my sheep.” Peter became the leader of the Church."], ["Judas betrays Jesus (Matthew 26 to 27)", "Judas Iscariot, one of the Twelve, agreed to betray Jesus to the chief priests for thirty pieces of silver, the same price Zechariah had prophesied (Zechariah 11:12). In Gethsemane he identified Jesus to the soldiers with a kiss. Afterward, filled with remorse, he threw the silver down in the temple."], ["Saul on the road to Damascus (Acts 9)", "Saul was traveling to arrest Christians when a light from heaven struck him down and a voice asked, “Saul, Saul, why persecutest thou me?” Blind for three days, he was healed and baptized by a disciple named Ananias. He became the Apostle Paul, the great missionary who wrote much of the New Testament."], ["The parable of the sower (Matthew 13)", "A sower scattered seed that fell on the wayside, stony ground, among thorns, and on good ground. Only the good ground produced a harvest. Jesus explained the seed is the word of God and the soils are the conditions of our hearts."], ["The good Samaritan (Luke 10)", "A lawyer asked Jesus, “Who is my neighbour?” Jesus told of a man beaten by thieves and left for dead. A priest and a Levite passed by, but a Samaritan, from a group the Jews despised, bound his wounds and paid for his care. Jesus said, “Go, and do thou likewise.”"], ["The prodigal son (Luke 15)", "A younger son took his inheritance and wasted it, then came home hoping only to be a servant. While he was still far off, his father ran to him, embraced him, and threw a feast. The older brother resented it, and the father reminded him, “All that I have is thine.” It teaches the joy of the Father over every returning child."], ["The great commandment (Matthew 22)", "A lawyer tried to test Jesus by asking which commandment was the greatest. Jesus answered: love God with all thy heart, soul, and mind, and the second is like it, love thy neighbour as thyself. On these two, He said, hang all the law and the prophets."], ["The Beatitudes (Matthew 5; 3 Nephi 12)", "Jesus began the Sermon on the Mount with blessings for the poor in spirit, the meek, the merciful, the pure in heart, and the peacemakers. These are attributes of His own character. He taught them again to the Nephites, adding that the poor in spirit who come unto Him are blessed."], ["Water into wine (John 2)", "At a wedding in Cana, the wine ran out. Mary told the servants, “Whatsoever he saith unto you, do it.” Jesus had them fill six stone waterpots with water, which became the best wine of the feast. It was the first miracle of His ministry."], ["Feeding the five thousand (Matthew 14; John 6)", "A great multitude followed Jesus to a remote place, and the only food was a boy’s five barley loaves and two small fishes. Jesus gave thanks and fed about five thousand men, plus women and children, with twelve baskets left over. The next day He taught, “I am the bread of life.”"], ["The raising of Lazarus (John 11)", "When His friend Lazarus died, Jesus arrived after he had been in the tomb four days. Martha testified, “I believe that thou art the Christ.” Jesus wept, then called, “Lazarus, come forth,” and Lazarus walked out alive. Jesus declared, “I am the resurrection, and the life.”"], ["Calming the storm (Mark 4)", "Crossing the Sea of Galilee, the disciples woke Jesus during a violent storm, crying, “Carest thou not that we perish?” He rebuked the wind and said, “Peace, be still,” and there was a great calm. He then asked, “How is it that ye have no faith?”"], ["The man born blind (John 9)", "The disciples asked whose sin caused a man to be born blind. Jesus said neither his nor his parents’, but that God’s works could be shown in him. Jesus put clay on his eyes and sent him to wash in the pool of Siloam, and he could see. Questioned by the Pharisees, he answered, “One thing I know, that, whereas I was blind, now I see.”"], ["The Crucifixion (Matthew 27; Luke 23)", "After suffering in Gethsemane and being condemned by Pilate, Jesus was crucified at Golgotha, “the place of a skull.” Soldiers cast lots for His clothing, fulfilling Psalm 22:18. On the cross He prayed, “Father, forgive them; for they know not what they do,” and finally said, “It is finished.”"], ["The Crucifixion (Matthew 27; Luke 23)", "After suffering in Gethsemane and being condemned by Pilate, Jesus was crucified at Golgotha, “the place of a skull.” Soldiers cast lots for His clothing, fulfilling Psalm 22:18. On the cross He prayed, “Father, forgive them; for they know not what they do,” and finally said, “It is finished.”"], ["Jesus is buried (Matthew 27; John 19)", "Joseph of Arimathaea, a rich man and a secret disciple, asked Pilate for the body of Jesus. With Nicodemus, he wrapped it in linen with spices and laid it in his own new tomb carved in rock, fulfilling Isaiah’s prophecy that He would be “with the rich in his death” (Isaiah 53:9)."], ["The empty tomb (Matthew 28)", "Early on the first day of the week, women came to the tomb. An angel had rolled back the stone and told them, “He is not here: for he is risen, as he said,” and sent them to tell the disciples. This is why Christians worship on Sunday, the day of the Resurrection."], ["Mary Magdalene at the tomb (John 20)", "Mary Magdalene stayed weeping at the empty tomb and did not recognize the man who spoke to her, thinking he was the gardener. When He said her name, “Mary,” she knew Him and cried, “Rabboni,” meaning Master. She became the first witness of the resurrected Lord."], ["Charity never faileth (1 Corinthians 13)", "Paul wrote to the Corinthian Saints that even great gifts mean nothing without charity, which is patient, kind, and not proud. Faith, hope, and charity all matter, “but the greatest of these is charity.” Mormon taught that charity is “the pure love of Christ” (Moroni 7:47)."], ["The roll call of faith (Hebrews 11)", "Hebrews 11 defines faith as “the substance of things hoped for, the evidence of things not seen,” then lists people who acted on it: Abel, Enoch, Noah, Abraham, Sarah, Moses, Rahab, and more. Alma gives a similar definition in Alma 32:21."], ["Faith and works (James 2)", "James taught that true faith shows itself in action, using Abraham’s willingness to offer Isaac as an example. Faith that does nothing is dead. This same epistle contains James 1:5, the verse that led young Joseph Smith to pray in the grove."], ["The gift of God (Romans 6)", "Paul taught that sin leads to spiritual death, the “wages” we earn. But eternal life is not earned; it is a gift from God through Jesus Christ. Because of His Atonement, we can be made alive spiritually and walk in “newness of life.”"], ["Saved by grace (Ephesians 2)", "Paul reminded the Ephesian Saints that salvation comes by the grace of God through faith, not because we earned it, and that we were then created unto good works. Nephi taught the same truth: “it is by grace that we are saved, after all we can do” (2 Nephi 25:23)."], ["Christ visits the Nephites (3 Nephi 11 to 28)", "After great destruction at His death, a voice from heaven introduced “my Beloved Son,” and the resurrected Jesus descended to the people gathered at the temple in Bountiful. They felt the prints of the nails, one by one. He taught them, healed their sick, blessed their children, and organized His Church among them."], ["Samuel the Lamanite (Helaman 13 to 16)", "Samuel, a Lamanite prophet, stood on the wall of Zarahemla and warned the Nephites to repent; their arrows and stones could not hit him. He prophesied that in five years a day, a night, and a day without darkness and a new star would mark Christ’s birth, and that darkness would mark His death. Both signs were fulfilled (3 Nephi 1 and 8)."], ["Darkness at Christ’s death (3 Nephi 8 to 10)", "At the Savior’s death, storms, earthquakes, and fire destroyed many Nephite cities, and thick darkness covered the land for three days, so heavy that no candle could be lit. Out of the darkness the voice of Jesus Christ invited the survivors to repent and come unto Him."], ["Moroni’s promise (Moroni 10)", "Moroni, the last Nephite prophet, wrote his final words around AD 421 before sealing up the plates. He invited everyone who reads the Book of Mormon to ask God, with a sincere heart, real intent, and faith in Christ, whether it is true, and promised the Holy Ghost would manifest the truth."], ["A Zion society (4 Nephi)", "After the Savior’s visit, the people were all converted. There was no contention, no rich or poor, and no “-ites,” because they had all things in common and the love of God was in their hearts. This peace lasted about two hundred years, until pride crept back in."], ["The day of Pentecost (Acts 2)", "Jews from many nations were in Jerusalem for the feast of Pentecost when a sound like a rushing mighty wind filled the house, and cloven tongues like fire rested on the Apostles. They spoke in languages everyone could understand. Peter preached, “Repent, and be baptized,” and about three thousand were baptized that day."], ["Saul on the road to Damascus (Acts 9)", "Saul was traveling to arrest Christians when a light from heaven struck him down and a voice asked, “Saul, Saul, why persecutest thou me?” Blind for three days, he was healed and baptized by a disciple named Ananias. He became the Apostle Paul, the great missionary who wrote much of the New Testament."], ["Stephen, the first martyr (Acts 6 to 7)", "Stephen was one of seven men chosen to help the Apostles, “full of faith and of the Holy Ghost.” Accused before the council, he bore powerful testimony, then saw the heavens open and Jesus standing on the right hand of God. As he was stoned, he prayed, “Lord, lay not this sin to their charge.” A young man named Saul watched."], ["Peter and Cornelius (Acts 10)", "Cornelius, a devout Roman centurion, was told by an angel to send for Peter. Meanwhile, Peter saw a vision of unclean animals and heard, “What God hath cleansed, that call not thou common.” When the Holy Ghost fell on Cornelius’s household, Peter baptized them, and the gospel opened to the Gentiles."], ["The noble Bereans (Acts 17)", "Paul and Silas preached in Berea after being driven out of Thessalonica. The Bereans received the word eagerly but also searched the scriptures daily to see whether what they were taught was true, and many believed. They are a model for studying the gospel for ourselves."], ["Thou art the Christ (Matthew 16)", "At Caesarea Philippi, Jesus asked His disciples, “Whom say ye that I am?” Peter answered, “Thou art the Christ, the Son of the living God.” Jesus said this knowledge came not from man but by revelation from the Father, the rock on which He would build His Church, and promised Peter the keys of the kingdom."], ["Faith comes by hearing (Romans 10)", "Paul taught that whoever calls on the name of the Lord will be saved, then asked how people can believe without hearing, or hear without a preacher. Faith comes by hearing the word of God, which is why missionaries go out and why personal scripture study matters."], ["Help thou mine unbelief (Mark 9)", "A father brought his afflicted son to Jesus after the disciples could not heal him, asking for help “if thou canst do any thing.” Jesus said, “All things are possible to him that believeth.” With tears, the father cried, “Lord, I believe; help thou mine unbelief,” and Jesus healed the boy. Even small, imperfect faith is enough to begin."], ["Why John wrote his Gospel (John 20)", "John, who called himself the disciple whom Jesus loved, said Jesus did many more signs than he could record. He wrote the ones he did so that readers might believe Jesus is the Christ, the Son of God, and that believing, they might have life through His name."], ["Thomas sees the risen Lord (John 20)", "Thomas was not with the other Apostles when the resurrected Jesus first appeared, and he said he would not believe unless he touched the wounds. Eight days later Jesus appeared again and invited him to do so. Thomas exclaimed, “My Lord and my God,” and Jesus said, “Blessed are they that have not seen, and yet have believed.”"], ["The First Vision (Joseph Smith, History 1)", "In 1820, fourteen-year-old Joseph Smith was confused by competing churches. After reading James 1:5, he prayed in a grove near his home in New York. A pillar of light descended, and God the Father and Jesus Christ appeared. The Father said, “This is My Beloved Son. Hear Him!” Joseph was told to join none of the churches."], ["Keys restored in the Kirtland Temple (D&C 110)", "On April 3, 1836, one week after the Kirtland Temple was dedicated, Jesus Christ appeared to Joseph Smith and Oliver Cowdery and accepted the temple. Then Moses restored the keys of the gathering of Israel, Elias the dispensation of the gospel of Abraham, and Elijah the sealing power."], ["The Godhead", "Latter-day Saints believe the Godhead is three separate beings, one in purpose. The Father and the Son have bodies of flesh and bones, and the Holy Ghost is a personage of spirit (D&C 130:22). All three were present at the Savior’s baptism, and the Father and Son appeared together in the First Vision."], ["The Aaronic Priesthood restored (Joseph Smith, History 1)", "On May 15, 1829, while translating the Book of Mormon, Joseph Smith and Oliver Cowdery went to the woods near the Susquehanna River to pray about baptism. John the Baptist appeared, conferred the Aaronic Priesthood on them, and told them to baptize each other. Peter, James, and John later restored the Melchizedek Priesthood."], ["The Articles of Faith", "In 1842 Joseph Smith wrote a letter to Chicago newspaper editor John Wentworth describing the Church’s history and beliefs. It ended with thirteen statements now called the Articles of Faith. The fourth lists the first principles and ordinances of the gospel."]]; var n = 0; ['single','double'].forEach(function(r){ data[r].categories.forEach(function(c){ c.clues.forEach(function(q){ var s = ST[n++]; if (s) { q.story = s[0]; q.ctx = s[1]; } }); }); }); })();
+
+
+/* ------------------ STATE ------------------ */
+let teams = [];
+let usedState = { single: {}, double: {} };
+let currentRound = 'single';
+let pendingClue = null; // {round, catIdx, clueIdx, value}
+
+/* ------------------ SETUP SCREEN ------------------ */
+const numTeamsSelect = document.getElementById('numTeams');
+function renderTeamNameFields(){
+  const n = parseInt(numTeamsSelect.value, 10);
+  const container = document.getElementById('teamNameFields');
+  container.innerHTML = '';
+  for(let i=0; i<n; i++){
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.id = 'teamNameInput' + i;
+    input.value = 'Team ' + (i+1);
+    container.appendChild(input);
+  }
+}
+numTeamsSelect.addEventListener('change', renderTeamNameFields);
+renderTeamNameFields();
+
+function startGame(){
+  const n = parseInt(numTeamsSelect.value, 10);
+  teams = [];
+  for(let i=0; i<n; i++){
+    const nameInput = document.getElementById('teamNameInput' + i);
+    const name = (nameInput && nameInput.value.trim()) || ('Team ' + (i+1));
+    teams.push({name: name, score: 0});
+  }
+  initUsedState();
+  document.getElementById('setupScreen').style.display = 'none';
+  document.getElementById('gameScreen').style.display = 'block';
+  renderScoreboard();
+  renderBoard('single');
+  renderBoard('double');
+}
+
+function initUsedState(){
+  ['single','double'].forEach(roundKey => {
+    usedState[roundKey] = {};
+    data[roundKey].categories.forEach((cat, ci) => {
+      usedState[roundKey][ci] = {};
+      cat.clues.forEach((clue, qi) => {
+        usedState[roundKey][ci][qi] = false;
+      });
+    });
+  });
+}
+
+/* ------------------ SCOREBOARD ------------------ */
+function renderScoreboard(){
+  const board = document.getElementById('scoreboard');
+  board.innerHTML = '';
+  teams.forEach((team, idx) => {
+    const card = document.createElement('div');
+    card.className = 'teamCard';
+    card.innerHTML = `
+      <input class="tName" value="${escapeHtml(team.name)}" onchange="renameTeam(${idx}, this.value)">
+      <div class="tScore" id="scoreVal${idx}">${team.score}</div>
+      <div class="scoreAdjust">
+        <input type="number" id="adjInput${idx}" value="100" step="50">
+        <button class="plusBtn" onclick="adjustScore(${idx}, 1)">+</button>
+        <button class="minusBtn" onclick="adjustScore(${idx}, -1)">-</button>
+      </div>
+    `;
+    board.appendChild(card);
+  });
+}
+function renameTeam(idx, newName){
+  teams[idx].name = newName.trim() || teams[idx].name;
+}
+function adjustScore(idx, direction){
+  const input = document.getElementById('adjInput' + idx);
+  const amount = parseInt(input.value, 10) || 0;
+  teams[idx].score += (direction * amount);
+  document.getElementById('scoreVal' + idx).textContent = teams[idx].score;
+}
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+/* ------------------ BOARD ------------------ */
+function renderBoard(roundKey){
+  const boardEl = document.getElementById(roundKey === 'single' ? 'boardSingle' : 'boardDouble');
+  boardEl.innerHTML = '';
+  const round = data[roundKey];
+
+  round.categories.forEach(cat => {
+    const header = document.createElement('div');
+    header.className = 'catHeader';
+    header.textContent = cat.title;
+    boardEl.appendChild(header);
+  });
+
+  round.values.forEach((value, rowIdx) => {
+    round.categories.forEach((cat, catIdx) => {
+      const used = usedState[roundKey][catIdx][rowIdx];
+      const cell = document.createElement('div');
+      cell.className = 'clueCell' + (used ? ' used' : '');
+      cell.innerHTML = `$${value}<div class="toggleDot" title="Manually mark used or available" onclick="toggleManual(event,'${roundKey}',${catIdx},${rowIdx})">${used ? '✓' : ''}</div>`;
+      if(!used){
+        cell.addEventListener('click', (e) => {
+          if(e.target.classList.contains('toggleDot')) return;
+          openClue(roundKey, catIdx, rowIdx, value);
+        });
+      }
+      boardEl.appendChild(cell);
+    });
+  });
+}
+
+function toggleManual(e, roundKey, catIdx, rowIdx){
+  e.stopPropagation();
+  usedState[roundKey][catIdx][rowIdx] = !usedState[roundKey][catIdx][rowIdx];
+  renderBoard(roundKey);
+}
+
+function switchRound(roundKey){
+  currentRound = roundKey;
+  document.getElementById('tabSingle').classList.toggle('active', roundKey === 'single');
+  document.getElementById('tabDouble').classList.toggle('active', roundKey === 'double');
+  document.getElementById('boardSingle').classList.toggle('active', roundKey === 'single');
+  document.getElementById('boardDouble').classList.toggle('active', roundKey === 'double');
+  document.getElementById('roundTitle').textContent = data[roundKey].label;
+  document.getElementById('doubleBanner').classList.toggle('show', roundKey === 'double');
+}
+
+function resetBoard(){
+  if(!confirm('Reset all clue marks on both boards? Scores will not change.')) return;
+  initUsedState();
+  renderBoard('single');
+  renderBoard('double');
+}
+
+function newGame(){
+  if(!confirm('Start a brand new game? This clears all scores and board progress.')) return;
+  document.getElementById('gameScreen').style.display = 'none';
+  document.getElementById('setupScreen').style.display = 'flex';
+}
+
+/* ------------------ MODAL ------------------ */
+function openClue(roundKey, catIdx, clueIdx, value){
+  const cat = data[roundKey].categories[catIdx];
+  const clue = cat.clues[clueIdx];
+  pendingClue = {roundKey, catIdx, clueIdx, value};
+
+  document.getElementById('modalMeta').textContent = `${cat.title}: $${value}`;
+  document.getElementById('modalQuestion').textContent = clue.q;
+  document.getElementById('refLine').textContent = clue.ref;
+  document.getElementById('answerLine').textContent = clue.a;
+  var cb = document.getElementById('ctxBox');
+  if (clue.story) { document.getElementById('ctxTitle').textContent = clue.story; document.getElementById('ctxText').textContent = clue.ctx; cb.classList.add('on'); } else { cb.classList.remove('on'); }
+  document.getElementById('revealBox').classList.remove('show');
+  document.getElementById('revealBtn').style.display = 'inline-block';
+
+  const awardGrid = document.getElementById('teamAwardGrid');
+  awardGrid.innerHTML = '';
+  teams.forEach((team, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'awardBtn';
+    btn.textContent = `${team.name} (+$${value})`;
+    btn.onclick = () => awardPoints(idx);
+    awardGrid.appendChild(btn);
+  });
+
+  document.getElementById('modalOverlay').classList.add('show');
+}
+
+function revealAnswer(){
+  document.getElementById('revealBox').classList.add('show');
+}
+
+function awardPoints(teamIdx){
+  if(!pendingClue) return;
+  teams[teamIdx].score += pendingClue.value;
+  markUsedAndClose();
+}
+
+function noOneAnswered(){
+  markUsedAndClose();
+}
+
+function markUsedAndClose(){
+  if(pendingClue){
+    usedState[pendingClue.roundKey][pendingClue.catIdx][pendingClue.clueIdx] = true;
+    renderBoard(pendingClue.roundKey);
+  }
+  renderScoreboard();
+  closeModal(false);
+}
+
+function closeModal(){
+  document.getElementById('modalOverlay').classList.remove('show');
+  pendingClue = null;
+}
+</script>
+</body>
+</html>

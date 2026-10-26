@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script>/* Practice mode: when this page runs inside the site's practice page, use its pretend database and give this screen its own storage. Does nothing otherwise. */
+(function(){try{var P=window.parent!==window&&window.parent.PRACTICE;if(!P)return;window.fetch=P.fetch;var s=P.storage(window.name||location.href);Object.defineProperty(window,'localStorage',{configurable:true,get:function(){return s.local;}});Object.defineProperty(window,'sessionStorage',{configurable:true,get:function(){return s.session;}});}catch(e){}})();</script><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Advisor to King Hezekiah: Host</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>:root{--bg-page:#0E1B2B;--bg-panel:#16273B;--bg-panel-raised:#1E3450;--ink:#F1F6FB;--muted:#9FB4C9;--line:rgba(241,246,251,0.14);--accent:#C98B5B;--ok:#3FA66B;--bad:#C65B5B;color-scheme:dark;}
+*{box-sizing:border-box;}
+html,body{margin:0;min-height:100%;background:var(--bg-page);color:var(--ink);font-family:'Inter',-apple-system,Segoe UI,Roboto,sans-serif;}
+body{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);}
+.wrap{max-width:860px;margin:0 auto;padding:20px 16px 50px;}
+.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:6px;}
+h1{font-family:'Fraunces',Georgia,serif;font-size:1.9rem;margin:0 0 8px;}
+h2{font-family:'Fraunces',Georgia,serif;font-size:1.3rem;margin:0 0 10px;}
+.card{background:var(--bg-panel);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px;}
+.muted{color:var(--muted);font-size:0.95rem;}
+.btn{font:inherit;font-weight:700;padding:14px 20px;border-radius:10px;border:1px solid var(--line);background:var(--bg-panel-raised);color:var(--ink);cursor:pointer;}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#06121D;}
+.btn.big{font-size:1.1rem;width:100%;padding:18px;margin-top:6px;}
+.btn[disabled]{opacity:0.4;cursor:default;}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+input[type=text]{font:inherit;font-size:1.1rem;padding:14px;border-radius:10px;border:1px solid var(--line);background:var(--bg-panel-raised);color:var(--ink);width:100%;margin-bottom:10px;}
+.qr-box{display:flex;justify-content:center;padding:16px;background:#fff;border-radius:14px;margin:10px auto;width:max-content;max-width:100%;}
+.code{font-family:'IBM Plex Mono',monospace;font-size:2.4rem;letter-spacing:0.18em;text-align:center;color:var(--accent);margin:6px 0;}
+.tag{display:inline-block;background:var(--bg-panel-raised);border-radius:20px;padding:6px 14px;margin:4px;font-size:0.95rem;}
+.lb{width:100%;border-collapse:collapse;margin-top:6px;}
+.lb td,.lb th{padding:9px 6px;border-bottom:1px solid var(--line);text-align:left;font-size:1rem;}
+.lb th{color:var(--muted);font-weight:600;font-size:0.78rem;text-transform:uppercase;}
+.q{font-family:'Fraunces',Georgia,serif;font-size:1.6rem;line-height:1.35;margin:8px 0 16px;}
+.verse{font-family:'Fraunces',Georgia,serif;font-size:1.45rem;line-height:1.45;font-style:italic;margin:8px 0 16px;}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.opt{padding:16px;border-radius:12px;border:1px solid var(--line);background:var(--bg-panel-raised);font-size:1.1rem;}
+.opt.right{border-color:var(--ok);background:rgba(63,166,107,0.25);}
+.opt .n{font-family:'IBM Plex Mono',monospace;color:var(--muted);margin-right:8px;}
+.ans{display:block;width:100%;text-align:left;font:inherit;font-size:1.1rem;padding:18px 16px;margin-bottom:10px;border-radius:12px;border:1px solid var(--line);background:var(--bg-panel-raised);color:var(--ink);cursor:pointer;}
+.ans.t{background:rgba(63,166,107,0.2);border-color:var(--ok);text-align:center;font-size:1.4rem;font-weight:700;}
+.ans.f{background:rgba(198,91,91,0.2);border-color:var(--bad);text-align:center;font-size:1.4rem;font-weight:700;}
+.timerbar{height:8px;border-radius:4px;background:var(--bg-panel-raised);overflow:hidden;margin:6px 0 12px;}
+.timerbar i{display:block;height:100%;background:var(--accent);transition:width .25s linear;}
+.result-big{font-family:'Fraunces',Georgia,serif;font-size:2.2rem;font-weight:700;margin:6px 0;}
+.good{color:var(--ok);} .bad{color:var(--bad);}
+.reveal{background:var(--bg-panel-raised);border-radius:12px;padding:14px 16px;margin-top:6px;}
+.podium{display:flex;justify-content:center;align-items:flex-end;gap:14px;margin:20px 0;}
+.podium .spot{background:var(--bg-panel-raised);border-radius:10px 10px 0 0;padding:14px 16px;text-align:center;min-width:100px;}
+.podium .g1{min-height:130px;background:linear-gradient(180deg,#F0CB77,#C9A227);color:#2b2418;}
+.podium .g2{min-height:96px;} .podium .g3{min-height:72px;}
+.ph{max-width:480px;margin:0 auto;}
+.center{text-align:center;}
+@media (max-width:600px){ .opts{grid-template-columns:1fr;} .q{font-size:1.3rem;} .verse{font-size:1.2rem;} }
+.emoji{font-size:4rem;line-height:1.3;text-align:center;margin:10px 0 18px;letter-spacing:0.1em;}
+.order{margin:0 0 6px;padding-left:28px;font-size:1.15rem;line-height:1.7;}
+.order li::marker{color:var(--accent);font-weight:700;}
+.ans.picked{border-color:var(--accent);background:rgba(255,255,255,0.08);opacity:0.75;}
+.badge{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;border:1px solid var(--line);margin-right:10px;font-weight:700;font-family:'IBM Plex Mono',monospace;}
+.ans.picked .badge{background:var(--accent);color:#06121D;border-color:var(--accent);}
+.scene{font-size:1.15rem;line-height:1.5;margin:4px 0 10px;}
+.meters{display:grid;gap:10px;}
+.meter{font-size:0.95rem;}
+.mtrack{height:10px;border-radius:5px;background:var(--bg-panel-raised);overflow:hidden;margin-top:4px;}
+.mtrack i{display:block;height:100%;background:var(--accent);transition:width .4s ease;}
+.tally{display:grid;gap:8px;margin-top:8px;}
+.trow{padding:10px 12px;border-radius:10px;border:1px solid var(--line);}
+.trow.dec{border-color:var(--accent);background:rgba(255,255,255,0.05);}
+.trow .n,.opt .n{font-family:'IBM Plex Mono',monospace;color:var(--muted);margin-right:8px;}
+.did{border-color:var(--accent);}
+ul.plain{margin:0;padding-left:20px;line-height:1.6;}
+.pts{font-family:'IBM Plex Mono',monospace;font-size:0.8rem;color:var(--muted);margin-left:6px;white-space:nowrap;}
+.pts.top{color:var(--accent);font-weight:700;}
+</style></head><body><div class="wrap" id="app"></div>
+<script>var CFG={"title": "Advisor to King Hezekiah", "mode": "class", "seconds": 40, "accent": "#C98B5B", "meters": [{"k": "safety", "label": "Jerusalem's safety", "start": 50, "color": "#4FA3D1"}, {"k": "faith", "label": "Trust in the Lord", "start": 50, "color": "#E3B04B"}, {"k": "unity", "label": "The people's courage", "start": 50, "color": "#58B38A"}], "prompt": "What do you advise the king to do?", "didLabel": "What Hezekiah actually did", "how": "You are King Hezekiah's royal council while the Assyrian army threatens Jerusalem (Isaiah 36 to 39). Each round, everyone votes on their phone. The most popular advice becomes the council's decision and moves the kingdom's meters. Points are private to you: 1,000 for the advice that matches the scripture account, with partial credit for good advice. Several choices sound wise, so knowing the story is the edge.", "waitText": "Watch the screen. The council meets soon", "endings": [{"min": {"safety": 70, "faith": 70}, "title": "Jerusalem is delivered", "text": "Like Hezekiah, the council trusted the Lord and His prophet, and the city was saved."}, {"min": {"faith": 55}, "title": "A faithful council", "text": "The council leaned on the Lord, though some choices made things harder than they needed to be."}, {"title": "A kingdom on the edge", "text": "The council relied mostly on its own strength. Compare your choices with what Hezekiah and Isaiah did."}], "discuss": ["Which round was hardest to choose? What made two answers feel close?", "Rabshakeh shouted to scare the people. What voices try to shake our trust in the Lord today?", "Hezekiah \"spread\" the letter before the Lord (Isaiah 37:14). What could that look like for us?"], "rounds": [{"title": "The Assyrians are coming", "ref": "Isaiah 36:1", "scene": "Sennacherib, king of Assyria, has captured the fenced cities of Judah. His army is heading for Jerusalem.", "options": [{"t": "Send Sennacherib a large payment so he turns back", "pts": 500, "fx": {"safety": 5, "unity": -5}}, {"t": "Ask Egypt for chariots and horsemen", "pts": 300, "fx": {"safety": 5, "faith": -10}}, {"t": "Cut off the outside springs and repair the wall", "pts": 1000, "fx": {"safety": 15, "faith": 10, "unity": 15}}, {"t": "Call a fast and keep everyone inside the walls", "pts": 600, "fx": {"faith": 10, "unity": 5}}], "did": "Hezekiah did two of these. He paid Sennacherib silver and gold, even stripping gold from the temple doors, but the Assyrians came anyway (2 Kings 18:14-17). Then he stopped the springs, built up the wall, and told the people, \"With him is an arm of flesh; but with us is the LORD our God\" (2 Chronicles 32:3-8).", "didRef": "2 Kings 18:14-17; 2 Chronicles 32:3-8"}, {"title": "Shouting at the wall", "ref": "Isaiah 36:11-21", "scene": "The Assyrian commander, Rabshakeh, shouts in Hebrew to the people on the wall: do not let Hezekiah make you trust in the Lord; no god has saved any nation from Assyria.", "options": [{"t": "Ask him to speak in the Syrian language so the people cannot understand", "pts": 700, "fx": {"unity": 5}}, {"t": "Have a priest answer him with words of faith", "pts": 500, "fx": {"faith": 5, "unity": 5, "safety": -5}}, {"t": "Answer him not a word", "pts": 1000, "fx": {"unity": 10, "faith": 10}}, {"t": "Bring the people down off the wall so they stop listening", "pts": 400, "fx": {"safety": -5}}], "did": "Hezekiah's officials first asked Rabshakeh to speak in the Syrian language, and he shouted louder (Isaiah 36:11-13). Then \"they held their peace, and answered him not a word: for the king's commandment was, saying, Answer him not\" (Isaiah 36:21)."}, {"title": "The king hears the report", "ref": "Isaiah 37:1-4", "scene": "Hezekiah's officials come to him with their clothes torn and tell him everything Rabshakeh said.", "options": [{"t": "Gather the generals and plan how to hold the gates", "pts": 400, "fx": {"safety": 10}}, {"t": "Call the whole city to the temple for a fast", "pts": 700, "fx": {"faith": 10, "unity": 10}}, {"t": "Go to the temple in sackcloth and send leaders to Isaiah", "pts": 1000, "fx": {"faith": 15, "unity": 10}}, {"t": "Send gifts to the commander to buy more time", "pts": 200, "fx": {"safety": 5, "faith": -5}}], "did": "Hezekiah rent his clothes, covered himself with sackcloth, went into the house of the Lord, and sent his leaders to Isaiah the prophet asking him to pray (Isaiah 37:1-4)."}, {"title": "The threatening letter", "ref": "Isaiah 37:9-21", "scene": "Sennacherib sends Hezekiah a letter: your God is deceiving you; look at all the nations Assyria has destroyed.", "options": [{"t": "Read the letter to the people so they know what they face", "pts": 300, "fx": {"unity": -5}}, {"t": "Send the letter to Isaiah and ask what the Lord says", "pts": 700, "fx": {"faith": 10}}, {"t": "Take the letter to the temple, spread it before the Lord, and pray", "pts": 1000, "fx": {"faith": 20, "unity": 5}}, {"t": "Write a calm reply asking for terms of peace", "pts": 200, "fx": {"safety": -5, "faith": -5}}], "did": "\"Hezekiah went up unto the house of the LORD, and spread it before the LORD. And Hezekiah prayed\" (Isaiah 37:14-15). Isaiah then sent him the Lord's answer without being asked: \"Whereas thou hast prayed to me against Sennacherib\" (Isaiah 37:21)."}, {"title": "The prophet's answer", "ref": "Isaiah 37:33-35", "scene": "Isaiah sends word: the Lord says the king of Assyria shall not come into this city, nor shoot an arrow there. Outside, the army is still camped.", "options": [{"t": "Post extra guards on the wall tonight, just in case", "pts": 600, "fx": {"safety": 10, "faith": 5}}, {"t": "Stay inside and trust the promise", "pts": 1000, "fx": {"faith": 15, "safety": 20, "unity": 10}}, {"t": "Send scouts to watch the Assyrian camp", "pts": 500, "fx": {"safety": 10}}, {"t": "Strike the camp at night while they sleep", "pts": 100, "fx": {"safety": -20, "faith": -10}}], "did": "Hezekiah waited on the Lord. \"The angel of the LORD went forth, and smote in the camp of the Assyrians a hundred and fourscore and five thousand,\" and Sennacherib went home to Nineveh (Isaiah 37:36-37)."}, {"title": "Visitors from Babylon", "ref": "Isaiah 39:1-7", "scene": "Years later, after Hezekiah recovers from a deadly illness, messengers arrive from the king of Babylon with letters and a present. Babylon could be a strong ally against Assyria.", "options": [{"t": "Show them your treasures and armory to build a strong alliance", "pts": 100, "fx": {"safety": -15, "unity": 5}}, {"t": "Welcome them warmly, but show them only the city", "pts": 800, "fx": {"safety": 5, "unity": 5}}, {"t": "Ask Isaiah before making any alliance", "pts": 1000, "fx": {"faith": 10, "safety": 10}}, {"t": "Accept the present and send them home politely", "pts": 600, "fx": {"safety": 5}}], "did": "Hezekiah \"was glad of them,\" and there was nothing in his house \"that Hezekiah shewed them not.\" Isaiah prophesied that all of it would be carried to Babylon (Isaiah 39:2-6). Even a faithful king made a costly mistake."}], "root": "seminaryGames/advisor-king"};
+var DBURL = "https://penny-project-fb5da-default-rtdb.firebaseio.com";
+var FAKE = null; try{ if (window.parent && window.parent !== window && window.parent.FAKE) FAKE = window.parent.FAKE; }catch(e){}
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function dbPath(code, path){ return CFG.root + '/' + code + (path ? '/' + path : ''); }
+function req(method, code, path, v){
+  var p = dbPath(code, path);
+  if (FAKE) return FAKE.req(method, p, v);
+  var o = {method: method, cache: 'no-store'}; if (v !== undefined) o.body = JSON.stringify(v);
+  return fetch(DBURL + '/' + p + '.json', o).then(function(r){ return r.json(); }).catch(function(){ return null; });
+}
+function jget(c,p){ return req('GET',c,p); }
+function jput(c,p,v){ return req('PUT',c,p,v); }
+function jpatch(c,p,v){ return req('PATCH',c,p,v); }
+function jpost(c,p,v){ return req('POST',c,p,v); }
+var TS = {".sv":"timestamp"};
+function ranked(players){ var a=[]; for (var k in (players||{})) a.push({id:k, name:players[k].name, score:players[k].score||0}); a.sort(function(x,y){ return y.score-x.score || String(x.name).localeCompare(String(y.name)); }); return a; }
+var MEM={};
+function store(k, v){ if (FAKE){ if (v===undefined) return MEM[k]||null; MEM[k]=v; return; } try{ if (v===undefined) return sessionStorage.getItem(k); sessionStorage.setItem(k, v); }catch(e){ return null; } }
+function optsOf(q){ return CFG.kind==='tf' ? ['True','False'] : q.options; }
+function correctIdx(q){ return CFG.kind==='tf' ? (q.answer?0:1) : q.answer; }
+</script>
+<script>(function(){
+var app=document.getElementById('app'), R=CFG.rounds, code='', room=null, busy=false, deadline=0, revealing=false, lastKey='';
+var L='ABCDE';
+function joinUrl(){ try{ return new URL('play.html?g='+code, location.href).href; }catch(e){ return 'play.html?g='+code; } }
+function mkCode(){ var A='ABCDEFGHJKLMNPQRSTUVWXYZ', c=''; for (var i=0;i<4;i++) c+=A[Math.floor(Math.random()*A.length)]; return c; }
+function startMeters(){ var m={}; (CFG.meters||[]).forEach(function(x){ m[x.k]=x.start; }); return m; }
+function newGame(){ code=mkCode(); room=null; lastKey=''; return jput(code,'',{meta:{phase:'lobby', r:0, t0:0, created:TS, meters:startMeters()}}); }
+function lb(players, n){ var r=ranked(players).slice(0,n), h='<table class="lb"><tr><th>#</th><th>Name</th>'+(CFG.mode==='wall'?'<th>Gate</th>':'')+'<th>Score</th></tr>'; r.forEach(function(p,i){ var t=(room.players[p.id]||{}).team; h+='<tr><td>'+(i+1)+'</td><td>'+esc(p.name)+'</td>'+(CFG.mode==='wall'?'<td>'+esc(t!=null?CFG.teams[t]:'')+'</td>':'')+'<td>'+p.score.toLocaleString()+'</td></tr>'; }); return h+'</table>'; }
+function picks(){ return (room.ans||{})[room.meta.r]||{}; }
+function answered(){ return Object.keys(picks()).length; }
+function optsFor(rd){ return CFG.mode==='wall' ? CFG.actions.concat(rd.extra?[rd.extra]:[]) : rd.options; }
+function meterBars(meters){ if (!CFG.meters) return ''; return '<div class="meters">'+CFG.meters.map(function(x){ var v=Math.max(0,Math.min(100,meters[x.k]||0)); return '<div class="meter"><div class="row" style="justify-content:space-between"><span>'+esc(x.label)+'</span><span>'+Math.round(v)+'</span></div><div class="mtrack"><i style="width:'+v+'%;background:'+x.color+'"></i></div></div>'; }).join('')+'</div>'; }
+function teamSizes(){ var s=CFG.teams.map(function(){ return 0; }); var pl=room.players||{}; for (var k in pl) if (pl[k].team!=null) s[pl[k].team]++; return s; }
+function target(n){ return Math.max(3, Math.round(n*CFG.perMember)); }
+function wallBars(){ var T=room.meta.teams||[], s=teamSizes(); return '<div class="meters">'+CFG.teams.map(function(t,i){ if (!s[i]) return ''; var u=(T[i]||{}).prog||0, pct=s[i]?Math.min(100,Math.round(100*u/target(s[i]))):0; return '<div class="meter"><div class="row" style="justify-content:space-between"><span>'+esc(t)+' ('+s[i]+')</span><span>'+pct+'% built, '+((T[i]||{}).sup||0)+' supplies</span></div><div class="mtrack"><i style="width:'+pct+'%;background:var(--accent)"></i></div></div>'; }).join('')+'</div>'; }
+function scene(rd){ return '<div class="eyebrow">Round '+(room.meta.r+1)+' of '+R.length+' &middot; '+esc(rd.ref)+'</div><h2>'+esc(rd.title)+'</h2><p class="scene">'+esc(rd.scene)+'</p><p class="muted"><b>'+esc(rd.prompt||CFG.prompt)+'</b></p>'; }
+function tallyHtml(rd, tally, dec){ var o=optsFor(rd), tot=0; o.forEach(function(_,i){ tot+=tally[i]||0; });
+  return '<div class="tally">'+o.map(function(op,i){ var c=tally[i]||0, p=tot?Math.round(100*c/tot):0; return '<div class="trow'+(i===dec?' dec':'')+'"><div class="row" style="justify-content:space-between"><span><span class="n">'+L[i]+'</span>'+esc(op.t)+(CFG.mode!=='wall'?' <span class="pts'+(op.pts>=1000?' top':'')+'">'+(op.pts||0).toLocaleString()+' pts</span>':'')+'</span><span>'+c+' chose</span></div><div class="mtrack"><i style="width:'+p+'%"></i></div></div>'; }).join('')+'</div>'; }
+function render(){
+  if (!room) return;
+  var m=room.meta, pl=room.players||{}, np=Object.keys(pl).length, h='';
+  if (m.phase==='lobby'){
+    h='<div class="eyebrow">'+esc(CFG.title)+'</div><h1>Scan to join on your phone</h1>'+
+      '<div class="card"><div class="qr-box" id="qr"></div><div class="code">'+code+'</div><div class="muted center">Or open the play page and type this code</div></div>'+
+      '<div class="card"><h2>Players ('+np+')</h2><div>'+(np?ranked(pl).map(function(p){ return '<span class="tag">'+esc(p.name)+'</span>'; }).join(''):'<span class="muted">Waiting for players to join</span>')+'</div></div>'+
+      '<div class="card"><h2>How it works</h2><div class="muted">'+CFG.how+'</div></div>'+
+      '<button class="btn primary big" data-a="start"'+(np?'':' disabled')+'>Start game</button>';
+  } else if (m.phase==='round'){
+    var rd=R[m.r], left=Math.max(0,Math.ceil((deadline-Date.now())/1000)), pct=Math.max(0,Math.min(100,(deadline-Date.now())/(CFG.seconds*10)));
+    h='<div class="card">'+scene(rd)+(CFG.mode==='wall'?'':'<div class="opts">'+rd.options.map(function(o,i){ return '<div class="opt"><span class="n">'+L[i]+'</span>'+esc(o.t)+'</div>'; }).join('')+'</div>')+
+      '<div class="timerbar"><i style="width:'+pct+'%"></i></div><div class="row" style="justify-content:space-between"><span class="muted">'+answered()+' of '+np+' have chosen</span><span class="muted">'+left+' seconds</span></div></div>'+
+      (CFG.mode==='wall'?'<div class="card"><h2>The wall so far</h2>'+wallBars()+'</div>':CFG.mode==='class'?'<div class="card"><h2>The kingdom</h2>'+meterBars(m.meters)+'</div>':'')+
+      '<button class="btn big" data-a="reveal">Reveal now</button>';
+  } else if (m.phase==='reveal'){
+    var rd=R[m.r], res=m.res||{};
+    h='<div class="card">'+scene(rd)+tallyHtml(rd,res.tally||{},CFG.mode==='class'?res.dec:-1)+'</div>';
+    if (CFG.mode==='class') h+='<div class="card"><h2>The council chose '+L[res.dec]+'</h2><p>'+esc(rd.options[res.dec].out)+'</p>'+meterBars(m.meters)+'</div>';
+    if (CFG.mode==='wall') h+='<div class="card"><h2>What happened at each gate</h2><ul class="plain">'+(res.lines||[]).map(function(x){ return '<li>'+esc(x)+'</li>'; }).join('')+'</ul>'+wallBars()+'</div>';
+    h+='<div class="card did"><div class="eyebrow">'+esc(CFG.didLabel)+' &middot; '+esc(rd.didRef||rd.ref)+'</div><p>'+esc(rd.did)+'</p></div>';
+    h+='<div class="card"><h2>Leaderboard</h2>'+lb(pl,5)+'</div><button class="btn primary big" data-a="next">'+(m.r+1>=R.length?'Show final results':'Next round')+'</button>';
+  } else if (m.phase==='final'){
+    var r=ranked(pl), end='';
+    if (CFG.mode==='class') end='<div class="card"><h2>'+esc(ending(m.meters).title)+'</h2><p>'+esc(ending(m.meters).text)+'</p>'+meterBars(m.meters)+'</div>';
+    if (CFG.mode==='wall') end='<div class="card"><h2>'+(m.done?'The wall is finished':'The wall is still unfinished')+'</h2><p>'+esc(CFG.endText)+'</p>'+wallBars()+'</div>';
+    if (CFG.mode==='personal') end='<div class="card"><h2>Class averages</h2>'+meterBars(avgMeters())+'<p class="muted">'+esc(CFG.endText)+'</p></div>';
+    h='<div class="eyebrow">'+esc(CFG.title)+'</div><h1>Final results</h1>'+end+'<div class="podium">'+
+      (r[1]?'<div class="spot g2"><b>'+esc(r[1].name)+'</b><br>'+r[1].score.toLocaleString()+'</div>':'')+
+      (r[0]?'<div class="spot g1"><b>'+esc(r[0].name)+'</b><br>'+r[0].score.toLocaleString()+'</div>':'')+
+      (r[2]?'<div class="spot g3"><b>'+esc(r[2].name)+'</b><br>'+r[2].score.toLocaleString()+'</div>':'')+
+      '</div><div class="card"><h2>Full leaderboard</h2>'+lb(pl,60)+'</div><div class="card"><h2>Discuss</h2><ul class="plain">'+CFG.discuss.map(function(d){ return '<li>'+esc(d)+'</li>'; }).join('')+'</ul></div>'+
+      '<button class="btn big" data-a="again">Play again with a new code</button>';
+  }
+  app.innerHTML=h;
+  if (m.phase==='lobby'){ var el=document.getElementById('qr'); if (el && typeof QRCode!=='undefined') new QRCode(el,{text:joinUrl(),width:230,height:230}); }
+}
+function ending(me){ for (var i=0;i<CFG.endings.length;i++){ var e=CFG.endings[i]; if (!e.min || Object.keys(e.min).every(function(k){ return (me[k]||0)>=e.min[k]; })) return e; } return CFG.endings[CFG.endings.length-1]; }
+function avgMeters(){ var pl=room.players||{}, s={}, n=0; CFG.meters.forEach(function(x){ s[x.k]=0; }); for (var k in pl){ n++; CFG.meters.forEach(function(x){ s[x.k]+=((pl[k].m||{})[x.k]!=null?pl[k].m[x.k]:x.start); }); } CFG.meters.forEach(function(x){ s[x.k]=n?s[x.k]/n:x.start; }); return s; }
+function keyOf(){ var m=room.meta, pl=room.players||{}; return [m.phase,m.r,JSON.stringify(ranked(pl)),m.phase==='round'?answered()+'|'+Math.ceil((deadline-Date.now())/1000):''].join('~'); }
+function poll(){
+  if (busy||!code) return; busy=true;
+  jget(code,'').then(function(d){ busy=false; if (!d||!d.meta) return; room=d;
+    var m=d.meta, np=Object.keys(d.players||{}).length;
+    if (m.phase==='round' && !revealing && np && (Date.now()>deadline || answered()>=np)) reveal();
+    var k=keyOf(); if (k!==lastKey){ lastKey=k; render(); }
+  });
+}
+function clamp(v){ return Math.max(0,Math.min(100,v)); }
+function reveal(){
+  revealing=true;
+  var m=room.meta, rd=R[m.r], ans=picks(), pl=room.players||{}, upd={}, tally={}, res={};
+  for (var pid in ans){ if (!pl[pid]) continue; var i=ans[pid].i; tally[i]=(tally[i]||0)+1; }
+  res.tally=tally;
+  for (var p in pl){ upd['players/'+p+'/gain']=0; upd['players/'+p+'/pick']=ans[p]?ans[p].i:-1; }
+  if (CFG.mode==='class'){
+    var best=-1, dec=0; rd.options.forEach(function(_,i){ var c=tally[i]||0; if (c>best){ best=c; dec=i; } });
+    res.dec=dec; var me=JSON.parse(JSON.stringify(m.meters||startMeters())), fx=rd.options[dec].fx||{};
+    for (var k in fx) me[k]=clamp((me[k]||0)+fx[k]); upd['meta/meters']=me;
+    for (var pid in ans){ if (!pl[pid]) continue; var g=rd.options[ans[pid].i].pts||0; upd['players/'+pid+'/score']=(pl[pid].score||0)+g; upd['players/'+pid+'/gain']=g; }
+  } else if (CFG.mode==='personal'){
+    for (var pid in ans){ if (!pl[pid]) continue; var o=rd.options[ans[pid].i], me=JSON.parse(JSON.stringify(pl[pid].m||startMeters())), fx=o.fx||{};
+      for (var k in fx) me[k]=clamp((me[k]!=null?me[k]:50)+fx[k]);
+      upd['players/'+pid+'/m']=me; upd['players/'+pid+'/score']=(pl[pid].score||0)+(o.pts||0); upd['players/'+pid+'/gain']=o.pts||0; }
+  } else if (CFG.mode==='wall'){
+    var T=JSON.parse(JSON.stringify(m.teams||[])), sizes=teamSizes(), lines=[], gains={}, byTeam={};
+    CFG.teams.forEach(function(name,t){
+      var st=T[t]||{prog:0,sup:sizes[t]}; if (!sizes[t]){ T[t]=st; return; }
+      var c={}, mem=[]; for (var p in pl) if (pl[p].team===t){ mem.push(p); var a=ans[p]?ans[p].i:-1; c[a]=(c[a]||0)+1; gains[p]=0; }
+      var B=c[0]||0, G=c[1]||0, S=c[2]||0, P=c[3]||0, X=c[4]||0, n=sizes[t], need=Math.ceil(n/4), note=[];
+      if (rd.ev==='debt' && S<need){ var lost=Math.ceil(st.sup/2); st.sup-=lost; note.push('hunger cost '+lost+' supplies (too few gatherers)'); }
+      var rate=1; if (rd.ev==='mock' && P<Math.ceil(n/5)){ rate=0.5; note.push('mocking slowed the builders (too few praying)'); }
+      var built=Math.min(B, st.sup); st.sup-=built; var units=built*rate;
+      if (rd.ev==='onehand') units+=G*0.5;
+      if (B>built) note.push((B-built)+' builders had no supplies');
+      st.sup+=S*2;
+      if ((rd.ev==='attack'||rd.ev==='onehand') && G<need){ var loss=(need-G)*2; units-=loss; note.push('enemies tore down '+loss+' sections (too few guards)'); }
+      else if (rd.ev==='attack'||rd.ev==='onehand') note.push('the guards held');
+      if (X){ units-=X*2; note.push(X+' left the work to meet Sanballat at Ono'); }
+      st.prog=Math.max(0, Math.round((st.prog+units)*10)/10); T[t]=st;
+      mem.forEach(function(p){ var a=ans[p]?ans[p].i:-1, g=0;
+        if (a===0) g=B?Math.round(100*built*rate/B):0;
+        else if (a===1) g=(rd.ev==='attack'||rd.ev==='onehand')?150:50;
+        else if (a===2) g=rd.ev==='debt'?150:60;
+        else if (a===3) g=rd.ev==='mock'?150:60;
+        else if (a===4) g=300;
+        if (a===0 && rd.ev==='onehand') g+=0; if (a===1 && rd.ev==='onehand') g+=50;
+        gains[p]=g; });
+      var ln=(note.length?note.join('; '):'steady work'); byTeam[t]=ln; lines.push(name+': '+ln);
+    });
+    upd['meta/teams']=T; res.lines=lines; res.byTeam=byTeam;
+    for (var p in gains){ upd['players/'+p+'/score']=(pl[p].score||0)+gains[p]; upd['players/'+p+'/gain']=gains[p]; }
+  }
+  upd['meta/res']=res; upd['meta/phase']='reveal';
+  jpatch(code,'',upd).then(function(){ revealing=false; poll(); });
+}
+function goR(i){ deadline=Date.now()+CFG.seconds*1000+800; return jpatch(code,'meta',{phase:'round', r:i, t0:TS, res:null}).then(poll); }
+function finish(){
+  var upd={'meta/phase':'final'}, pl=room.players||{};
+  if (CFG.mode==='wall'){ var T=room.meta.teams||[], s=teamSizes(), all=true;
+    for (var p in pl){ var t=pl[p].team, done=t!=null && s[t] && (T[t]||{}).prog>=target(s[t]); if (done) upd['players/'+p+'/score']=(pl[p].score||0)+500; }
+    CFG.teams.forEach(function(_,t){ if (s[t] && !((T[t]||{}).prog>=target(s[t]))) all=false; }); upd['meta/done']=all; }
+  return jpatch(code,'',upd).then(poll);
+}
+app.addEventListener('click', function(e){
+  var b=e.target.closest('[data-a]'); if (!b||b.disabled) return; var a=b.getAttribute('data-a'); b.disabled=true;
+  if (a==='start'){
+    if (CFG.mode==='wall'){ var r=ranked(room.players), upd={}, T=[]; r.sort(function(x,y){ return x.id<y.id?-1:1; });
+      var nt=Math.max(1,Math.min(CFG.teams.length, Math.ceil(r.length/3)));
+      r.forEach(function(p,i){ upd['players/'+p.id+'/team']=i%nt; });
+      CFG.teams.forEach(function(_,t){ var n=r.filter(function(_,i){ return i%nt===t; }).length; T[t]={prog:0,sup:n}; });
+      upd['meta/teams']=T; jpatch(code,'',upd).then(function(){ goR(0); });
+    } else goR(0);
+  }
+  else if (a==='reveal'){ if (!revealing) reveal(); }
+  else if (a==='next'){ if (room.meta.r+1>=R.length) finish(); else goR(room.meta.r+1); }
+  else if (a==='again') newGame().then(poll);
+});
+newGame().then(function(){ poll(); setInterval(poll,1200); });
+})();
+</script></body></html>

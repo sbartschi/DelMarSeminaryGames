@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script>/* Practice mode: when this page runs inside the site's practice page, use its pretend database and give this screen its own storage. Does nothing otherwise. */
+(function(){try{var P=window.parent!==window&&window.parent.PRACTICE;if(!P)return;window.fetch=P.fetch;var s=P.storage(window.name||location.href);Object.defineProperty(window,'localStorage',{configurable:true,get:function(){return s.local;}});Object.defineProperty(window,'sessionStorage',{configurable:true,get:function(){return s.session;}});}catch(e){}})();</script><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Match the Prophet: Round 2: Play</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>:root{--bg-page:#0E1B2B;--bg-panel:#16273B;--bg-panel-raised:#1E3450;--ink:#F1F6FB;--muted:#9FB4C9;--line:rgba(241,246,251,0.14);--accent:#9C7BD6;--ok:#3FA66B;--bad:#C65B5B;color-scheme:dark;}
+*{box-sizing:border-box;}
+html,body{margin:0;min-height:100%;background:var(--bg-page);color:var(--ink);font-family:'Inter',-apple-system,Segoe UI,Roboto,sans-serif;}
+body{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);}
+.wrap{max-width:860px;margin:0 auto;padding:20px 16px 50px;}
+.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:6px;}
+h1{font-family:'Fraunces',Georgia,serif;font-size:1.9rem;margin:0 0 8px;}
+h2{font-family:'Fraunces',Georgia,serif;font-size:1.3rem;margin:0 0 10px;}
+.card{background:var(--bg-panel);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px;}
+.muted{color:var(--muted);font-size:0.95rem;}
+.btn{font:inherit;font-weight:700;padding:14px 20px;border-radius:10px;border:1px solid var(--line);background:var(--bg-panel-raised);color:var(--ink);cursor:pointer;}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#06121D;}
+.btn.big{font-size:1.1rem;width:100%;padding:18px;margin-top:6px;}
+.btn[disabled]{opacity:0.4;cursor:default;}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+input[type=text]{font:inherit;font-size:1.1rem;padding:14px;border-radius:10px;border:1px solid var(--line);background:var(--bg-panel-raised);color:var(--ink);width:100%;margin-bottom:10px;}
+.qr-box{display:flex;justify-content:center;padding:16px;background:#fff;border-radius:14px;margin:10px auto;width:max-content;max-width:100%;}
+.code{font-family:'IBM Plex Mono',monospace;font-size:2.4rem;letter-spacing:0.18em;text-align:center;color:var(--accent);margin:6px 0;}
+.tag{display:inline-block;background:var(--bg-panel-raised);border-radius:20px;padding:6px 14px;margin:4px;font-size:0.95rem;}
+.lb{width:100%;border-collapse:collapse;margin-top:6px;}
+.lb td,.lb th{padding:9px 6px;border-bottom:1px solid var(--line);text-align:left;font-size:1rem;}
+.lb th{color:var(--muted);font-weight:600;font-size:0.78rem;text-transform:uppercase;}
+.q{font-family:'Fraunces',Georgia,serif;font-size:1.6rem;line-height:1.35;margin:8px 0 16px;}
+.verse{font-family:'Fraunces',Georgia,serif;font-size:1.45rem;line-height:1.45;font-style:italic;margin:8px 0 16px;}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.opt{padding:16px;border-radius:12px;border:1px solid var(--line);background:var(--bg-panel-raised);font-size:1.1rem;}
+.opt.right{border-color:var(--ok);background:rgba(63,166,107,0.25);}
+.opt .n{font-family:'IBM Plex Mono',monospace;color:var(--muted);margin-right:8px;}
+.ans{display:block;width:100%;text-align:left;font:inherit;font-size:1.1rem;padding:18px 16px;margin-bottom:10px;border-radius:12px;border:1px solid var(--line);background:var(--bg-panel-raised);color:var(--ink);cursor:pointer;}
+.ans.t{background:rgba(63,166,107,0.2);border-color:var(--ok);text-align:center;font-size:1.4rem;font-weight:700;}
+.ans.f{background:rgba(198,91,91,0.2);border-color:var(--bad);text-align:center;font-size:1.4rem;font-weight:700;}
+.timerbar{height:8px;border-radius:4px;background:var(--bg-panel-raised);overflow:hidden;margin:6px 0 12px;}
+.timerbar i{display:block;height:100%;background:var(--accent);transition:width .25s linear;}
+.result-big{font-family:'Fraunces',Georgia,serif;font-size:2.2rem;font-weight:700;margin:6px 0;}
+.good{color:var(--ok);} .bad{color:var(--bad);}
+.reveal{background:var(--bg-panel-raised);border-radius:12px;padding:14px 16px;margin-top:6px;}
+.podium{display:flex;justify-content:center;align-items:flex-end;gap:14px;margin:20px 0;}
+.podium .spot{background:var(--bg-panel-raised);border-radius:10px 10px 0 0;padding:14px 16px;text-align:center;min-width:100px;}
+.podium .g1{min-height:130px;background:linear-gradient(180deg,#F0CB77,#C9A227);color:#2b2418;}
+.podium .g2{min-height:96px;} .podium .g3{min-height:72px;}
+.ph{max-width:480px;margin:0 auto;}
+.center{text-align:center;}
+@media (max-width:600px){ .opts{grid-template-columns:1fr;} .q{font-size:1.3rem;} .verse{font-size:1.2rem;} }
+.emoji{font-size:4rem;line-height:1.3;text-align:center;margin:10px 0 18px;letter-spacing:0.1em;}
+.order{margin:0 0 6px;padding-left:28px;font-size:1.15rem;line-height:1.7;}
+.order li::marker{color:var(--accent);font-weight:700;}
+.ans.picked{border-color:var(--accent);background:rgba(255,255,255,0.08);opacity:0.75;}
+.badge{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;border:1px solid var(--line);margin-right:10px;font-weight:700;font-family:'IBM Plex Mono',monospace;}
+.ans.picked .badge{background:var(--accent);color:#06121D;border-color:var(--accent);}
+.scene{font-size:1.15rem;line-height:1.5;margin:4px 0 10px;}
+.meters{display:grid;gap:10px;}
+.meter{font-size:0.95rem;}
+.mtrack{height:10px;border-radius:5px;background:var(--bg-panel-raised);overflow:hidden;margin-top:4px;}
+.mtrack i{display:block;height:100%;background:var(--accent);transition:width .4s ease;}
+.tally{display:grid;gap:8px;margin-top:8px;}
+.trow{padding:10px 12px;border-radius:10px;border:1px solid var(--line);}
+.trow.dec{border-color:var(--accent);background:rgba(255,255,255,0.05);}
+.trow .n,.opt .n{font-family:'IBM Plex Mono',monospace;color:var(--muted);margin-right:8px;}
+.did{border-color:var(--accent);}
+ul.plain{margin:0;padding-left:20px;line-height:1.6;}
+.pts{font-family:'IBM Plex Mono',monospace;font-size:0.8rem;color:var(--muted);margin-left:6px;white-space:nowrap;}
+.pts.top{color:var(--accent);font-weight:700;}
+.ctx{margin-top:14px;padding:14px 16px;border-left:4px solid var(--accent);background:rgba(227,176,75,0.10);border-radius:10px;text-align:left;}.ctx .ctx-h{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:4px;}.ctx b{display:block;font-size:1.05rem;margin-bottom:6px;color:var(--ink);}.ctx p{margin:0;line-height:1.55;color:var(--ink);font-size:0.98rem;}</style></head><body><div class="wrap" id="app"></div>
+<script>var CFG={"title": "Match the Prophet: Round 2", "kind": "mc", "seconds": 25, "questions": [{"options": ["Ezekiel", "Isaiah", "Jeremiah", "Hosea"], "answer": 1, "ref": "Isaiah 9:6", "expl": "Isaiah gave these names for the Savior about 700 years before His birth", "verse": "For unto us a child is born, unto us a son is given: and the government shall be upon his shoulder: and his name shall be called Wonderful, Counsellor, The mighty God, The everlasting Father, The Prince of Peace.", "prompt": "Who said or wrote this?", "story": "Isaiah’s prophecy of the Messiah (Isaiah 9)", "ctx": "Isaiah prophesied about 700 years before the Savior’s birth, when Judah faced threats from Assyria. Amid warnings, he looked ahead to a child born to rule with peace and justice forever. The titles Wonderful, Counsellor, the mighty God, the everlasting Father, and the Prince of Peace all describe Jesus Christ."}, {"options": ["David", "Hosea", "Isaiah", "Jeremiah"], "answer": 3, "ref": "Jeremiah 31:33", "expl": "Jeremiah prophesied of a new covenant written in the heart", "verse": "But this shall be the covenant that I will make with the house of Israel; After those days, saith the LORD, I will put my law in their inward parts, and write it in their hearts; and will be their God, and they shall be my people.", "prompt": "Who said or wrote this?", "story": "The new covenant (Jeremiah 31)", "ctx": "Jeremiah lived as Judah was being conquered and carried away. Even while warning of destruction, he prophesied of a day when the Lord would gather Israel and make a new covenant with them, written not on stone tablets but in their hearts."}, {"options": ["Ezekiel", "Micah", "Zechariah", "Jeremiah"], "answer": 0, "ref": "Ezekiel 37:16-17", "expl": "Latter-day Saints see the stick of Judah as the Bible and the stick of Joseph as the Book of Mormon", "verse": "Moreover, thou son of man, take thee one stick, and write upon it, For Judah, and for the children of Israel his companions: then take another stick, and write upon it, For Joseph, the stick of Ephraim, and for all the house of Israel his companions: And join them one to another into one stick; and they shall become one in thine hand.", "prompt": "Who said or wrote this?", "story": "The two sticks (Ezekiel 37)", "ctx": "Right after the vision of the dry bones, the Lord told Ezekiel to take one stick for Judah and one for Joseph and join them in his hand. Latter-day Saints understand the stick of Judah as the Bible and the stick of Joseph as the Book of Mormon, which now testify together of Jesus Christ."}, {"options": ["Joel", "Amos", "Daniel", "Ezekiel"], "answer": 0, "ref": "Joel 2:28", "expl": "Moroni quoted this prophecy to Joseph Smith in 1823 (Joseph Smith, History 1:41)", "verse": "And it shall come to pass afterward, that I will pour out my spirit upon all flesh; and your sons and your daughters shall prophesy, your old men shall dream dreams, your young men shall see visions:", "prompt": "Who said or wrote this?", "story": "Joel’s prophecy of the Spirit (Joel 2)", "ctx": "Joel prophesied after a terrible plague of locusts, calling Israel to repent with fasting and weeping. He promised that in the last days the Lord would pour out His Spirit on all flesh. Peter quoted this on the day of Pentecost (Acts 2), and Moroni quoted it to Joseph Smith, saying it was soon to be fulfilled."}, {"options": ["Daniel", "Micah", "Amos", "Zechariah"], "answer": 1, "ref": "Micah 6:8", "expl": "Micah summed up what the Lord asks of each of us", "verse": "He hath shewed thee, O man, what is good; and what doth the LORD require of thee, but to do justly, and to love mercy, and to walk humbly with thy God?", "prompt": "Who said or wrote this?", "story": "What the Lord requires (Micah 6)", "ctx": "Micah prophesied in Judah around the same time as Isaiah. In this chapter the people ask whether the Lord wants thousands of rams or rivers of oil as offerings. The answer is no: what He truly wants is for us to do justly, love mercy, and walk humbly with Him."}, {"options": ["Malachi", "Micah", "Ezekiel", "David"], "answer": 0, "ref": "Malachi 4:5-6", "expl": "Elijah came to the Kirtland Temple in 1836 to restore the sealing power (D&C 110:13-16)", "verse": "And he shall turn the heart of the fathers to the children, and the heart of the children to their fathers, lest I come and smite the earth with a curse.", "prompt": "Who said or wrote this?", "story": "Elijah’s promised return (Malachi 4)", "ctx": "In the last verses of the Old Testament, Malachi promised the Lord would send Elijah before His Second Coming to turn the hearts of the fathers and children to each other. Moroni quoted these verses to Joseph Smith in 1823, and Elijah came to the Kirtland Temple in 1836 to restore the sealing power that binds families forever (D&C 110)."}, {"options": ["Ezekiel", "Amos", "Zechariah", "Job"], "answer": 3, "ref": "Job 19:25", "expl": "In the middle of his suffering, Job testified of his Redeemer", "verse": "For I know that my redeemer liveth, and that he shall stand at the latter day upon the earth:", "prompt": "Who said or wrote this?", "story": "Job’s testimony (Job 19)", "ctx": "Job had lost his children, wealth, and health, and his friends insisted he must be suffering for secret sins. Feeling abandoned, Job still bore powerful testimony that his Redeemer lives and that he would see God in the flesh, a witness of the Resurrection."}, {"options": ["David", "Jeremiah", "Malachi", "Job"], "answer": 0, "ref": "Psalm 23:1", "expl": "Psalm 23 is \"A Psalm of David\"", "verse": "The LORD is my shepherd; I shall not want.", "prompt": "Who said or wrote this?", "story": "The Shepherd’s psalm (Psalm 23)", "ctx": "David was a shepherd before he became king, protecting his father’s flocks from lions and bears. In this psalm he describes the Lord as a shepherd who leads, feeds, restores, and protects His sheep, even through the valley of the shadow of death."}, {"options": ["Ezekiel", "Daniel", "Micah", "Job"], "answer": 1, "ref": "Daniel 2:44", "expl": "Daniel interpreted the stone that would fill the earth as God's everlasting kingdom", "verse": "And in the days of these kings shall the God of heaven set up a kingdom, which shall never be destroyed: and the kingdom shall not be left to other people, but it shall break in pieces and consume all these kingdoms, and it shall stand for ever.", "prompt": "Who said or wrote this?", "story": "Nebuchadnezzar’s dream (Daniel 2)", "ctx": "King Nebuchadnezzar demanded that his wise men tell him both his dream and its meaning, or die. Daniel and his friends prayed, and God revealed it. The great image stood for kingdoms that would rise and fall, and the stone cut out without hands stood for God’s kingdom in the last days, which would fill the whole earth."}, {"options": ["Daniel", "Ezekiel", "Amos", "Zechariah"], "answer": 3, "ref": "Zechariah 9:9", "expl": "Fulfilled when Jesus rode into Jerusalem on a colt (Matthew 21:5)", "verse": "Rejoice greatly, O daughter of Zion; shout, O daughter of Jerusalem: behold, thy King cometh unto thee: he is just, and having salvation; lowly, and riding upon an ass, and upon a colt the foal of an ass.", "prompt": "Who said or wrote this?", "story": "The King on a donkey (Zechariah 9)", "ctx": "Zechariah prophesied to the Jews rebuilding the temple after the exile. He foresaw their King coming to Jerusalem humbly, riding on a donkey’s colt. About 500 years later, Jesus fulfilled this at His triumphal entry, as crowds spread branches and cried “Hosanna” (Matthew 21:5)."}, {"options": ["Solomon", "David", "Isaiah", "Jeremiah"], "answer": 1, "ref": "Psalm 51:10", "expl": "David’s prayer of repentance", "verse": "Create in me a clean heart, O God; and renew a right spirit within me.", "prompt": "Who said or wrote this?", "story": "David’s prayer of repentance (Psalm 51)", "ctx": "David wrote this psalm after the prophet Nathan confronted him about his sin with Bathsheba. He pleads, “Create in me a clean heart, O God,” and teaches that God desires “a broken and a contrite heart.” The resurrected Savior asked the Nephites for this same sacrifice (3 Nephi 9:20)."}, {"options": ["Solomon (the Preacher)", "Malachi", "David", "Job"], "answer": 0, "ref": "Ecclesiastes 12:13", "expl": "The Preacher’s conclusion after searching for meaning", "verse": "Fear God, and keep his commandments: for this is the whole duty of man.", "prompt": "Who said or wrote this?", "story": "The whole duty of man (Ecclesiastes 12)", "ctx": "After exploring wealth, pleasure, work, and wisdom and calling them all vanity on their own, the Preacher reaches his conclusion: “Fear God, and keep his commandments: for this is the whole duty of man.” The same chapter begins, “Remember now thy Creator in the days of thy youth.”"}, {"options": ["Micah", "Zechariah", "Jeremiah", "Isaiah"], "answer": 3, "ref": "Isaiah 53:4", "expl": "One of the clearest prophecies of the Atonement", "verse": "Surely he hath borne our griefs, and carried our sorrows.", "prompt": "Who said or wrote this?", "story": "The suffering servant (Isaiah 53)", "ctx": "Isaiah 53 describes a servant who would be despised and rejected, wounded for our transgressions and bruised for our iniquities. Written centuries before Christ, it is one of the clearest Old Testament prophecies of the Savior’s Atonement. Abinadi quoted it to King Noah’s priests (Mosiah 14)."}, {"options": ["Ezekiel", "Isaiah", "Micah", "Daniel"], "answer": 1, "ref": "Isaiah 2:2", "expl": "Latter-day Saints see this fulfilled in temples", "verse": "The mountain of the LORD’s house shall be established in the top of the mountains, and all nations shall flow unto it.", "prompt": "Who said or wrote this?", "story": "The mountain of the Lord’s house (Isaiah 2)", "ctx": "Isaiah saw that in the last days “the mountain of the LORD’s house” would be established in the top of the mountains, and all nations would flow unto it to learn His ways. Latter-day Saints see this fulfilled in temples, including the Salt Lake Temple in the Rocky Mountains. Nephi quoted this chapter in 2 Nephi 12."}, {"options": ["Jeremiah", "Hosea", "Isaiah", "Ezekiel"], "answer": 0, "ref": "Jeremiah 18:6", "expl": "The Lord taught Jeremiah at the potter’s house", "verse": "As the clay is in the potter’s hand, so are ye in mine hand, O house of Israel.", "prompt": "Who said or wrote this?", "story": "The potter and the clay (Jeremiah 18)", "ctx": "The Lord sent Jeremiah to a potter’s house, where he watched a clay vessel get marred and reshaped into something new. The Lord taught that Israel was like clay in His hands: if they repented, He could reshape them. God can remake our lives when we let Him."}, {"options": ["Jeremiah", "Joel", "Ezekiel", "Amos"], "answer": 0, "ref": "Jeremiah 16:16", "expl": "A prophecy of gathering scattered Israel", "verse": "Behold, I will send for many fishers, saith the LORD, and they shall fish them; and after will I send for many hunters.", "prompt": "Who said or wrote this?", "story": "Fishers and hunters (Jeremiah 16)", "ctx": "Jeremiah prophesied that the Lord would gather scattered Israel from the north country and all the lands where they had been driven. He would send “many fishers” and “many hunters” to find them. Latter-day Saints see missionaries as those fishers and hunters, gathering Israel today."}, {"options": ["Daniel", "Isaiah", "Jeremiah", "Ezekiel"], "answer": 3, "ref": "Ezekiel 3:17", "expl": "Ezekiel’s calling to warn the people", "verse": "Son of man, I have made thee a watchman unto the house of Israel.", "prompt": "Who said or wrote this?", "story": "Ezekiel the watchman (Ezekiel 3)", "ctx": "Ezekiel was called as a prophet to the Jews in exile in Babylon. The Lord compared him to a watchman on a city wall whose job is to warn of approaching danger. If he warned the people and they ignored him, he was free of blame; if he stayed silent, he would be accountable. Modern prophets serve as watchmen in the same way."}, {"options": ["Joel", "Hosea", "Micah", "Amos"], "answer": 3, "ref": "Amos 8:11", "expl": "Fulfilled in the Great Apostasy", "verse": "I will send a famine in the land, not a famine of bread, nor a thirst for water, but of hearing the words of the LORD.", "prompt": "Who said or wrote this?", "story": "A famine of the word (Amos 8)", "ctx": "Amos warned of a coming famine, not of bread or water, but of hearing the words of the Lord, when people would search everywhere and not find it. Latter-day Saints see this fulfilled in the Great Apostasy after the deaths of the Apostles, a famine ended by the Restoration."}, {"options": ["Micah", "Malachi", "Zechariah", "Isaiah"], "answer": 0, "ref": "Micah 5:2", "expl": "Quoted to King Herod when the wise men came", "verse": "But thou, Beth-lehem Ephratah, though thou be little among the thousands of Judah, yet out of thee shall he come forth.", "prompt": "Who said or wrote this?", "story": "Bethlehem foretold (Micah 5)", "ctx": "Micah prophesied that a ruler of Israel, “whose goings forth have been from of old, from everlasting,” would come out of little Bethlehem. Centuries later, when the wise men asked where the King of the Jews would be born, the chief priests quoted this verse to King Herod (Matthew 2:5-6)."}, {"options": ["Amos", "Haggai", "Zechariah", "Malachi"], "answer": 3, "ref": "Malachi 3:8", "expl": "Malachi’s teaching on tithing", "verse": "Will a man rob God? Yet ye have robbed me. But ye say, Wherein have we robbed thee? In tithes and offerings.", "prompt": "Who said or wrote this?", "story": "Malachi on tithing (Malachi 3)", "ctx": "Malachi was the last prophet of the Old Testament. The Lord asked, “Will a man rob God?” and explained the people robbed Him in tithes and offerings. He promised that if they brought their tithes into the storehouse, He would open the windows of heaven. The Savior later taught these same words to the Nephites (3 Nephi 24)."}, {"options": ["Job", "David", "Jeremiah", "Jonah"], "answer": 1, "ref": "Psalm 22:1", "expl": "Jesus repeated these words on the cross", "verse": "My God, my God, why hast thou forsaken me?", "prompt": "Who said or wrote this?", "story": "My God, my God (Psalm 22)", "ctx": "Psalm 22 opens with the cry Jesus repeated on the cross, “My God, my God, why hast thou forsaken me?” The psalm also describes hands and feet being pierced and lots being cast for clothing, details fulfilled at the Crucifixion about a thousand years after David wrote it."}], "root": "seminaryGames/prophets2", "intro": "Passages from Job through Malachi, shown without the reference. Pick who said or wrote it", "round": 10, "banked": true};
+var DBURL = "https://penny-project-fb5da-default-rtdb.firebaseio.com";
+var FAKE = null; try{ if (window.parent && window.parent !== window && window.parent.FAKE) FAKE = window.parent.FAKE; }catch(e){}
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function dbPath(code, path){ return CFG.root + '/' + code + (path ? '/' + path : ''); }
+function req(method, code, path, v){
+  var p = dbPath(code, path);
+  if (FAKE) return FAKE.req(method, p, v);
+  var o = {method: method, cache: 'no-store'}; if (v !== undefined) o.body = JSON.stringify(v);
+  return fetch(DBURL + '/' + p + '.json', o).then(function(r){ return r.json(); }).catch(function(){ return null; });
+}
+function jget(c,p){ return req('GET',c,p); }
+function jput(c,p,v){ return req('PUT',c,p,v); }
+function jpatch(c,p,v){ return req('PATCH',c,p,v); }
+function jpost(c,p,v){ return req('POST',c,p,v); }
+var TS = {".sv":"timestamp"};
+function ranked(players){ var a=[]; for (var k in (players||{})) a.push({id:k, name:players[k].name, score:players[k].score||0}); a.sort(function(x,y){ return y.score-x.score || String(x.name).localeCompare(String(y.name)); }); return a; }
+var MEM={};
+function store(k, v){ if (FAKE){ if (v===undefined) return MEM[k]||null; MEM[k]=v; return; } try{ if (v===undefined) return sessionStorage.getItem(k); sessionStorage.setItem(k, v); }catch(e){ return null; } }
+function optsOf(q){ return CFG.kind==='tf' ? ['True','False'] : q.options; }
+function correctIdx(q){ return CFG.kind==='tf' ? (q.answer?0:1) : q.answer; }
+function QA(m){ var ids=m&&m.qids; return CFG.questions[ids?ids[m.q]:m.q]; }
+function QN(m){ return (m&&m.qids)?m.qids.length:CFG.questions.length; }
+
+function ctxHtml(q){ if(!q||(!q.story&&!q.ctx)) return ''; return '<div class="ctx"><div class="ctx-h">The story</div>'+(q.story?'<b>'+esc(q.story)+'</b>':'')+(q.ctx?'<p>'+esc(q.ctx)+'</p>':'')+'</div>'; }
+
+</script>
+<script>(function(){
+var seq=[], seqQ=-1;
+var app=document.getElementById('app'), Q=CFG.questions, code='', pid='', room=null, busy=false, lastKey='', sending=false;
+function param(n){ try{ return new URLSearchParams(location.search).get(n); }catch(e){ return null; } }
+code=(param('g')||'').toUpperCase();
+if (!code && FAKE && FAKE.latestCode) code=FAKE.latestCode(CFG.root);
+function me(){ return (room&&room.players||{})[pid]; }
+function rankOf(){ var r=ranked(room.players); for (var i=0;i<r.length;i++) if (r[i].id===pid) return i+1; return 0; }
+function joinScreen(msg){
+  app.innerHTML='<div class="ph"><div class="eyebrow">'+esc(CFG.title)+'</div><h1>Join the game</h1><div class="card">'+
+    (code?'':'<input type="text" id="cd" maxlength="4" placeholder="Game code" autocapitalize="characters">')+
+    '<input type="text" id="nm" maxlength="20" placeholder="Your first name" autocomplete="off">'+
+    '<button class="btn primary big" data-a="join">Join</button>'+(msg?'<p class="bad">'+esc(msg)+'</p>':'')+'</div></div>';
+}
+function render(){
+  var m=room.meta, p=me(), h='';
+  if (!p){ store('pid_'+code,''); pid=''; joinScreen('You were removed from this game. Join again.'); return; }
+  var head='<div class="row" style="justify-content:space-between;margin-bottom:10px"><span class="muted">'+esc(p.name)+'</span><span class="muted">'+(p.score||0).toLocaleString()+' points</span></div>';
+  if (m.phase==='lobby') h='<div class="card center"><h2>You are in</h2><p class="muted">Watch the screen. The game starts soon</p></div>';
+  else if (m.phase==='question'){
+    var q=QA(m), mine=((room.ans||{})[m.q]||{})[pid];
+    if (mine) h='<div class="card center"><div class="eyebrow">Question '+(m.q+1)+' of '+QN(m)+'</div><h2>Answer locked in</h2>'+(CFG.kind==='order'?'':'<p class="muted">You picked: '+esc(optsOf(q)[mine.i])+'</p>')+'<p class="muted">Waiting for the reveal</p></div>';
+    else if (CFG.kind==='order'){
+      if (seqQ!==m.q){ seq=[]; seqQ=m.q; }
+      h='<div class="card"><div class="eyebrow">Question '+(m.q+1)+' of '+QN(m)+'</div><div class="q" style="font-size:1.15rem">'+esc(q.text)+'</div><div class="muted">Tap the events from first to last</div></div>';
+      h+=q.shown.map(function(k,i){ var pos=seq.indexOf(i); return '<button class="ans'+(pos>=0?' picked':'')+'" data-a="seq" data-i="'+i+'"'+(pos>=0?' disabled':'')+'><span class="badge">'+(pos>=0?pos+1:'')+'</span>'+esc(q.items[k])+'</button>'; }).join('');
+      h+='<div class="row"><button class="btn" data-a="undo"'+(seq.length?'':' disabled')+' style="flex:1">Undo</button><button class="btn primary" data-a="lock"'+(seq.length===q.items.length?'':' disabled')+' style="flex:2">Lock in my order</button></div>';
+    }
+    else {
+      h='<div class="card"><div class="eyebrow">Question '+(m.q+1)+' of '+QN(m)+'</div>'+(q.verse?'<div class="muted">'+esc(q.prompt||CFG.prompt||'')+'</div><div class="verse" style="font-size:1.1rem">&ldquo;'+esc(q.verse)+'&rdquo;</div>':q.emoji?'<div class="muted">'+esc(q.prompt||CFG.prompt||'')+'</div><div class="emoji" style="font-size:2.6rem">'+esc(q.emoji)+'</div>':'<div class="q" style="font-size:1.2rem">'+esc(q.text)+'</div>')+'</div>';
+      if (CFG.kind==='tf') h+='<button class="ans t" data-a="pick" data-i="0">True</button><button class="ans f" data-a="pick" data-i="1">False</button>';
+      else h+=q.options.map(function(o,i){ return '<button class="ans" data-a="pick" data-i="'+i+'"><b>'+'ABCD'[i]+'</b> &nbsp;'+esc(o)+'</button>'; }).join('');
+    }
+  } else if (m.phase==='reveal'){
+    var q=QA(m), ok=p.last===1;
+    h='<div class="card center"><div class="result-big '+(ok?'good':'bad')+'">'+(ok?'Correct':'Not quite')+'</div>'+(CFG.kind==='order'?'<p>'+(p.hits||0)+' of '+q.items.length+' in the right spot</p><p>+'+(p.gain||0)+' points</p><p class="muted">The correct order is on the screen</p>':ok?'<p>+'+(p.gain||0)+' points</p>':'<p class="muted">Answer: '+esc(optsOf(q)[correctIdx(q)])+'</p>')+
+      '<p class="muted">'+esc(q.ref)+'</p>'+ctxHtml(q)+'<p class="muted">You are in place '+rankOf()+' of '+Object.keys(room.players).length+'</p></div>';
+  } else if (m.phase==='final'){
+    h='<div class="card center"><h2>Game over</h2><div class="result-big">'+(p.score||0).toLocaleString()+'</div><p class="muted">points, place '+rankOf()+' of '+Object.keys(room.players).length+'</p><p class="muted">Look at the screen for the podium</p></div>';
+  }
+  app.innerHTML='<div class="ph">'+head+h+'</div>';
+}
+function poll(){
+  if (busy || !code || !pid) return; busy=true;
+  jget(code,'').then(function(d){ busy=false; if (!d || !d.meta) return; room=d;
+    var m=d.meta, p=me(), mine=p&&((d.ans||{})[m.q]||{})[pid];
+    var k=[m.phase,m.q,!!p,!!mine,p&&p.score,p&&p.last,rankOf()].join('~'); if (k!==lastKey){ lastKey=k; render(); }
+  });
+}
+app.addEventListener('click', function(e){
+  var b=e.target.closest('[data-a]'); if (!b) return; var a=b.getAttribute('data-a');
+  if (a==='join'){
+    var nm=(document.getElementById('nm').value||'').trim(), cd=document.getElementById('cd');
+    if (cd) code=(cd.value||'').trim().toUpperCase();
+    if (!nm || !code) return; b.disabled=true;
+    jget(code,'meta').then(function(m){
+      if (!m){ joinScreen('That game code was not found'); return; }
+      return jpost(code,'players',{name:nm, score:0}).then(function(r){ pid=r&&r.name; store('pid_'+code,pid); lastKey=''; poll(); });
+    });
+  } else if (a==='seq'){ var i=parseInt(b.getAttribute('data-i'),10); if (seq.indexOf(i)<0) seq.push(i); render();
+  } else if (a==='undo'){ seq.pop(); render();
+  } else if (a==='lock' && !sending){
+    sending=true; var q=room.meta.q; b.disabled=true;
+    jput(code,'ans/'+q+'/'+pid,{seq:seq.slice(), t:TS}).then(function(){ sending=false; lastKey=''; poll(); });
+  } else if (a==='pick' && !sending){
+    sending=true; var i=parseInt(b.getAttribute('data-i'),10), q=room.meta.q;
+    Array.prototype.forEach.call(app.querySelectorAll('[data-a=pick]'),function(x){ x.disabled=true; });
+    b.style.outline='3px solid var(--accent)';
+    jput(code,'ans/'+q+'/'+pid,{i:i, t:TS}).then(function(){ sending=false; lastKey=''; poll(); });
+  }
+});
+if (code){ pid=store('pid_'+code)||''; }
+if (pid) poll(); else joinScreen();
+setInterval(poll, 1200);
+})();
+</script></body></html>

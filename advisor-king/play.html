@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script>/* Practice mode: when this page runs inside the site's practice page, use its pretend database and give this screen its own storage. Does nothing otherwise. */
+(function(){try{var P=window.parent!==window&&window.parent.PRACTICE;if(!P)return;window.fetch=P.fetch;var s=P.storage(window.name||location.href);Object.defineProperty(window,'localStorage',{configurable:true,get:function(){return s.local;}});Object.defineProperty(window,'sessionStorage',{configurable:true,get:function(){return s.session;}});}catch(e){}})();</script><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Advisor to King Hezekiah: Play</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>:root{--bg-page:#0E1B2B;--bg-panel:#16273B;--bg-panel-raised:#1E3450;--ink:#F1F6FB;--muted:#9FB4C9;--line:rgba(241,246,251,0.14);--accent:#C98B5B;--ok:#3FA66B;--bad:#C65B5B;color-scheme:dark;}
+*{box-sizing:border-box;}
+html,body{margin:0;min-height:100%;background:var(--bg-page);color:var(--ink);font-family:'Inter',-apple-system,Segoe UI,Roboto,sans-serif;}
+body{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);}
+.wrap{max-width:860px;margin:0 auto;padding:20px 16px 50px;}
+.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:6px;}
+h1{font-family:'Fraunces',Georgia,serif;font-size:1.9rem;margin:0 0 8px;}
+h2{font-family:'Fraunces',Georgia,serif;font-size:1.3rem;margin:0 0 10px;}
+.card{background:var(--bg-panel);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px;}
+.muted{color:var(--muted);font-size:0.95rem;}
+.btn{font:inherit;font-weight:700;padding:14px 20px;border-radius:10px;border:1px solid var(--line);background:var(--bg-panel-raised);color:var(--ink);cursor:pointer;}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#06121D;}
+.btn.big{font-size:1.1rem;width:100%;padding:18px;margin-top:6px;}
+.btn[disabled]{opacity:0.4;cursor:default;}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+input[type=text]{font:inherit;font-size:1.1rem;padding:14px;border-radius:10px;border:1px solid var(--line);background:var(--bg-panel-raised);color:var(--ink);width:100%;margin-bottom:10px;}
+.qr-box{display:flex;justify-content:center;padding:16px;background:#fff;border-radius:14px;margin:10px auto;width:max-content;max-width:100%;}
+.code{font-family:'IBM Plex Mono',monospace;font-size:2.4rem;letter-spacing:0.18em;text-align:center;color:var(--accent);margin:6px 0;}
+.tag{display:inline-block;background:var(--bg-panel-raised);border-radius:20px;padding:6px 14px;margin:4px;font-size:0.95rem;}
+.lb{width:100%;border-collapse:collapse;margin-top:6px;}
+.lb td,.lb th{padding:9px 6px;border-bottom:1px solid var(--line);text-align:left;font-size:1rem;}
+.lb th{color:var(--muted);font-weight:600;font-size:0.78rem;text-transform:uppercase;}
+.q{font-family:'Fraunces',Georgia,serif;font-size:1.6rem;line-height:1.35;margin:8px 0 16px;}
+.verse{font-family:'Fraunces',Georgia,serif;font-size:1.45rem;line-height:1.45;font-style:italic;margin:8px 0 16px;}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.opt{padding:16px;border-radius:12px;border:1px solid var(--line);background:var(--bg-panel-raised);font-size:1.1rem;}
+.opt.right{border-color:var(--ok);background:rgba(63,166,107,0.25);}
+.opt .n{font-family:'IBM Plex Mono',monospace;color:var(--muted);margin-right:8px;}
+.ans{display:block;width:100%;text-align:left;font:inherit;font-size:1.1rem;padding:18px 16px;margin-bottom:10px;border-radius:12px;border:1px solid var(--line);background:var(--bg-panel-raised);color:var(--ink);cursor:pointer;}
+.ans.t{background:rgba(63,166,107,0.2);border-color:var(--ok);text-align:center;font-size:1.4rem;font-weight:700;}
+.ans.f{background:rgba(198,91,91,0.2);border-color:var(--bad);text-align:center;font-size:1.4rem;font-weight:700;}
+.timerbar{height:8px;border-radius:4px;background:var(--bg-panel-raised);overflow:hidden;margin:6px 0 12px;}
+.timerbar i{display:block;height:100%;background:var(--accent);transition:width .25s linear;}
+.result-big{font-family:'Fraunces',Georgia,serif;font-size:2.2rem;font-weight:700;margin:6px 0;}
+.good{color:var(--ok);} .bad{color:var(--bad);}
+.reveal{background:var(--bg-panel-raised);border-radius:12px;padding:14px 16px;margin-top:6px;}
+.podium{display:flex;justify-content:center;align-items:flex-end;gap:14px;margin:20px 0;}
+.podium .spot{background:var(--bg-panel-raised);border-radius:10px 10px 0 0;padding:14px 16px;text-align:center;min-width:100px;}
+.podium .g1{min-height:130px;background:linear-gradient(180deg,#F0CB77,#C9A227);color:#2b2418;}
+.podium .g2{min-height:96px;} .podium .g3{min-height:72px;}
+.ph{max-width:480px;margin:0 auto;}
+.center{text-align:center;}
+@media (max-width:600px){ .opts{grid-template-columns:1fr;} .q{font-size:1.3rem;} .verse{font-size:1.2rem;} }
+.emoji{font-size:4rem;line-height:1.3;text-align:center;margin:10px 0 18px;letter-spacing:0.1em;}
+.order{margin:0 0 6px;padding-left:28px;font-size:1.15rem;line-height:1.7;}
+.order li::marker{color:var(--accent);font-weight:700;}
+.ans.picked{border-color:var(--accent);background:rgba(255,255,255,0.08);opacity:0.75;}
+.badge{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;border:1px solid var(--line);margin-right:10px;font-weight:700;font-family:'IBM Plex Mono',monospace;}
+.ans.picked .badge{background:var(--accent);color:#06121D;border-color:var(--accent);}
+.scene{font-size:1.15rem;line-height:1.5;margin:4px 0 10px;}
+.meters{display:grid;gap:10px;}
+.meter{font-size:0.95rem;}
+.mtrack{height:10px;border-radius:5px;background:var(--bg-panel-raised);overflow:hidden;margin-top:4px;}
+.mtrack i{display:block;height:100%;background:var(--accent);transition:width .4s ease;}
+.tally{display:grid;gap:8px;margin-top:8px;}
+.trow{padding:10px 12px;border-radius:10px;border:1px solid var(--line);}
+.trow.dec{border-color:var(--accent);background:rgba(255,255,255,0.05);}
+.trow .n,.opt .n{font-family:'IBM Plex Mono',monospace;color:var(--muted);margin-right:8px;}
+.did{border-color:var(--accent);}
+ul.plain{margin:0;padding-left:20px;line-height:1.6;}
+.pts{font-family:'IBM Plex Mono',monospace;font-size:0.8rem;color:var(--muted);margin-left:6px;white-space:nowrap;}
+.pts.top{color:var(--accent);font-weight:700;}
+</style></head><body><div class="wrap" id="app"></div>
+<script>var CFG={"title": "Advisor to King Hezekiah", "mode": "class", "seconds": 40, "accent": "#C98B5B", "meters": [{"k": "safety", "label": "Jerusalem's safety", "start": 50, "color": "#4FA3D1"}, {"k": "faith", "label": "Trust in the Lord", "start": 50, "color": "#E3B04B"}, {"k": "unity", "label": "The people's courage", "start": 50, "color": "#58B38A"}], "prompt": "What do you advise the king to do?", "didLabel": "What Hezekiah actually did", "how": "You are King Hezekiah's royal council while the Assyrian army threatens Jerusalem (Isaiah 36 to 39). Each round, everyone votes on their phone. The most popular advice becomes the council's decision and moves the kingdom's meters. Points are private to you: 1,000 for the advice that matches the scripture account, with partial credit for good advice. Several choices sound wise, so knowing the story is the edge.", "waitText": "Watch the screen. The council meets soon", "endings": [{"min": {"safety": 70, "faith": 70}, "title": "Jerusalem is delivered", "text": "Like Hezekiah, the council trusted the Lord and His prophet, and the city was saved."}, {"min": {"faith": 55}, "title": "A faithful council", "text": "The council leaned on the Lord, though some choices made things harder than they needed to be."}, {"title": "A kingdom on the edge", "text": "The council relied mostly on its own strength. Compare your choices with what Hezekiah and Isaiah did."}], "discuss": ["Which round was hardest to choose? What made two answers feel close?", "Rabshakeh shouted to scare the people. What voices try to shake our trust in the Lord today?", "Hezekiah \"spread\" the letter before the Lord (Isaiah 37:14). What could that look like for us?"], "rounds": [{"title": "The Assyrians are coming", "ref": "Isaiah 36:1", "scene": "Sennacherib, king of Assyria, has captured the fenced cities of Judah. His army is heading for Jerusalem.", "options": [{"t": "Send Sennacherib a large payment so he turns back", "pts": 500, "fx": {"safety": 5, "unity": -5}}, {"t": "Ask Egypt for chariots and horsemen", "pts": 300, "fx": {"safety": 5, "faith": -10}}, {"t": "Cut off the outside springs and repair the wall", "pts": 1000, "fx": {"safety": 15, "faith": 10, "unity": 15}}, {"t": "Call a fast and keep everyone inside the walls", "pts": 600, "fx": {"faith": 10, "unity": 5}}], "did": "Hezekiah did two of these. He paid Sennacherib silver and gold, even stripping gold from the temple doors, but the Assyrians came anyway (2 Kings 18:14-17). Then he stopped the springs, built up the wall, and told the people, \"With him is an arm of flesh; but with us is the LORD our God\" (2 Chronicles 32:3-8).", "didRef": "2 Kings 18:14-17; 2 Chronicles 32:3-8"}, {"title": "Shouting at the wall", "ref": "Isaiah 36:11-21", "scene": "The Assyrian commander, Rabshakeh, shouts in Hebrew to the people on the wall: do not let Hezekiah make you trust in the Lord; no god has saved any nation from Assyria.", "options": [{"t": "Ask him to speak in the Syrian language so the people cannot understand", "pts": 700, "fx": {"unity": 5}}, {"t": "Have a priest answer him with words of faith", "pts": 500, "fx": {"faith": 5, "unity": 5, "safety": -5}}, {"t": "Answer him not a word", "pts": 1000, "fx": {"unity": 10, "faith": 10}}, {"t": "Bring the people down off the wall so they stop listening", "pts": 400, "fx": {"safety": -5}}], "did": "Hezekiah's officials first asked Rabshakeh to speak in the Syrian language, and he shouted louder (Isaiah 36:11-13). Then \"they held their peace, and answered him not a word: for the king's commandment was, saying, Answer him not\" (Isaiah 36:21)."}, {"title": "The king hears the report", "ref": "Isaiah 37:1-4", "scene": "Hezekiah's officials come to him with their clothes torn and tell him everything Rabshakeh said.", "options": [{"t": "Gather the generals and plan how to hold the gates", "pts": 400, "fx": {"safety": 10}}, {"t": "Call the whole city to the temple for a fast", "pts": 700, "fx": {"faith": 10, "unity": 10}}, {"t": "Go to the temple in sackcloth and send leaders to Isaiah", "pts": 1000, "fx": {"faith": 15, "unity": 10}}, {"t": "Send gifts to the commander to buy more time", "pts": 200, "fx": {"safety": 5, "faith": -5}}], "did": "Hezekiah rent his clothes, covered himself with sackcloth, went into the house of the Lord, and sent his leaders to Isaiah the prophet asking him to pray (Isaiah 37:1-4)."}, {"title": "The threatening letter", "ref": "Isaiah 37:9-21", "scene": "Sennacherib sends Hezekiah a letter: your God is deceiving you; look at all the nations Assyria has destroyed.", "options": [{"t": "Read the letter to the people so they know what they face", "pts": 300, "fx": {"unity": -5}}, {"t": "Send the letter to Isaiah and ask what the Lord says", "pts": 700, "fx": {"faith": 10}}, {"t": "Take the letter to the temple, spread it before the Lord, and pray", "pts": 1000, "fx": {"faith": 20, "unity": 5}}, {"t": "Write a calm reply asking for terms of peace", "pts": 200, "fx": {"safety": -5, "faith": -5}}], "did": "\"Hezekiah went up unto the house of the LORD, and spread it before the LORD. And Hezekiah prayed\" (Isaiah 37:14-15). Isaiah then sent him the Lord's answer without being asked: \"Whereas thou hast prayed to me against Sennacherib\" (Isaiah 37:21)."}, {"title": "The prophet's answer", "ref": "Isaiah 37:33-35", "scene": "Isaiah sends word: the Lord says the king of Assyria shall not come into this city, nor shoot an arrow there. Outside, the army is still camped.", "options": [{"t": "Post extra guards on the wall tonight, just in case", "pts": 600, "fx": {"safety": 10, "faith": 5}}, {"t": "Stay inside and trust the promise", "pts": 1000, "fx": {"faith": 15, "safety": 20, "unity": 10}}, {"t": "Send scouts to watch the Assyrian camp", "pts": 500, "fx": {"safety": 10}}, {"t": "Strike the camp at night while they sleep", "pts": 100, "fx": {"safety": -20, "faith": -10}}], "did": "Hezekiah waited on the Lord. \"The angel of the LORD went forth, and smote in the camp of the Assyrians a hundred and fourscore and five thousand,\" and Sennacherib went home to Nineveh (Isaiah 37:36-37)."}, {"title": "Visitors from Babylon", "ref": "Isaiah 39:1-7", "scene": "Years later, after Hezekiah recovers from a deadly illness, messengers arrive from the king of Babylon with letters and a present. Babylon could be a strong ally against Assyria.", "options": [{"t": "Show them your treasures and armory to build a strong alliance", "pts": 100, "fx": {"safety": -15, "unity": 5}}, {"t": "Welcome them warmly, but show them only the city", "pts": 800, "fx": {"safety": 5, "unity": 5}}, {"t": "Ask Isaiah before making any alliance", "pts": 1000, "fx": {"faith": 10, "safety": 10}}, {"t": "Accept the present and send them home politely", "pts": 600, "fx": {"safety": 5}}], "did": "Hezekiah \"was glad of them,\" and there was nothing in his house \"that Hezekiah shewed them not.\" Isaiah prophesied that all of it would be carried to Babylon (Isaiah 39:2-6). Even a faithful king made a costly mistake."}], "root": "seminaryGames/advisor-king"};
+var DBURL = "https://penny-project-fb5da-default-rtdb.firebaseio.com";
+var FAKE = null; try{ if (window.parent && window.parent !== window && window.parent.FAKE) FAKE = window.parent.FAKE; }catch(e){}
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function dbPath(code, path){ return CFG.root + '/' + code + (path ? '/' + path : ''); }
+function req(method, code, path, v){
+  var p = dbPath(code, path);
+  if (FAKE) return FAKE.req(method, p, v);
+  var o = {method: method, cache: 'no-store'}; if (v !== undefined) o.body = JSON.stringify(v);
+  return fetch(DBURL + '/' + p + '.json', o).then(function(r){ return r.json(); }).catch(function(){ return null; });
+}
+function jget(c,p){ return req('GET',c,p); }
+function jput(c,p,v){ return req('PUT',c,p,v); }
+function jpatch(c,p,v){ return req('PATCH',c,p,v); }
+function jpost(c,p,v){ return req('POST',c,p,v); }
+var TS = {".sv":"timestamp"};
+function ranked(players){ var a=[]; for (var k in (players||{})) a.push({id:k, name:players[k].name, score:players[k].score||0}); a.sort(function(x,y){ return y.score-x.score || String(x.name).localeCompare(String(y.name)); }); return a; }
+var MEM={};
+function store(k, v){ if (FAKE){ if (v===undefined) return MEM[k]||null; MEM[k]=v; return; } try{ if (v===undefined) return sessionStorage.getItem(k); sessionStorage.setItem(k, v); }catch(e){ return null; } }
+function optsOf(q){ return CFG.kind==='tf' ? ['True','False'] : q.options; }
+function correctIdx(q){ return CFG.kind==='tf' ? (q.answer?0:1) : q.answer; }
+</script>
+<script>(function(){
+var app=document.getElementById('app'), R=CFG.rounds, code='', pid='', room=null, busy=false, lastKey='', sending=false;
+function param(n){ try{ return new URLSearchParams(location.search).get(n); }catch(e){ return null; } }
+code=(param('g')||'').toUpperCase();
+if (!code && FAKE && FAKE.latestCode) code=FAKE.latestCode(CFG.root);
+function me(){ return (room&&room.players||{})[pid]; }
+function rankOf(){ var r=ranked(room.players); for (var i=0;i<r.length;i++) if (r[i].id===pid) return i+1; return 0; }
+function optsFor(rd){ return CFG.mode==='wall' ? CFG.actions.concat(rd.extra?[rd.extra]:[]) : rd.options; }
+function joinScreen(msg){
+  app.innerHTML='<div class="ph"><div class="eyebrow">'+esc(CFG.title)+'</div><h1>Join the game</h1><div class="card">'+
+    (code?'':'<input type="text" id="cd" maxlength="4" placeholder="Game code" autocapitalize="characters">')+
+    '<input type="text" id="nm" maxlength="20" placeholder="Your first name" autocomplete="off">'+
+    '<button class="btn primary big" data-a="join">Join</button>'+(msg?'<p class="bad">'+esc(msg)+'</p>':'')+'</div></div>';
+}
+function myMeters(p){ if (CFG.mode!=='personal') return ''; var m=p.m||{}; return '<div class="card"><div class="meters">'+CFG.meters.map(function(x){ var v=m[x.k]!=null?m[x.k]:x.start; return '<div class="meter"><div class="row" style="justify-content:space-between"><span>'+esc(x.label)+'</span><span>'+Math.round(v)+'</span></div><div class="mtrack"><i style="width:'+v+'%;background:'+x.color+'"></i></div></div>'; }).join('')+'</div></div>'; }
+function render(){
+  var m=room.meta, p=me(), h='';
+  if (!p){ store('pid_'+code,''); pid=''; joinScreen('You were removed from this game. Join again.'); return; }
+  var team=CFG.mode==='wall'&&p.team!=null?' &middot; '+esc(CFG.teams[p.team]):'';
+  var head='<div class="row" style="justify-content:space-between;margin-bottom:10px"><span class="muted">'+esc(p.name)+team+'</span><span class="muted">'+(p.score||0).toLocaleString()+' points</span></div>';
+  if (m.phase==='lobby') h='<div class="card center"><h2>You are in</h2><p class="muted">'+esc(CFG.waitText)+'</p></div>';
+  else if (m.phase==='round'){
+    var rd=R[m.r], mine=((room.ans||{})[m.r]||{})[pid], o=optsFor(rd);
+    h='<div class="card"><div class="eyebrow">Round '+(m.r+1)+' of '+R.length+'</div><h2>'+esc(rd.title)+'</h2><p class="scene" style="font-size:1rem">'+esc(rd.scene)+'</p></div>';
+    if (mine) h+='<div class="card center"><h2>Choice locked in</h2><p class="muted">'+esc(o[mine.i].t)+'</p><p class="muted">Watch the screen for what happens</p></div>';
+    else { h+='<p class="muted"><b>'+esc(rd.prompt||CFG.prompt)+'</b></p>'+o.map(function(op,i){ return '<button class="ans" data-a="pick" data-i="'+i+'"><b>'+'ABCDE'[i]+'</b> &nbsp;'+esc(op.t)+(op.hint?'<div class="muted" style="font-size:0.85rem;margin-top:4px">'+esc(op.hint)+'</div>':'')+'</button>'; }).join(''); }
+    h+=myMeters(p);
+  } else if (m.phase==='reveal'){
+    var rd=R[m.r], o=optsFor(rd), pk=p.pick;
+    h='<div class="card center"><div class="eyebrow">Round '+(m.r+1)+' results</div>'+(pk>=0?'<p>You chose: <b>'+esc(o[pk].t)+'</b></p>':'<p class="muted">You did not choose in time</p>')+
+      '<div class="result-big">+'+(p.gain||0)+'</div><p class="muted">points</p>'+
+      (CFG.mode==='personal'&&pk>=0&&o[pk].out?'<p>'+esc(o[pk].out)+'</p>':'')+
+      (CFG.mode==='wall'&&m.res&&m.res.byTeam&&p.team!=null?'<p>'+esc(CFG.teams[p.team])+': '+esc(m.res.byTeam[p.team]||'')+'</p>':'')+
+      (CFG.mode==='class'&&m.res?'<p class="muted">The council chose: '+esc(rd.options[m.res.dec].t)+'</p>':'')+
+      '<p class="muted">Place '+rankOf()+' of '+Object.keys(room.players).length+'</p></div>'+myMeters(p);
+  } else if (m.phase==='final'){
+    h='<div class="card center"><h2>Game over</h2><div class="result-big">'+(p.score||0).toLocaleString()+'</div><p class="muted">points, place '+rankOf()+' of '+Object.keys(room.players).length+'</p><p class="muted">Look at the screen for the results</p></div>'+myMeters(p);
+  }
+  app.innerHTML='<div class="ph">'+head+h+'</div>';
+}
+function poll(){
+  if (busy||!code||!pid) return; busy=true;
+  jget(code,'').then(function(d){ busy=false; if (!d||!d.meta) return; room=d;
+    var m=d.meta, p=me(), mine=p&&((d.ans||{})[m.r]||{})[pid];
+    var k=[m.phase,m.r,!!p,!!mine,p&&p.score,p&&p.team,p&&p.gain,rankOf()].join('~'); if (k!==lastKey){ lastKey=k; render(); }
+  });
+}
+app.addEventListener('click', function(e){
+  var b=e.target.closest('[data-a]'); if (!b) return; var a=b.getAttribute('data-a');
+  if (a==='join'){
+    var nm=(document.getElementById('nm').value||'').trim(), cd=document.getElementById('cd');
+    if (cd) code=(cd.value||'').trim().toUpperCase();
+    if (!nm||!code) return; b.disabled=true;
+    jget(code,'meta').then(function(m){ if (!m){ joinScreen('That game code was not found'); return; }
+      return jpost(code,'players',{name:nm, score:0}).then(function(r){ pid=r&&r.name; store('pid_'+code,pid); lastKey=''; poll(); }); });
+  } else if (a==='pick' && !sending){
+    sending=true; var i=parseInt(b.getAttribute('data-i'),10), r=room.meta.r;
+    Array.prototype.forEach.call(app.querySelectorAll('[data-a=pick]'),function(x){ x.disabled=true; }); b.style.outline='3px solid var(--accent)';
+    jput(code,'ans/'+r+'/'+pid,{i:i, t:TS}).then(function(){ sending=false; lastKey=''; poll(); });
+  }
+});
+if (code) pid=store('pid_'+code)||'';
+if (pid) poll(); else joinScreen();
+setInterval(poll,1200);
+})();
+</script></body></html>

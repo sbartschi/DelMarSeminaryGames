@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en" class="night"><head>
+<script>/* Practice mode: when this page runs inside the site's practice page, use its pretend database and give this screen its own storage. Does nothing otherwise. */
+(function(){try{var P=window.parent!==window&&window.parent.PRACTICE;if(!P)return;window.fetch=P.fetch;var s=P.storage(window.name||location.href);Object.defineProperty(window,'localStorage',{configurable:true,get:function(){return s.local;}});Object.defineProperty(window,'sessionStorage',{configurable:true,get:function(){return s.session;}});}catch(e){}})();</script><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Watchmen on the Tower: Host</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>:root{--bg-page:#0E1B2B;--bg-panel:#16273B;--bg-panel-raised:#1E3450;--ink:#F1F6FB;--muted:#9FB4C9;--line:rgba(241,246,251,0.14);--accent:#F2C14E;--ok:#3FA66B;--bad:#C65B5B;color-scheme:dark;}
+*{box-sizing:border-box;}
+html,body{margin:0;min-height:100%;background:var(--bg-page);color:var(--ink);font-family:'Inter',-apple-system,Segoe UI,Roboto,sans-serif;}
+body{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);}
+.wrap{max-width:860px;margin:0 auto;padding:20px 16px 50px;}
+.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:6px;}
+h1{font-family:'Fraunces',Georgia,serif;font-size:1.9rem;margin:0 0 8px;}
+h2{font-family:'Fraunces',Georgia,serif;font-size:1.3rem;margin:0 0 10px;}
+.card{background:var(--bg-panel);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px;}
+.muted{color:var(--muted);font-size:0.95rem;}
+.btn{font:inherit;font-weight:700;padding:14px 20px;border-radius:10px;border:1px solid var(--line);background:var(--bg-panel-raised);color:var(--ink);cursor:pointer;}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#06121D;}
+.btn.big{font-size:1.1rem;width:100%;padding:18px;margin-top:6px;}
+.btn[disabled]{opacity:0.4;cursor:default;}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+input[type=text]{font:inherit;font-size:1.1rem;padding:14px;border-radius:10px;border:1px solid var(--line);background:var(--bg-panel-raised);color:var(--ink);width:100%;margin-bottom:10px;}
+.qr-box{display:flex;justify-content:center;padding:16px;background:#fff;border-radius:14px;margin:10px auto;width:max-content;max-width:100%;}
+.code{font-family:'IBM Plex Mono',monospace;font-size:2.4rem;letter-spacing:0.18em;text-align:center;color:var(--accent);margin:6px 0;}
+.tag{display:inline-block;background:var(--bg-panel-raised);border-radius:20px;padding:6px 14px;margin:4px;font-size:0.95rem;}
+.lb{width:100%;border-collapse:collapse;margin-top:6px;}
+.lb td,.lb th{padding:9px 6px;border-bottom:1px solid var(--line);text-align:left;font-size:1rem;}
+.lb th{color:var(--muted);font-weight:600;font-size:0.78rem;text-transform:uppercase;}
+.q{font-family:'Fraunces',Georgia,serif;font-size:1.6rem;line-height:1.35;margin:8px 0 16px;}
+.verse{font-family:'Fraunces',Georgia,serif;font-size:1.45rem;line-height:1.45;font-style:italic;margin:8px 0 16px;}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.opt{padding:16px;border-radius:12px;border:1px solid var(--line);background:var(--bg-panel-raised);font-size:1.1rem;}
+.opt.right{border-color:var(--ok);background:rgba(63,166,107,0.25);}
+.opt .n{font-family:'IBM Plex Mono',monospace;color:var(--muted);margin-right:8px;}
+.ans{display:block;width:100%;text-align:left;font:inherit;font-size:1.1rem;padding:18px 16px;margin-bottom:10px;border-radius:12px;border:1px solid var(--line);background:var(--bg-panel-raised);color:var(--ink);cursor:pointer;}
+.ans.t{background:rgba(63,166,107,0.2);border-color:var(--ok);text-align:center;font-size:1.4rem;font-weight:700;}
+.ans.f{background:rgba(198,91,91,0.2);border-color:var(--bad);text-align:center;font-size:1.4rem;font-weight:700;}
+.timerbar{height:8px;border-radius:4px;background:var(--bg-panel-raised);overflow:hidden;margin:6px 0 12px;}
+.timerbar i{display:block;height:100%;background:var(--accent);transition:width .25s linear;}
+.result-big{font-family:'Fraunces',Georgia,serif;font-size:2.2rem;font-weight:700;margin:6px 0;}
+.good{color:var(--ok);} .bad{color:var(--bad);}
+.reveal{background:var(--bg-panel-raised);border-radius:12px;padding:14px 16px;margin-top:6px;}
+.podium{display:flex;justify-content:center;align-items:flex-end;gap:14px;margin:20px 0;}
+.podium .spot{background:var(--bg-panel-raised);border-radius:10px 10px 0 0;padding:14px 16px;text-align:center;min-width:100px;}
+.podium .g1{min-height:130px;background:linear-gradient(180deg,#F0CB77,#C9A227);color:#2b2418;}
+.podium .g2{min-height:96px;} .podium .g3{min-height:72px;}
+.ph{max-width:480px;margin:0 auto;}
+.center{text-align:center;}
+@media (max-width:600px){ .opts{grid-template-columns:1fr;} .q{font-size:1.3rem;} .verse{font-size:1.2rem;} }
+.emoji{font-size:4rem;line-height:1.3;text-align:center;margin:10px 0 18px;letter-spacing:0.1em;}
+.order{margin:0 0 6px;padding-left:28px;font-size:1.15rem;line-height:1.7;}
+.order li::marker{color:var(--accent);font-weight:700;}
+.ans.picked{border-color:var(--accent);background:rgba(255,255,255,0.08);opacity:0.75;}
+.badge{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;border:1px solid var(--line);margin-right:10px;font-weight:700;font-family:'IBM Plex Mono',monospace;}
+.ans.picked .badge{background:var(--accent);color:#06121D;border-color:var(--accent);}
+.scene{font-size:1.15rem;line-height:1.5;margin:4px 0 10px;}
+.meters{display:grid;gap:10px;}
+.meter{font-size:0.95rem;}
+.mtrack{height:10px;border-radius:5px;background:var(--bg-panel-raised);overflow:hidden;margin-top:4px;}
+.mtrack i{display:block;height:100%;background:var(--accent);transition:width .4s ease;}
+.tally{display:grid;gap:8px;margin-top:8px;}
+.trow{padding:10px 12px;border-radius:10px;border:1px solid var(--line);}
+.trow.dec{border-color:var(--accent);background:rgba(255,255,255,0.05);}
+.trow .n,.opt .n{font-family:'IBM Plex Mono',monospace;color:var(--muted);margin-right:8px;}
+.did{border-color:var(--accent);}
+ul.plain{margin:0;padding-left:20px;line-height:1.6;}
+.pts{font-family:'IBM Plex Mono',monospace;font-size:0.8rem;color:var(--muted);margin-left:6px;white-space:nowrap;}
+.pts.top{color:var(--accent);font-weight:700;}
+.night{--bg-page:#0A1230;--bg-panel:#121C42;--bg-panel-raised:#1D2A5C;--ink:#EEF2FF;--muted:#A9B4DA;--line:rgba(238,242,255,0.14);--accent:#F2C14E;color-scheme:dark;}
+.day{--bg-page:#F4EBD7;--bg-panel:#FFFDF7;--bg-panel-raised:#F2E6CB;--ink:#2A2416;--muted:#6B604A;--line:rgba(42,36,22,0.16);--accent:#B5651D;color-scheme:light;}
+.day .btn.primary{color:#fff;}
+body{transition:background .6s ease,color .6s ease;}
+.scene-art{display:block;width:100%;height:auto;border-radius:14px;margin-bottom:14px;}
+.phase{display:flex;align-items:center;gap:12px;margin:0 0 8px;}
+.phase .big{font-family:'Fraunces',Georgia,serif;font-size:2.4rem;font-weight:700;}
+.pill{display:inline-block;border-radius:20px;padding:4px 12px;font-size:0.85rem;background:var(--bg-panel-raised);margin:3px;}
+.pill.out{text-decoration:line-through;opacity:0.55;}
+.rolecard{border:2px solid var(--accent);border-radius:14px;padding:16px;background:var(--bg-panel);margin-bottom:14px;}
+.rolecard .rn{font-family:'Fraunces',Georgia,serif;font-size:1.8rem;font-weight:700;color:var(--accent);}
+.news{font-size:1.25rem;line-height:1.5;}
+.note{background:var(--bg-panel-raised);border-radius:10px;padding:10px 12px;margin:6px 0;font-size:0.95rem;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.ans.sel{outline:3px solid var(--accent);}
+.ans small{display:block;color:var(--muted);font-size:0.8rem;margin-top:3px;}
+.clock{font-family:'IBM Plex Mono',monospace;font-size:2rem;color:var(--accent);}
+</style></head><body><div class="wrap" id="app"></div>
+<script>var CFG={"title": "Watchmen on the Tower", "root": "seminaryGames/watchmen"};
+var DBURL = "https://penny-project-fb5da-default-rtdb.firebaseio.com";
+var FAKE = null; try{ if (window.parent && window.parent !== window && window.parent.FAKE) FAKE = window.parent.FAKE; }catch(e){}
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function dbPath(code, path){ return CFG.root + '/' + code + (path ? '/' + path : ''); }
+function req(method, code, path, v){
+  var p = dbPath(code, path);
+  if (FAKE) return FAKE.req(method, p, v);
+  var o = {method: method, cache: 'no-store'}; if (v !== undefined) o.body = JSON.stringify(v);
+  return fetch(DBURL + '/' + p + '.json', o).then(function(r){ return r.json(); }).catch(function(){ return null; });
+}
+function jget(c,p){ return req('GET',c,p); }
+function jput(c,p,v){ return req('PUT',c,p,v); }
+function jpatch(c,p,v){ return req('PATCH',c,p,v); }
+function jpost(c,p,v){ return req('POST',c,p,v); }
+var TS = {".sv":"timestamp"};
+function ranked(players){ var a=[]; for (var k in (players||{})) a.push({id:k, name:players[k].name, score:players[k].score||0}); a.sort(function(x,y){ return y.score-x.score || String(x.name).localeCompare(String(y.name)); }); return a; }
+var MEM={};
+function store(k, v){ if (FAKE){ if (v===undefined) return MEM[k]||null; MEM[k]=v; return; } try{ if (v===undefined) return sessionStorage.getItem(k); sessionStorage.setItem(k, v); }catch(e){ return null; } }
+function optsOf(q){ return CFG.kind==='tf' ? ['True','False'] : q.options; }
+function correctIdx(q){ return CFG.kind==='tf' ? (q.answer?0:1) : q.answer; }
+var ROLE={israelite:{name:'Israelite',team:'israel',desc:'You are a faithful Israelite. At night, tap Pray for Israel. During the day, listen carefully and vote to cast out the Deceivers.',ref:'Ezekiel 33:2'},
+ deceiver:{name:'Deceiver',team:'deceivers',desc:'You are a Deceiver. At night, agree with the other Deceivers on one person to carry away captive. During the day, blend in. You may even claim to be the Prophet.',ref:'Jeremiah 23:16'},
+ prophet:{name:'Prophet',team:'israel',desc:'You are the Prophet. Each night, choose one person and the Lord will reveal whether they are a Deceiver. Decide carefully when to speak up; the Deceivers will want to silence you.',ref:'Amos 3:7'},
+ watchman:{name:'Watchman',team:'israel',desc:'You are the Watchman on the tower. Each night, watch one person and learn whether they went out in the night. Deceivers go out, but so do the Prophet and the Shepherd.',ref:'Ezekiel 3:17'},
+ shepherd:{name:'Shepherd',team:'israel',desc:'You are the Shepherd. Each night, protect one person, even yourself. If the Deceivers choose that person, no one is taken. You cannot protect the same person two nights in a row.',ref:'Ezekiel 34:12'}};
+function sceneSvg(night, tall){
+  var h=tall?150:90, w=600, s='';
+  if (night){
+    var st=[[40,20],[90,50],[150,15],[210,40],[260,12],[330,30],[390,18],[450,45],[520,22],[570,55],[120,70],[480,70],[300,60],[20,60]];
+    s+='<rect width="'+w+'" height="'+h+'" fill="url(#gn)"/>';
+    st.forEach(function(p,i){ s+='<circle cx="'+p[0]+'" cy="'+(p[1]*h/150)+'" r="'+(i%3?1.2:1.9)+'" fill="#fff" opacity="'+(i%2?0.7:1)+'"/>'; });
+    s+='<circle cx="500" cy="'+(h*0.3)+'" r="'+(h*0.16)+'" fill="#F4E9C1"/><circle cx="'+(500+h*0.07)+'" cy="'+(h*0.26)+'" r="'+(h*0.15)+'" fill="#1A2453"/>';
+  } else {
+    s+='<rect width="'+w+'" height="'+h+'" fill="url(#gd)"/>';
+    s+='<g stroke="#F2B233" stroke-width="3" stroke-linecap="round">';
+    for (var a=0;a<12;a++){ var r=a*Math.PI/6, cx=480, cy=h*0.34, r1=h*0.2, r2=h*0.28; s+='<line x1="'+(cx+r1*Math.cos(r))+'" y1="'+(cy+r1*Math.sin(r))+'" x2="'+(cx+r2*Math.cos(r))+'" y2="'+(cy+r2*Math.sin(r))+'"/>'; }
+    s+='</g><circle cx="480" cy="'+(h*0.34)+'" r="'+(h*0.15)+'" fill="#F7C548"/>';
+    s+='<g fill="#fff" opacity="0.9"><ellipse cx="140" cy="'+(h*0.3)+'" rx="46" ry="'+(h*0.08)+'"/><ellipse cx="175" cy="'+(h*0.24)+'" rx="30" ry="'+(h*0.08)+'"/><ellipse cx="320" cy="'+(h*0.42)+'" rx="38" ry="'+(h*0.06)+'"/></g>';
+  }
+  var g=h, wallY=g*0.78, c=night?'#060B1E':'#8A6A3F', c2=night?'#0B1330':'#A9864F';
+  s+='<rect x="0" y="'+wallY+'" width="'+w+'" height="'+(g-wallY)+'" fill="'+c2+'"/>';
+  for (var x=0;x<w;x+=24) s+='<rect x="'+x+'" y="'+(wallY-8)+'" width="14" height="9" fill="'+c2+'"/>';
+  var tx=90, tw=56, ty=g*0.3;
+  s+='<rect x="'+tx+'" y="'+ty+'" width="'+tw+'" height="'+(g-ty)+'" fill="'+c+'"/>';
+  for (var k=0;k<4;k++) s+='<rect x="'+(tx-6+k*18)+'" y="'+(ty-10)+'" width="12" height="11" fill="'+c+'"/>';
+  s+='<rect x="'+(tx+22)+'" y="'+(ty+g*0.14)+'" width="12" height="'+(g*0.12)+'" rx="6" fill="'+(night?'#F2C14E':'#3B2A14')+'" opacity="'+(night?0.9:0.6)+'"/>';
+  s+='<circle cx="'+(tx+28)+'" cy="'+(ty-22)+'" r="5" fill="'+c+'"/><rect x="'+(tx+24)+'" y="'+(ty-17)+'" width="8" height="8" fill="'+c+'"/>';
+  return '<svg class="scene-art" viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="xMidYMid slice" role="img" aria-label="'+(night?'Night over the walls of Jerusalem':'Day over the walls of Jerusalem')+'"><defs><linearGradient id="gn" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0A1028"/><stop offset="1" stop-color="#243068"/></linearGradient><linearGradient id="gd" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8CC8EE"/><stop offset="1" stop-color="#F6E3B4"/></linearGradient></defs>'+s+'</svg>';
+}
+function setTime(night){ var e=document.documentElement; e.classList.toggle('night', !!night); e.classList.toggle('day', !night); }
+function alivePl(pl){ var a=[]; for (var k in (pl||{})) if (pl[k].alive!==false) a.push(k); return a; }
+function nameOf(pl,id){ return (pl[id]||{}).name||'Someone'; }
+function roleText(r){ return r==='deceiver'?'a Deceiver':r==='israelite'?'an Israelite':'the '+ROLE[r].name; }
+</script>
+<script>(function(){
+var app=document.getElementById('app'), code='', room=null, busy=false, lastKey='', acting=false, peek=false, dayEnd=0;
+function joinUrl(){ try{ return new URL('play.html?g='+code, location.href).href; }catch(e){ return 'play.html?g='+code; } }
+function mkCode(){ var A='ABCDEFGHJKLMNPQRSTUVWXYZ', c=''; for (var i=0;i<4;i++) c+=A[Math.floor(Math.random()*A.length)]; return c; }
+function newGame(){ code=mkCode(); room=null; lastKey=''; peek=false; setTime(true); return jput(code,'',{meta:{phase:'lobby', n:0, created:TS}}); }
+function counts(n){ if (n>=21) return {d:4,w:1,s:1}; if (n>=14) return {d:3,w:1,s:1}; if (n>=9) return {d:2,w:1,s:1}; if (n>=6) return {d:1,w:0,s:1}; return {d:1,w:0,s:0}; }
+function shuffle(a){ for (var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+function lb(pl){ var r=ranked(pl), h='<table class="lb"><tr><th>#</th><th>Name</th><th>Role</th><th>Score</th></tr>'; r.forEach(function(p,i){ h+='<tr><td>'+(i+1)+'</td><td>'+esc(p.name)+'</td><td>'+esc(ROLE[pl[p.id].role].name)+'</td><td>'+p.score.toLocaleString()+'</td></tr>'; }); return h+'</table>'; }
+function roster(pl, showRoles){ return Object.keys(pl).map(function(id){ var p=pl[id]; return '<span class="pill'+(p.alive===false?' out':'')+'">'+esc(p.name)+(showRoles||p.alive===false?' &middot; '+esc(ROLE[p.role]?ROLE[p.role].name:''):'')+'</span>'; }).join(''); }
+function winner(pl){ var d=0,o=0; alivePl(pl).forEach(function(id){ if (pl[id].role==='deceiver') d++; else o++; }); if (d===0) return 'israel'; if (d>=o) return 'deceivers'; return ''; }
+function header(night, label, sub){ return sceneSvg(night,true)+'<div class="phase"><span class="big">'+label+'</span></div>'+(sub?'<p class="muted">'+sub+'</p>':''); }
+function render(){
+  if (!room) return;
+  var m=room.meta, pl=room.players||{}, np=Object.keys(pl).length, h='', al=alivePl(pl);
+  var peekBtn=m.phase!=='lobby'&&m.phase!=='final'?'<button class="btn" data-a="peek" style="margin-top:10px">'+(peek?'Hide roles':'Teacher only: show all roles')+'</button>':'';
+  if (m.phase==='lobby'){
+    setTime(true);
+    var c=counts(np);
+    h=header(true,'Watchmen on the Tower','Ezekiel 33: the watchman warns the people when the sword comes')+
+      '<div class="card"><div class="qr-box" id="qr"></div><div class="code">'+code+'</div><div class="muted center">Or open the play page and type this code</div></div>'+
+      '<div class="card"><h2>Players ('+np+')</h2><div>'+(np?roster(pl,false):'<span class="muted">Waiting for players to join</span>')+'</div>'+
+      (np?'<p class="muted" style="margin-top:10px">With '+np+' players: '+c.d+' Deceiver'+(c.d>1?'s':'')+(np>=4?', 1 Prophet':'')+(c.w?', 1 Watchman':'')+(c.s?', 1 Shepherd':'')+'. Best with 6 or more.</p>':'')+'</div>'+
+      '<div class="card"><h2>How it works</h2><ul class="plain"><li>Night: everyone taps their phone, even Israelites, so no one can tell who has a role</li><li>Deceivers choose someone to carry away captive; the Prophet, Watchman, and Shepherd use their gifts</li><li>Day: the class discusses, then votes to cast someone out of the city</li><li>Israel wins when every Deceiver is cast out; the Deceivers win when they equal the rest</li></ul></div>'+
+      '<button class="btn primary big" data-a="start"'+(np>=3?'':' disabled')+'>Hand out roles and begin the first night</button>';
+  } else if (m.phase==='night'){
+    setTime(true);
+    var acts=(room.act||{})[m.n]||{}, done=al.filter(function(id){ return acts[id]; }).length;
+    h=header(true,'Night '+m.n,'Everyone, look only at your own phone. The city sleeps while the Deceivers and the Lord\'s servants act.')+
+      '<div class="card center"><div class="clock">'+done+' of '+al.length+'</div><p class="muted">have finished their night action</p></div>'+
+      '<div class="card"><h2>In the city</h2>'+roster(pl,peek)+'</div>'+
+      '<button class="btn primary big" data-a="sunrise">Sunrise now</button>'+peekBtn;
+  } else if (m.phase==='day'){
+    setTime(false);
+    var nw=m.news||{}, txt;
+    if (nw.captive) txt='<b>'+esc(nameOf(pl,nw.captive))+'</b> was carried away captive in the night. They were '+roleText(pl[nw.captive].role)+'.';
+    else if (nw.saved) txt='The Deceivers came in the night, but the Shepherd stood guard. <b>No one was taken.</b>';
+    else txt='The night was quiet. <b>No one was taken.</b>';
+    var left=Math.max(0,Math.ceil((dayEnd-Date.now())/1000));
+    h=header(false,'Day '+m.n,'"If the watchman see the sword come, and blow not the trumpet... his blood will I require at the watchman\'s hand" (Ezekiel 33:6)')+
+      '<div class="card"><div class="eyebrow">Morning news</div><p class="news">'+txt+'</p></div>'+
+      '<div class="card center"><div class="eyebrow">Discussion</div><div class="clock">'+Math.floor(left/60)+':'+('0'+left%60).slice(-2)+'</div><p class="muted">Who do you trust? Who claims to be the Prophet? Captives stay silent.</p></div>'+
+      '<div class="card"><h2>Still in the city ('+al.length+')</h2>'+roster(pl,peek)+'</div>'+
+      '<button class="btn primary big" data-a="vote">Start the vote</button>'+peekBtn;
+  } else if (m.phase==='vote'){
+    setTime(false);
+    var vs=(room.vote||{})[m.n]||{}, done=al.filter(function(id){ return vs[id]; }).length;
+    h=header(false,'Day '+m.n+': Vote','Choose one person to cast out of the city, or skip.')+
+      '<div class="card center"><div class="clock">'+done+' of '+al.length+'</div><p class="muted">have voted</p></div>'+
+      '<button class="btn primary big" data-a="close">Close the vote</button>'+peekBtn;
+  } else if (m.phase==='verdict'){
+    setTime(false);
+    var vd=m.verdict||{}, tl=vd.tally||{}, rows=Object.keys(tl).sort(function(a,b){ return tl[b]-tl[a]; }).map(function(k){ return '<tr><td>'+(k==='skip'?'Skip':esc(nameOf(pl,k)))+'</td><td>'+tl[k]+'</td></tr>'; }).join('');
+    var txt=vd.out?'<b>'+esc(nameOf(pl,vd.out))+'</b> is cast out of the city. They were <b>'+roleText(pl[vd.out].role)+'</b>'+(pl[vd.out].role==='deceiver'?'.':', not a Deceiver.'):(vd.tie?'The vote was tied. No one is cast out.':'The city chose not to cast anyone out.');
+    h=header(false,'Day '+m.n+': Verdict','')+'<div class="card"><p class="news">'+txt+'</p><table class="lb"><tr><th>Vote</th><th>Count</th></tr>'+rows+'</table></div>'+
+      '<button class="btn primary big" data-a="nextnight">Night falls</button>'+peekBtn;
+  } else if (m.phase==='final'){
+    var w=m.win; setTime(w!=='israel');
+    h=header(w!=='israel', w==='israel'?'Israel is safe':'The Deceivers win', w==='israel'?'Every Deceiver was found and cast out.':'The Deceivers now equal the faithful who remain.')+
+      '<div class="card"><h2>Everyone\'s role</h2>'+roster(pl,true)+'</div>'+
+      '<div class="card"><h2>Leaderboard</h2>'+lb(pl)+'<p class="muted">1,000 points for the winning team, 200 for each vote an Israelite cast against a real Deceiver, and 300 for each Deceiver the Prophet discovered.</p></div>'+
+      '<div class="card"><h2>Discuss</h2><ul class="plain"><li>How did you decide whom to trust when more than one person claimed to be the Prophet?</li><li>Jeremiah warned of prophets who "speak a vision of their own heart, and not out of the mouth of the LORD" (Jeremiah 23:16). How can we tell true counsel from false today?</li><li>What does a watchman owe the people, and who are the watchmen in our lives (Ezekiel 33:7)?</li></ul></div>'+
+      '<button class="btn big" data-a="again">Play again with a new code</button>';
+  }
+  app.innerHTML='<div class="wrap" style="padding:0">'+h+'</div>';
+  if (m.phase==='lobby'){ var el=document.getElementById('qr'); if (el && typeof QRCode!=='undefined') new QRCode(el,{text:joinUrl(),width:220,height:220}); }
+}
+function keyOf(){ var m=room.meta, pl=room.players||{}, n=m.n; return [m.phase,n,peek,Object.keys(pl).length,alivePl(pl).length,Object.keys(((room.act||{})[n])||{}).length,Object.keys(((room.vote||{})[n])||{}).length,m.phase==='day'?Math.ceil((dayEnd-Date.now())/1000):''].join('~'); }
+function poll(){
+  if (busy||!code) return; busy=true;
+  jget(code,'').then(function(d){ busy=false; if (!d||!d.meta) return; room=d;
+    var m=d.meta, pl=d.players||{}, al=alivePl(pl);
+    if (!acting && m.phase==='night'){ var a=(d.act||{})[m.n]||{}; if (al.every(function(id){ return a[id]; })) sunrise(); }
+    if (!acting && m.phase==='vote'){ var v=(d.vote||{})[m.n]||{}; if (al.every(function(id){ return v[id]; })) closeVote(); }
+    var k=keyOf(); if (k!==lastKey){ lastKey=k; render(); }
+  });
+}
+function start(){
+  var pl=room.players||{}, ids=shuffle(Object.keys(pl)), c=counts(ids.length), roles=[], upd={};
+  for (var i=0;i<c.d;i++) roles.push('deceiver'); if (ids.length>=4) roles.push('prophet'); if (c.w) roles.push('watchman'); if (c.s) roles.push('shepherd');
+  ids.forEach(function(id,i){ upd['players/'+id+'/role']=roles[i]||'israelite'; upd['players/'+id+'/alive']=true; upd['players/'+id+'/score']=0; });
+  upd['meta/phase']='night'; upd['meta/n']=1;
+  acting=true; jpatch(code,'',upd).then(function(){ acting=false; poll(); });
+}
+function sunrise(){
+  acting=true;
+  var m=room.meta, pl=room.players||{}, a=(room.act||{})[m.n]||{}, al=alivePl(pl), upd={}, tally={}, prot=null;
+  al.forEach(function(id){ var r=pl[id].role, t=(a[id]||{}).t;
+    if (r==='deceiver' && t && pl[t] && pl[t].alive!==false) tally[t]=(tally[t]||0)+1;
+    if (r==='shepherd' && t) prot=t; });
+  var best=0, tops=[]; for (var k in tally){ if (tally[k]>best){ best=tally[k]; tops=[k]; } else if (tally[k]===best) tops.push(k); }
+  var target=tops.length?tops[Math.floor(Math.random()*tops.length)]:null, news={};
+  if (target && target===prot) news.saved=true; else if (target){ news.captive=target; upd['players/'+target+'/alive']=false; }
+  al.forEach(function(id){ var r=pl[id].role, t=(a[id]||{}).t; if (!t||!pl[t]) return;
+    if (r==='prophet'){ var dec=pl[t].role==='deceiver'; upd['players/'+id+'/notes/'+m.n]='Night '+m.n+': the Lord showed you that '+pl[t].name+(dec?' IS a Deceiver':' is on Israel\'s side'); if (dec) upd['players/'+id+'/score']=(pl[id].score||0)+300; }
+    if (r==='watchman'){ var out=['deceiver','prophet','shepherd'].indexOf(pl[t].role)>=0; upd['players/'+id+'/notes/'+m.n]='Night '+m.n+': '+pl[t].name+(out?' went out in the night':' stayed home all night'); }
+    if (r==='shepherd') upd['players/'+id+'/lastProt']=t; });
+  upd['meta/news']=news;
+  var pl2=JSON.parse(JSON.stringify(pl)); if (news.captive) pl2[news.captive].alive=false;
+  var w=winner(pl2);
+  if (w){ finalize(upd,pl2,w); } else { upd['meta/phase']='day'; dayEnd=Date.now()+180000; }
+  jpatch(code,'',upd).then(function(){ acting=false; lastKey=''; poll(); });
+}
+function closeVote(){
+  acting=true;
+  var m=room.meta, pl=room.players||{}, v=(room.vote||{})[m.n]||{}, al=alivePl(pl), tally={}, upd={};
+  al.forEach(function(id){ var t=(v[id]||{}).t; if (!t) return; tally[t]=(tally[t]||0)+1;
+    if (t!=='skip' && pl[t] && pl[t].role==='deceiver' && pl[id].role!=='deceiver') upd['players/'+id+'/score']=(pl[id].score||0)+200; });
+  var best=0, tops=[]; for (var k in tally){ if (tally[k]>best){ best=tally[k]; tops=[k]; } else if (tally[k]===best) tops.push(k); }
+  var vd={tally:tally}; if (tops.length===1 && tops[0]!=='skip'){ vd.out=tops[0]; upd['players/'+tops[0]+'/alive']=false; } else if (tops.length>1) vd.tie=true;
+  upd['meta/verdict']=vd;
+  var pl2=JSON.parse(JSON.stringify(pl)); for (var k in upd){ var mm=k.match(/^players\/([^/]+)\/score$/); if (mm) pl2[mm[1]].score=upd[k]; } if (vd.out) pl2[vd.out].alive=false;
+  var w=winner(pl2); if (w) finalize(upd,pl2,w); else upd['meta/phase']='verdict';
+  jpatch(code,'',upd).then(function(){ acting=false; lastKey=''; poll(); });
+}
+function finalize(upd,pl2,w){ for (var id in pl2){ var team=ROLE[pl2[id].role].team, sc=upd['players/'+id+'/score']!=null?upd['players/'+id+'/score']:(pl2[id].score||0); if (team===w) sc+=1000; upd['players/'+id+'/score']=sc; } upd['meta/phase']='final'; upd['meta/win']=w; }
+app.addEventListener('click', function(e){
+  var b=e.target.closest('[data-a]'); if (!b||b.disabled) return; var a=b.getAttribute('data-a');
+  if (a==='peek'){ peek=!peek; lastKey=''; render(); return; }
+  b.disabled=true;
+  if (a==='start') start();
+  else if (a==='sunrise'){ if (!acting) sunrise(); }
+  else if (a==='vote') jpatch(code,'meta',{phase:'vote'}).then(poll);
+  else if (a==='close'){ if (!acting) closeVote(); }
+  else if (a==='nextnight') jpatch(code,'meta',{phase:'night', n:room.meta.n+1, news:null, verdict:null}).then(poll);
+  else if (a==='again') newGame().then(poll);
+});
+newGame().then(function(){ poll(); setInterval(poll,1200); });
+})();
+</script></body></html>

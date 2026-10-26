@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>/* Practice mode: when this page runs inside the site's practice page, use its pretend database and give this screen its own storage. Does nothing otherwise. */
+(function(){try{var P=window.parent!==window&&window.parent.PRACTICE;if(!P)return;window.fetch=P.fetch;var s=P.storage(window.name||location.href);Object.defineProperty(window,'localStorage',{configurable:true,get:function(){return s.local;}});Object.defineProperty(window,'sessionStorage',{configurable:true,get:function(){return s.session;}});}catch(e){}})();</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<title>Which Old Testament Figure Are You?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  :root{
+    color-scheme:light;
+    --bg-page:#FAF7F0;
+    --bg-panel:#FFFFFF;
+    --bg-panel-raised:#F2ECDE;
+    --accent:#C8693A;
+    --accent-strong:#8A3B17;
+    --accent-2:#3E6B78;
+    --accent-2-strong:#3E6B78;
+    --text-primary:#2C2A22;
+    --text-muted:#726F5E;
+    --line-soft:rgba(44,42,34,0.13);
+    --warn:#C97B4A;
+    --radius:14px;
+    box-sizing:border-box;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  html{scroll-padding-top:env(safe-area-inset-top,0px);}
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg-page);color:var(--text-primary);font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;}
+  h1,h2,h3{font-family:'Fraunces',Georgia,'Times New Roman',serif;margin:0 0 8px;letter-spacing:-0.01em;}
+  h1{font-size:28px;line-height:1.15;} h2{font-size:22px;line-height:1.2;} h3{font-size:16px;}
+  p{line-height:1.5;margin:0 0 10px;}
+  .muted{color:var(--text-muted);}
+  .wrap{max-width:560px;margin:0 auto;padding:20px 18px 40px;}
+  .wrap.wide{max-width:760px;}
+  .eyebrow{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:12px;letter-spacing:0.08em;color:var(--accent-strong);margin-bottom:6px;text-transform:uppercase;}
+  .card{background:var(--bg-panel);border:1px solid var(--line-soft);border-radius:var(--radius);padding:20px 20px;margin-bottom:14px;}
+  .btn{font-family:'Inter',sans-serif;font-weight:600;font-size:15px;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;}
+  .btn.primary{background:var(--accent);color:#fff;}
+  .btn.primary:hover{background:var(--accent-strong);}
+  .btn.ghost{background:transparent;color:var(--text-muted);border:1px solid var(--line-soft);}
+  .btn.ghost:hover{color:var(--text-primary);border-color:var(--text-primary);}
+  .btn:disabled{opacity:.35;cursor:not-allowed;}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+  .row input{flex:1;min-width:200px;padding:11px 12px;border-radius:10px;border:1px solid var(--line-soft);background:var(--bg-panel-raised);color:var(--text-primary);font-size:14px;}
+  .qr-box{display:flex;justify-content:center;padding:18px;background:#fff;border-radius:12px;margin:14px 0;border:1px solid var(--line-soft);}
+  .hidden{display:none !important;}
+
+  .progress-track{height:8px;border-radius:6px;background:var(--bg-panel-raised);overflow:hidden;margin:8px 0 18px;}
+  .progress-fill{height:100%;background:var(--accent);border-radius:6px;transition:width .3s;}
+  .q-top{display:flex;justify-content:space-between;align-items:center;}
+  .q-count{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--text-muted);}
+  .opt{display:block;width:100%;text-align:left;padding:14px 16px;margin-bottom:10px;border-radius:12px;border:1px solid var(--line-soft);background:var(--bg-panel);cursor:pointer;font-size:15px;line-height:1.4;color:var(--text-primary);font-family:'Inter',sans-serif;}
+  .opt:hover{border-color:var(--accent);}
+  .opt.picked{border-color:var(--accent);background:rgba(200,105,58,0.12);}
+  .q-text{font-family:'Fraunces',Georgia,serif;font-size:22px;line-height:1.25;margin:0 0 16px;font-weight:600;}
+
+  .result-hero{text-align:center;padding:26px 18px;background:var(--bg-panel);border:1px solid var(--accent);border-radius:var(--radius);margin-bottom:14px;}
+  .result-hero .big{font-family:'Fraunces',Georgia,serif;font-size:44px;font-weight:700;color:var(--accent-strong);margin:4px 0;line-height:1.1;}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:10px;}
+  .chip{padding:6px 12px;border-radius:999px;background:var(--bg-panel-raised);border:1px solid var(--line-soft);font-size:13px;}
+  ul.plain{margin:6px 0 0;padding-left:18px;}
+  ul.plain li{margin-bottom:6px;font-size:14px;color:var(--text-primary);}
+  details.scripture-reveal{margin-top:10px;}
+  details.scripture-reveal summary{cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--accent-2-strong);list-style:none;padding:8px 12px;background:var(--bg-panel-raised);border-radius:8px;border-left:3px solid var(--accent-2);}
+  details.scripture-reveal summary::-webkit-details-marker{display:none;}
+  details.scripture-reveal summary::before{content:"+ ";}
+  details.scripture-reveal[open] summary::before{content:"- ";}
+  details.scripture-reveal .verse-text{margin-top:4px;padding:10px 12px;background:var(--bg-panel-raised);border-radius:0 8px 8px 8px;border-left:3px solid var(--accent-2);}
+  details.scripture-reveal .verse-text p{margin:0;font-size:14px;font-style:italic;}
+  .bar-row{margin-bottom:10px;}
+  .bar-label{display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;}
+  .bar-track{height:10px;border-radius:6px;background:var(--bg-panel-raised);overflow:hidden;}
+  .bar-fill{height:100%;background:var(--accent-2);border-radius:6px;}
+  .pill{display:inline-block;padding:5px 12px;border-radius:999px;margin:0 6px 6px 0;font-size:13px;background:var(--bg-panel-raised);border:1px solid var(--line-soft);}
+</style>
+</head>
+<body>
+
+<!-- TEACHER SCREEN: shown on the projector. Students never see this when they scan the QR code. -->
+<div class="wrap wide" id="teacher-view">
+  <div class="eyebrow">Old Testament seminary game</div>
+  <h1>Which Old Testament Figure Are You?</h1>
+  <p class="muted">Ten questions, one match. Scan the QR code, answer from your gut, and find out which Old Testament figure thinks like you</p>
+  <div class="card">
+    <h3>Scan to join on your phone</h3>
+    <div id="qr-holder"></div>
+  </div>
+  <div class="card">
+    <h3>Step 2: everyone plays</h3>
+    <p class="muted">There is no waiting room and no scoreboard. Each student gets their own result on their own phone. After everyone finishes, go around the room and ask who matched with whom, then ask why</p>
+    <div class="row">
+      <button class="btn primary" id="play-here">Play on this device</button>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Discussion ideas for the debrief</h3>
+    <ul class="plain">
+      <li>Who was surprised by their result, and which question do you think tipped it</li>
+      <li>Which figure did you hope to get, and what does that say about what you admire</li>
+      <li>Which of these people made a mistake, and what did God do next</li>
+    </ul>
+  </div>
+</div>
+
+<!-- STUDENT GAME -->
+<div class="wrap hidden" id="game-view">
+  <div id="game-app"></div>
+</div>
+
+<script>
+(function(){
+
+  /* ===== CHARACTERS ===== */
+  var CHARS = {
+    moses:{ name:"Moses", traits:["Humble","Prayerful under pressure","Reluctant but faithful leader"],
+      story:"Moses was born a Hebrew slave in Egypt and raised in Pharaoh’s house. After he fled to Midian, God called him from a burning bush to free Israel, and Moses doubted he was the right person for the job. With Aaron’s help he confronted Pharaoh, the plagues came, and Israel left Egypt. When Pharaoh’s army cornered them at the Red Sea, God parted the waters. Moses then led the people through the wilderness for 40 years and received the law at Sinai",
+      ref:"Exodus 14:13", verse:"And Moses said unto the people, Fear ye not, stand still, and see the salvation of the LORD, which he will shew to you to day: for the Egyptians whom ye have seen to day, ye shall see them again no more for ever.",
+      tie:"The Book of Moses in the Pearl of Great Price adds more of his story, including his vision of God’s creations", read:"Exodus 2 to 14" },
+    esther:{ name:"Esther", traits:["Courageous","Strategic","Willing to speak up at great risk"],
+      story:"Esther was a Jewish orphan raised by her cousin Mordecai who became queen of Persia. When the wicked Haman plotted to destroy all the Jews, Mordecai urged her to go to the king, even though approaching him uninvited could mean death. Esther asked her people to fast with her for three days, then walked in, invited the king and Haman to a banquet, and exposed the plot. Her people were saved",
+      ref:"Esther 4:14", verse:"For if thou altogether holdest thy peace at this time, then shall there enlargement and deliverance arise to the Jews from another place; but thou and thy father’s house shall be destroyed: and who knoweth whether thou art come to the kingdom for such a time as this?",
+      tie:"", read:"Esther 4 to 8" },
+    david:{ name:"David", traits:["Brave underdog","Trusts God over odds","Passionate and creative"],
+      story:"David was the youngest son of Jesse, a shepherd boy anointed by Samuel to be the future king. When the whole Israelite army was afraid of the giant Goliath, David stepped up with a sling and five smooth stones and defeated him in the name of the Lord. He became Israel’s greatest king and wrote many of the Psalms. David also made serious mistakes and had to repent, which is part of why his story feels so human",
+      ref:"1 Samuel 17:45", verse:"Then said David to the Philistine, Thou comest to me with a sword, and with a spear, and with a shield: but I come to thee in the name of the LORD of hosts, the God of the armies of Israel, whom thou hast defied.",
+      tie:"", read:"1 Samuel 16 to 17" },
+    joseph:{ name:"Joseph", traits:["Resilient","Forgiving","A dreamer who stays faithful in hard places"],
+      story:"Joseph was Jacob’s favorite son, and his jealous brothers sold him into slavery in Egypt. He was falsely accused and thrown in prison, yet he kept being faithful. When he interpreted Pharaoh’s dreams, Pharaoh made him second in command over Egypt. During the famine his brothers came to him for food, and instead of getting revenge, Joseph forgave them and saved his family",
+      ref:"Genesis 50:20", verse:"But as for you, ye thought evil against me; but God meant it unto good, to bring to pass, as it is this day, to save much people alive.",
+      tie:"Lehi quotes a prophecy of Joseph in 2 Nephi 3 about a future seer who would help bring the Lord’s word to the people", read:"Genesis 37 to 45" },
+    daniel:{ name:"Daniel", traits:["Principled","Disciplined","Quietly bold"],
+      story:"Daniel was taken captive to Babylon as a young man. He chose not to defile himself with the king’s food and wine, and God blessed him with wisdom. He interpreted Nebuchadnezzar’s dream and rose to high positions. Later, when a decree made it illegal to pray to anyone but the king, Daniel kept praying openly three times a day. He was thrown into the lions’ den, and God shut the mouths of the lions",
+      ref:"Daniel 1:8", verse:"But Daniel purposed in his heart that he would not defile himself with the portion of the king’s meat, nor with the wine which he drank: therefore he requested of the prince of the eunuchs that he might not defile himself.",
+      tie:"", read:"Daniel 1 to 6" },
+    noah:{ name:"Noah", traits:["Obedient","Steady for the long haul","Unbothered by the crowd"],
+      story:"Noah lived when the earth was filled with wickedness. God commanded him to build an ark, and Noah obeyed and warned the people to repent while they mocked him. When the rains came, Noah’s family and the animals were saved. God then set the rainbow in the sky as a sign of His covenant",
+      ref:"Genesis 6:22", verse:"Thus did Noah; according to all that God commanded him, so did he.",
+      tie:"The Book of Moses in the Pearl of Great Price tells how Noah preached repentance to the people in Moses 8", read:"Genesis 6 to 9" },
+    ruth:{ name:"Ruth", traits:["Loyal","Hardworking","Family first"],
+      story:"Ruth was a Moabite woman who became a widow. Her mother-in-law Naomi was a widow too, and Naomi told her to return to her own people. Ruth refused to leave her and went with Naomi to Bethlehem. She worked hard gleaning grain in the fields of Boaz, who noticed her kindness and married her. Ruth became the great-grandmother of King David",
+      ref:"Ruth 1:16", verse:"And Ruth said, Intreat me not to leave thee, or to return from following after thee: for whither thou goest, I will go; and where thou lodgest, I will lodge: thy people shall be my people, and thy God my God:",
+      tie:"", read:"Ruth 1 to 4" },
+    abraham:{ name:"Abraham", traits:["Trusting","Ready to leave the familiar","Hospitable and faithful"],
+      story:"Abraham was told by the Lord to leave his homeland and go to a land he had never seen. God promised him descendants as numerous as the stars, and Abraham believed Him even when he and Sarah waited for years. Isaac was finally born when Abraham was 100. Later God tested him by asking him to offer Isaac, and God provided a ram in Isaac’s place. Abraham is called the father of the faithful",
+      ref:"Genesis 12:1", verse:"Now the LORD had said unto Abram, Get thee out of thy country, and from thy kindred, and from thy father’s house, unto a land that I will shew thee:",
+      tie:"The Book of Abraham in the Pearl of Great Price adds more about his life and what God taught him", read:"Genesis 12 to 22" },
+    jonah:{ name:"Jonah", traits:["Honest about his feelings","Wrestles with obedience","Proof that God gives second chances"],
+      story:"God told Jonah to go preach repentance in the wicked city of Nineveh, and Jonah boarded a ship headed the opposite direction. A great storm came, and Jonah told the sailors to throw him overboard. A great fish swallowed him, and after three days of praying inside it, he was released. This time Jonah went to Nineveh, and the whole city repented. Jonah was upset that God showed them mercy, and God taught him to have compassion",
+      ref:"Jonah 1:3", verse:"But Jonah rose up to flee unto Tarshish from the presence of the LORD, and went down to Joppa; and he found a ship going to Tarshish: so he paid the fare thereof, and went down into it, to go from the presence of the LORD.",
+      tie:"", read:"Jonah 1 to 4" },
+    elijah:{ name:"Elijah", traits:["Bold","Direct","Not afraid of a showdown"],
+      story:"Elijah was a prophet in the days of wicked King Ahab and Queen Jezebel. He declared a drought, then challenged 450 prophets of Baal to a contest on Mount Carmel, and fire from heaven consumed his altar. Afterward he ran for his life and felt completely alone, and God spoke to him not in a great wind or earthquake but in a still small voice. Elijah was taken up to heaven in a whirlwind",
+      ref:"1 Kings 18:21", verse:"And Elijah came unto all the people, and said, How long halt ye between two opinions? if the LORD be God, follow him: but if Baal, then follow him. And the people answered him not a word.",
+      tie:"Elijah returned in the Kirtland Temple in 1836 to restore the sealing keys, recorded in Doctrine and Covenants 110", read:"1 Kings 17 to 19" }
+  };
+
+  /* ===== QUESTIONS: s = points per character ===== */
+  var QUESTIONS = [
+    { short:"Era", prompt:"Which time period would you most want to live in?", options:[
+      { t:"Egypt in the days of pharaohs, pyramids, and palaces", s:{joseph:2,moses:2} },
+      { t:"The earliest days, living in tents and moving with flocks", s:{abraham:3,noah:1} },
+      { t:"Israel’s kingdom days, with kings, giants, and big battles", s:{david:1,elijah:2,ruth:1} },
+      { t:"After Israel was scattered, living under the rule of Babylon or Persia", s:{daniel:2,esther:2} } ] },
+    { short:"Being chased", prompt:"Someone is chasing you. What do you do?", options:[
+      { t:"Run and hide until it blows over", s:{jonah:3,moses:1} },
+      { t:"Turn around and confront them", s:{esther:2,elijah:2} },
+      { t:"Pray and trust that God will open a way", s:{moses:2,noah:2,daniel:1} },
+      { t:"Find someone I trust to help me", s:{ruth:2,joseph:1,abraham:1} } ] },
+    { short:"Group project", prompt:"A partner takes credit for your work on a group project. What do you do?", options:[
+      { t:"Say nothing and trust the truth will come out eventually", s:{joseph:2,daniel:1} },
+      { t:"Make a careful plan and talk to the teacher at the right moment", s:{esther:3,daniel:1} },
+      { t:"Call it out right then in front of everyone", s:{elijah:2} },
+      { t:"Keep working hard and even help them anyway", s:{ruth:2,joseph:1,noah:2} } ] },
+    { short:"Peer pressure", prompt:"All your friends want to do something you know is wrong. What do you do?", options:[
+      { t:"Politely say no and stay firm, even if I am the only one", s:{daniel:2,noah:2} },
+      { t:"Suggest a better idea so everyone ends up doing something else", s:{esther:1,joseph:1} },
+      { t:"Tell them straight up that they are making a mistake", s:{elijah:2,david:1} },
+      { t:"Leave and go find a different group of friends", s:{abraham:2,ruth:1,jonah:2} } ] },
+    { short:"Team role", prompt:"On any team, which role do you naturally play?", options:[
+      { t:"The one with the plan who sees what is coming", s:{joseph:2,noah:2,esther:1} },
+      { t:"The brave one who goes first", s:{david:3,elijah:1,abraham:1} },
+      { t:"The loyal one who always shows up", s:{ruth:2,abraham:1,daniel:1} },
+      { t:"The calm one who keeps everyone steady", s:{moses:2,daniel:2,noah:1} } ] },
+    { short:"Big calling", prompt:"Your leader asks you to take on a huge assignment you do not feel ready for. What is your first move?", options:[
+      { t:"Ask if someone can go with me to help", s:{moses:2,ruth:1} },
+      { t:"Say yes right away and get moving", s:{abraham:2,noah:1,david:1} },
+      { t:"Pray, fast, and prepare as thoroughly as I can", s:{esther:2,daniel:1,moses:1} },
+      { t:"Dodge it and hope they ask someone else", s:{jonah:3,moses:1} } ] },
+    { short:"Forgiveness", prompt:"Someone who really hurt you now needs your help. What do you do?", options:[
+      { t:"Forgive them completely and help right away", s:{joseph:3} },
+      { t:"Refuse to get revenge and let God be the judge", s:{david:1,daniel:1,moses:2} },
+      { t:"Quietly help in practical ways without making a big deal of it", s:{ruth:1,abraham:1} },
+      { t:"Say I forgive them, but secretly hope they get what they deserve", s:{jonah:3,elijah:1} } ] },
+    { short:"Feeling close to God", prompt:"Where do you feel closest to God?", options:[
+      { t:"Alone on a mountain or out in nature", s:{moses:1,elijah:2,abraham:2,jonah:1} },
+      { t:"Through music and honest, emotional prayer", s:{david:3,jonah:1} },
+      { t:"Through steady daily habits like prayer at set times", s:{daniel:2,noah:1,esther:1} },
+      { t:"Through serving the people around me", s:{ruth:2,joseph:1,abraham:1} } ] },
+    { short:"Being mocked", prompt:"People are mocking you for something you believe. How do you respond?", options:[
+      { t:"Keep going quietly and let them talk", s:{noah:3,daniel:2,ruth:1} },
+      { t:"Answer back boldly, maybe with a little humor", s:{elijah:2} },
+      { t:"Turn it into a story or a song that speaks for itself", s:{david:2,joseph:1,moses:1} },
+      { t:"Step back for a while until things calm down", s:{jonah:2,esther:1,moses:1} } ] },
+    { short:"Your motto", prompt:"Which motto fits you best?", options:[
+      { t:"Wherever you go, I will go", s:{ruth:2,abraham:1,joseph:1} },
+      { t:"If I perish, I perish", s:{esther:2,daniel:1} },
+      { t:"The battle is the Lord’s", s:{david:3,moses:1,elijah:1} },
+      { t:"Do exactly what God commands, however strange it sounds", s:{noah:2,abraham:2} } ] }
+  ];
+
+  /* ===== APP ===== */
+  var ids = Object.keys(CHARS);
+  var answers = [];
+  var qi = 0;
+  var app = document.getElementById('game-app');
+
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  function showView(play){
+    document.getElementById('teacher-view').classList.toggle('hidden', play);
+    document.getElementById('game-view').classList.toggle('hidden', !play);
+    window.scrollTo(0,0);
+    if (play){ startGame(); }
+  }
+
+  function startGame(){
+    answers = []; qi = 0;
+    app.innerHTML =
+      '<div class="eyebrow">Old Testament seminary game</div>' +
+      '<h1>Which Old Testament Figure Are You?</h1>' +
+      '<p class="muted">Ten quick questions. There are no right answers, so go with your first instinct. At the end you will find out which Old Testament figure thinks most like you</p>' +
+      '<button class="btn primary" id="begin-btn" style="width:100%;margin-top:8px;">Start</button>';
+    document.getElementById('begin-btn').addEventListener('click', renderQuestion);
+  }
+
+  function renderQuestion(){
+    var q = QUESTIONS[qi];
+    var pct = Math.round((qi / QUESTIONS.length) * 100);
+    app.innerHTML =
+      '<div class="q-top"><span class="eyebrow" style="margin:0;">Question</span><span class="q-count">' + (qi + 1) + ' of ' + QUESTIONS.length + '</span></div>' +
+      '<div class="progress-track"><div class="progress-fill" style="width:' + pct + '%;"></div></div>' +
+      '<p class="q-text">' + esc(q.prompt) + '</p>' +
+      '<div id="opts"></div>' +
+      '<div class="row" style="margin-top:6px;"><button class="btn ghost" id="back-btn"' + (qi === 0 ? ' disabled' : '') + '>Back</button><button class="btn ghost" id="restart-btn">Start over</button></div>';
+    var holder = document.getElementById('opts');
+    holder.innerHTML = q.options.map(function(o, i){
+      return '<button class="opt' + (answers[qi] === i ? ' picked' : '') + '" data-i="' + i + '">' + esc(o.t) + '</button>';
+    }).join('');
+    Array.prototype.forEach.call(holder.querySelectorAll('.opt'), function(btn){
+      btn.addEventListener('click', function(){
+        answers[qi] = parseInt(btn.getAttribute('data-i'), 10);
+        Array.prototype.forEach.call(holder.querySelectorAll('.opt'), function(b){ b.classList.remove('picked'); });
+        btn.classList.add('picked');
+        setTimeout(function(){
+          if (qi < QUESTIONS.length - 1){ qi++; renderQuestion(); } else { renderResult(); }
+        }, 220);
+      });
+    });
+    document.getElementById('back-btn').addEventListener('click', function(){ if (qi > 0){ qi--; renderQuestion(); } });
+    document.getElementById('restart-btn').addEventListener('click', startGame);
+  }
+
+  function score(){
+    var totals = {}; ids.forEach(function(id){ totals[id] = 0; });
+    var maxPossible = {}; ids.forEach(function(id){ maxPossible[id] = 0; });
+    QUESTIONS.forEach(function(q, k){
+      q.options.forEach(function(o){ Object.keys(o.s).forEach(function(id){ if (o.s[id] > (q._max && q._max[id] || 0)){ q._max = q._max || {}; q._max[id] = o.s[id]; } }); });
+      ids.forEach(function(id){ maxPossible[id] += (q._max && q._max[id]) || 0; });
+      var a = answers[k];
+      if (a === undefined) return;
+      var s = q.options[a].s;
+      Object.keys(s).forEach(function(id){ totals[id] += s[id]; });
+    });
+    return { totals: totals, maxPossible: maxPossible };
+  }
+
+  function renderResult(){
+    var r = score();
+    var ranked = ids.slice().sort(function(a, b){ return r.totals[b] - r.totals[a]; });
+    var topScore = r.totals[ranked[0]];
+    var tied = ranked.filter(function(id){ return r.totals[id] === topScore; });
+    var winner = tied[Math.floor(Math.random() * tied.length)];
+    ranked = [winner].concat(ranked.filter(function(id){ return id !== winner; }));
+    var c = CHARS[winner];
+
+    var because = [];
+    QUESTIONS.forEach(function(q, k){
+      var a = answers[k];
+      if (a === undefined) return;
+      var pts = q.options[a].s[winner] || 0;
+      if (pts > 0) because.push({ pts: pts, text: q.short + ': ' + q.options[a].t });
+    });
+    because.sort(function(a, b){ return b.pts - a.pts; });
+    because = because.slice(0, 3);
+
+    var others = ranked.slice(1, 4);
+    var barsHtml = ranked.slice(0, 4).map(function(id){
+      var p = Math.max(5, Math.round((r.totals[id] / r.maxPossible[id]) * 100));
+      return '<div class="bar-row"><div class="bar-label"><span>' + CHARS[id].name + '</span><span>' + p + '% match</span></div><div class="bar-track"><div class="bar-fill" style="width:' + p + '%;"></div></div></div>';
+    }).join('');
+
+    app.innerHTML =
+      '<div class="result-hero">' +
+        '<div class="eyebrow">You matched with</div>' +
+        '<div class="big">' + c.name + '</div>' +
+        '<div class="chips">' + c.traits.map(function(t){ return '<span class="chip">' + esc(t) + '</span>'; }).join('') + '</div>' +
+      '</div>' +
+      '<div class="card"><h3>Why you matched</h3><ul class="plain">' +
+        because.map(function(b){ return '<li>' + esc(b.text) + '</li>'; }).join('') +
+      '</ul></div>' +
+      '<div class="card"><h3>Their story</h3><p>' + esc(c.story) + '</p>' +
+        '<details class="scripture-reveal"><summary>' + esc(c.ref) + '</summary><div class="verse-text"><p>' + esc(c.verse) + '</p></div></details>' +
+        '<p class="muted" style="margin-top:12px;font-size:13px;">Read more: ' + esc(c.read) + '</p>' +
+        (c.tie ? '<p class="muted" style="font-size:13px;margin:0;">Latter-day connection: ' + esc(c.tie) + '</p>' : '') +
+      '</div>' +
+      '<div class="card"><h3>You also share traits with</h3>' +
+        others.map(function(id){ return '<span class="pill">' + CHARS[id].name + '</span>'; }).join('') +
+        '<div style="margin-top:12px;">' + barsHtml + '</div>' +
+      '</div>' +
+      '<button class="btn ghost" id="again-btn" style="width:100%;">Play again</button>';
+    window.scrollTo(0,0);
+    document.getElementById('again-btn').addEventListener('click', startGame);
+  }
+
+  /* ===== TEACHER VIEW ===== */
+  (function drawQr(){
+    var link = location.href.split('#')[0].split('?')[0] + '#play';
+    var holder = document.getElementById('qr-holder');
+    if (typeof QRCode === 'undefined'){ holder.innerHTML = '<p class="muted">The QR library did not load. Check your connection and try again</p>'; return; }
+    holder.innerHTML = '<div class="qr-box" id="qr-box"></div><p class="muted" style="text-align:center;font-size:13px;">Scan to start the game</p>';
+    new QRCode(document.getElementById('qr-box'), { text: link, width: 220, height: 220 });
+  })();
+  document.getElementById('play-here').addEventListener('click', function(){ location.hash = 'play'; showView(true); });
+
+  function route(){ showView(location.hash === '#play'); }
+  window.addEventListener('hashchange', route);
+  route();
+})();
+</script>
+</body>
+</html>

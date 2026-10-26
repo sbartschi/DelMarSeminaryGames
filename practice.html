@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Practice mode: Seminary Games</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--night:#0D1528;--panel:#152039;--panel2:#1B2846;--line:rgba(160,185,230,.16);--ink:#EEF3FB;--soft:#A3B2CE;--teal:#1FB5A8;--amber:#F4B740;--coral:#F0545C;color-scheme:dark;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--night);color:var(--ink);font-family:Manrope,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;line-height:1.5}
+a{color:inherit}
+.top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:14px 22px;border-bottom:1px solid var(--line);background:var(--panel)}
+.back{text-decoration:none;font-weight:700;color:var(--soft)}
+.title{font-family:Fraunces,Georgia,serif;font-size:1.35rem;margin:0}
+.pill{background:var(--amber);color:#2a1d00;font-weight:800;font-size:.8rem;padding:4px 12px;border-radius:999px}
+.spacer{flex:1}
+.btn{font:inherit;font-weight:800;cursor:pointer;border-radius:999px;padding:9px 16px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);text-decoration:none;font-size:.92rem}
+.btn.primary{background:var(--teal);border-color:var(--teal);color:#062a27}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.guide{display:grid;grid-template-columns:1fr auto;gap:18px;align-items:start;padding:14px 22px;border-bottom:1px solid var(--line)}
+.guide ol{margin:0;padding-left:20px;color:var(--soft)}
+.guide li{margin:2px 0}.guide b{color:var(--ink)}
+.note{font-size:.88rem;color:var(--soft);max-width:300px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.stage{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;padding:18px 22px 40px;align-items:start}
+.label{font-weight:800;font-size:.85rem;color:var(--soft);margin:0 0 6px;display:flex;align-items:center;gap:8px;justify-content:space-between}
+.tv{background:#000;border-radius:14px;overflow:hidden;border:2px solid var(--line)}
+.tv iframe{display:block;width:100%;height:78vh;min-height:560px;border:0;background:#fff}
+.phones{display:grid;grid-template-columns:repeat(2,330px);gap:14px}
+.phone{background:#05080f;border-radius:30px;padding:10px;border:2px solid var(--line);box-shadow:0 14px 30px rgba(0,0,0,.4)}
+.phone iframe{display:block;width:310px;height:620px;border:0;border-radius:22px;background:#fff}
+.x{all:unset;cursor:pointer;color:var(--soft);font-weight:800;padding:0 6px}
+.wait{color:var(--soft);font-size:.92rem;max-width:330px}
+@media (max-width:1180px){.stage{grid-template-columns:1fr}.phones{grid-template-columns:repeat(auto-fill,330px)}.guide{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="top">
+  <a class="back" href="./">&larr; All games</a>
+  <h1 class="title" id="title">Practice</h1><span class="pill">Practice mode</span>
+  <span class="spacer"></span>
+  <button class="btn primary" id="add" type="button">Add a practice phone</button>
+  <button class="btn" id="reset" type="button">Start over</button>
+  <a class="btn" id="real" href="./">Open for real</a>
+</div>
+<div class="guide"><ol id="steps"></ol>
+  <div class="note"><b>Pretend data.</b> Nothing here is saved to your real games, and students can’t join this practice. When you’re ready for class, use <b>Open for real</b>.</div></div>
+<div class="stage">
+  <div><p class="label">Teacher screen (what the class sees on the TV)</p><div class="tv"><iframe id="tv" name="teacher" title="Teacher screen"></iframe></div></div>
+  <div><p class="label" id="phoneLabel">Practice phones</p><div class="phones" id="phones"></div><p class="wait" id="wait"></p></div>
+</div>
+<script>
+var GAMES = {"otquiz": {"title": "Old Testament: True or False", "icon": "✅", "kind": "quiz", "teacher": "otquiz/teacher.html", "phone": "otquiz/play.html?g={code}", "real": "otquiz/teacher.html", "steps": ["The practice phones below are already named. Tap <b>Join</b> on each one.", "On the teacher screen, choose how many questions, then press <b>Start game</b>.", "Answer on the phones, then press <b>Reveal</b> on the teacher screen to see the answer and the story recap.", "Press <b>Next</b> to keep going. The final screen shows the podium.", "Also try the <b>Teams, no phones</b> switch at the top of the teacher screen to see the one-screen team version."], "needsCode": true}, "otquiz2": {"title": "True or False: Prophets Edition", "icon": "⚖️", "kind": "quiz", "teacher": "otquiz2/teacher.html", "phone": "otquiz2/play.html?g={code}", "real": "otquiz2/teacher.html", "steps": ["The practice phones below are already named. Tap <b>Join</b> on each one.", "On the teacher screen, choose how many questions, then press <b>Start game</b>.", "Answer on the phones, then press <b>Reveal</b> on the teacher screen to see the answer and the story recap.", "Press <b>Next</b> to keep going. The final screen shows the podium.", "Also try the <b>Teams, no phones</b> switch at the top of the teacher screen to see the one-screen team version."], "needsCode": true}, "prophets": {"title": "Match the Prophet", "icon": "🕊️", "kind": "quiz", "teacher": "prophets/teacher.html", "phone": "prophets/play.html?g={code}", "real": "prophets/teacher.html", "steps": ["The practice phones below are already named. Tap <b>Join</b> on each one.", "On the teacher screen, choose how many questions, then press <b>Start game</b>.", "Answer on the phones, then press <b>Reveal</b> on the teacher screen to see the answer and the story recap.", "Press <b>Next</b> to keep going. The final screen shows the podium.", "Also try the <b>Teams, no phones</b> switch at the top of the teacher screen to see the one-screen team version."], "needsCode": true}, "prophets2": {"title": "Match the Prophet: Round 2", "icon": "📯", "kind": "quiz", "teacher": "prophets2/teacher.html", "phone": "prophets2/play.html?g={code}", "real": "prophets2/teacher.html", "steps": ["The practice phones below are already named. Tap <b>Join</b> on each one.", "On the teacher screen, choose how many questions, then press <b>Start game</b>.", "Answer on the phones, then press <b>Reveal</b> on the teacher screen to see the answer and the story recap.", "Press <b>Next</b> to keep going. The final screen shows the podium.", "Also try the <b>Teams, no phones</b> switch at the top of the teacher screen to see the one-screen team version."], "needsCode": true}, "popquiz2": {"title": "Old Testament Pop Quiz 2", "icon": "🧠", "kind": "quiz", "teacher": "popquiz2/teacher.html", "phone": "popquiz2/play.html?g={code}", "real": "popquiz2/teacher.html", "steps": ["The practice phones below are already named. Tap <b>Join</b> on each one.", "On the teacher screen, choose how many questions, then press <b>Start game</b>.", "Answer on the phones, then press <b>Reveal</b> on the teacher screen to see the answer and the story recap.", "Press <b>Next</b> to keep going. The final screen shows the podium.", "Also try the <b>Teams, no phones</b> switch at the top of the teacher screen to see the one-screen team version."], "needsCode": true}, "dmmatch2": {"title": "Doctrinal Mastery Match", "icon": "📖", "kind": "quiz", "teacher": "dmmatch2/teacher.html", "phone": "dmmatch2/play.html?g={code}", "real": "dmmatch2/teacher.html", "steps": ["The practice phones below are already named. Tap <b>Join</b> on each one.", "On the teacher screen, choose how many questions, then press <b>Start game</b>.", "Answer on the phones, then press <b>Reveal</b> on the teacher screen to see the answer and the story recap.", "Press <b>Next</b> to keep going. The final screen shows the podium.", "Also try the <b>Teams, no phones</b> switch at the top of the teacher screen to see the one-screen team version."], "needsCode": true}, "whosaid": {"title": "Who Said It?", "icon": "💬", "kind": "quiz", "teacher": "whosaid/teacher.html", "phone": "whosaid/play.html?g={code}", "real": "whosaid/teacher.html", "steps": ["The practice phones below are already named. Tap <b>Join</b> on each one.", "On the teacher screen, choose how many questions, then press <b>Start game</b>.", "Answer on the phones, then press <b>Reveal</b> on the teacher screen to see the answer and the story recap.", "Press <b>Next</b> to keep going. The final screen shows the podium.", "Also try the <b>Teams, no phones</b> switch at the top of the teacher screen to see the one-screen team version."], "needsCode": true}, "timeline": {"title": "Timeline Sort", "icon": "🗓️", "kind": "quiz", "teacher": "timeline/teacher.html", "phone": "timeline/play.html?g={code}", "real": "timeline/teacher.html", "steps": ["The practice phones below are already named. Tap <b>Join</b> on each one.", "On the teacher screen, choose how many questions, then press <b>Start game</b>.", "Answer on the phones, then press <b>Reveal</b> on the teacher screen to see the answer and the story recap.", "Press <b>Next</b> to keep going. The final screen shows the podium.", "Also try the <b>Teams, no phones</b> switch at the top of the teacher screen to see the one-screen team version."], "needsCode": true}, "emoji": {"title": "Emoji Story", "icon": "🔥", "kind": "quiz", "teacher": "emoji/teacher.html", "phone": "emoji/play.html?g={code}", "real": "emoji/teacher.html", "steps": ["The practice phones below are already named. Tap <b>Join</b> on each one.", "On the teacher screen, choose how many questions, then press <b>Start game</b>.", "Answer on the phones, then press <b>Reveal</b> on the teacher screen to see the answer and the story recap.", "Press <b>Next</b> to keep going. The final screen shows the podium.", "Also try the <b>Teams, no phones</b> switch at the top of the teacher screen to see the one-screen team version."], "needsCode": true}, "ot-figure-quiz": {"title": "Which Old Testament Figure Are You?", "icon": "🪪", "kind": "figure", "teacher": "ot-figure-quiz/", "phone": "ot-figure-quiz/#play", "real": "ot-figure-quiz/", "steps": ["Each phone takes the quiz on its own; there is no database or leaderboard.", "The teacher screen just shows the QR code for students to scan."], "needsCode": false}, "ot-figure-quiz-2": {"title": "Which Prophet or Psalmist Are You?", "icon": "🌿", "kind": "figure", "teacher": "ot-figure-quiz-2/", "phone": "ot-figure-quiz-2/#play", "real": "ot-figure-quiz-2/", "steps": ["Each phone takes the quiz on its own; there is no database or leaderboard.", "The teacher screen just shows the QR code for students to scan."], "needsCode": false}, "wordle": {"title": "Old Testament Wordle", "icon": "🟩", "kind": "word", "teacher": "ot-word-games/wordle-host.html", "phone": "ot-word-games/wordle-play.html?room={code}", "real": "ot-word-games/wordle-host.html", "steps": ["Press <b>Open game</b> on the teacher screen if asked, then tap <b>Join</b> on each phone.", "Press <b>Start</b> on the teacher screen.", "Guess on the phones, then end the round to see the answer and its story."], "needsCode": true}, "clues": {"title": "Clue Quest", "icon": "🔎", "kind": "word", "teacher": "ot-word-games/clues-host.html", "phone": "ot-word-games/clues-play.html?room={code}", "real": "ot-word-games/clues-host.html", "steps": ["Press <b>Open game</b> on the teacher screen if asked, then tap <b>Join</b> on each phone.", "Press <b>Start</b> on the teacher screen.", "Guess on the phones, then end the round to see the answer and its story."], "needsCode": true}, "scripture-chase-v1": {"title": "Scripture Chase", "icon": "🏃", "kind": "screen", "teacher": "scripture-chase-v1/", "phone": null, "real": "scripture-chase-v1/", "steps": ["This game runs on one screen. No phones are needed.", "Click through it below exactly as you would in class."], "needsCode": false}, "scripture-chase-v2": {"title": "Scripture Chase: Version 2", "icon": "🏁", "kind": "screen", "teacher": "scripture-chase-v2/", "phone": null, "real": "scripture-chase-v2/", "steps": ["This game runs on one screen. No phones are needed.", "Click through it below exactly as you would in class."], "needsCode": false}, "scripture-level-up": {"title": "Scripture Level Up", "icon": "🧩", "kind": "levelup", "teacher": "scripture-level-up/", "phone": "scripture-level-up/play.html?g={code}", "real": "scripture-level-up/", "steps": ["In the setup on the teacher screen, choose <b>Phones</b> under Play with, pick your scriptures, and press <b>Start game</b>.", "The practice phones are already named: tap <b>Join</b>, pick a team on each, and try <b>Move to</b> or <b>Balance teams</b> on the teacher screen.", "Press <b>Start game</b>. Level 1 is multiple choice; later levels use the word bank (tap a blank, then a word).", "When every phone locks in, the answers reveal and teams where everyone was right score the points."], "needsCode": true}, "old-testament-jeopardy": {"title": "Old Testament Jeopardy", "icon": "📜", "kind": "screen", "teacher": "old-testament-jeopardy/", "phone": null, "real": "old-testament-jeopardy/", "steps": ["This game runs on one screen. No phones are needed.", "Click through it below exactly as you would in class."], "needsCode": false}, "old-testament-jeopardy-2": {"title": "Old Testament Jeopardy 2", "icon": "🦁", "kind": "screen", "teacher": "old-testament-jeopardy-2/", "phone": null, "real": "old-testament-jeopardy-2/", "steps": ["This game runs on one screen. No phones are needed.", "Click through it below exactly as you would in class."], "needsCode": false}, "nt-jeopardy": {"title": "New Testament Jeopardy", "icon": "✝️", "kind": "screen", "teacher": "nt-jeopardy/", "phone": null, "real": "nt-jeopardy/", "steps": ["This game runs on one screen. No phones are needed.", "Click through it below exactly as you would in class."], "needsCode": false}, "hold-the-wall": {"title": "Hold the Wall", "icon": "🧱", "kind": "hold", "teacher": "hold-the-wall/", "phone": "hold-the-wall/?play={code}", "real": "hold-the-wall/", "steps": ["Join with the practice phones, or use <b>Add test players</b> on the teacher screen for computer players.", "Press <b>Start game</b>.", "Walk around on a phone: build with the hammer, defend with the sword."], "needsCode": true}, "escape-maze": {"title": "Escape the Wilderness", "icon": "🏜️", "kind": "escape", "teacher": "escape-maze/teacher.html", "phone": "escape-maze/play.html?g={code}", "real": "escape-maze/teacher.html", "steps": ["Each practice phone picks a team and taps <b>Join</b>.", "Start the game on the teacher screen.", "Explore the maze on a phone; the teacher screen shows team progress."], "needsCode": true}, "maze-birds-eye": {"title": "Iron Rod Maze: Bird’s Eye", "icon": "🌳", "kind": "maze", "teacher": "maze-birds-eye/?host=1", "phone": "maze-birds-eye/", "real": "maze-birds-eye/", "steps": ["The teacher screen opens on the host view. On each phone, tap a name from the class list to join.", "Open the round on the teacher screen.", "Play the maze on a phone. After 25 to 50 seconds the light breaks through and shows the way."], "needsCode": false}, "maze-first-person": {"title": "Iron Rod Maze: First Person", "icon": "🌫️", "kind": "maze", "teacher": "maze-first-person/?host=1", "phone": "maze-first-person/", "real": "maze-first-person/", "steps": ["The teacher screen opens on the host view. On each phone, tap a name from the class list to join.", "Open the round on the teacher screen.", "Play the maze on a phone. After 25 to 50 seconds the light breaks through and shows the way."], "needsCode": false}, "life-choices": {"title": "Life Choices", "icon": "🎲", "kind": "life", "teacher": "life-choices/teacher.html", "phone": "life-choices/play.html?g={code}", "real": "life-choices/teacher.html", "steps": ["Tap <b>Join</b> on each practice phone.", "Press <b>Let’s go</b> on the teacher screen.", "Make choices on each phone (every option shows its effects), then lock in.", "Reveal on the teacher screen to see what everyone chose and how it played out."], "needsCode": true}, "rebuild-wall": {"title": "Rebuild the Wall", "icon": "🏗️", "kind": "sim", "teacher": "rebuild-wall/teacher.html", "phone": "rebuild-wall/play.html?g={code}", "real": "rebuild-wall/teacher.html", "steps": ["Tap <b>Join</b> on each practice phone.", "Follow the buttons on the teacher screen round by round.", "Make choices on the phones to see how results show up for the class."], "needsCode": true}, "advisor-king": {"title": "Advisor to King Hezekiah", "icon": "👑", "kind": "sim", "teacher": "advisor-king/teacher.html", "phone": "advisor-king/play.html?g={code}", "real": "advisor-king/teacher.html", "steps": ["Tap <b>Join</b> on each practice phone.", "Follow the buttons on the teacher screen round by round.", "Make choices on the phones to see how results show up for the class."], "needsCode": true}, "daniel-babylon": {"title": "Daniel in Babylon", "icon": "🕯️", "kind": "sim", "teacher": "daniel-babylon/teacher.html", "phone": "daniel-babylon/play.html?g={code}", "real": "daniel-babylon/teacher.html", "steps": ["Tap <b>Join</b> on each practice phone.", "Follow the buttons on the teacher screen round by round.", "Make choices on the phones to see how results show up for the class."], "needsCode": true}, "watchmen": {"title": "Watchmen on the Tower", "icon": "🗼", "kind": "sim", "teacher": "watchmen/teacher.html", "phone": "watchmen/play.html?g={code}", "real": "watchmen/teacher.html", "steps": ["Tap <b>Join</b> on each practice phone.", "Follow the buttons on the teacher screen round by round.", "Make choices on the phones to see how results show up for the class."], "needsCode": true}, "penny-game": {"title": "The Penny Problem", "icon": "🪙", "kind": "screen", "teacher": "penny-game/", "phone": null, "real": "penny-game/", "steps": ["This game runs on one screen. No phones are needed.", "Click through it below exactly as you would in class."], "needsCode": false}};
+(function () {
+  var id = new URLSearchParams(location.search).get('game'), G = GAMES[id];
+  if (!G) { location.href = './'; return; }
+  document.title = 'Practice: ' + G.title; document.getElementById('title').textContent = G.icon + ' ' + G.title;
+  document.getElementById('steps').innerHTML = G.steps.map(function (s) { return '<li>' + s + '</li>'; }).join('');
+  document.getElementById('real').href = G.real;
+
+  /* ---------- pretend database with the same rules as the Firebase REST API ---------- */
+  var DB = {}, realFetch = window.fetch.bind(window), seq = 0, codes = [], code = null;
+  function clone(v) { return v === undefined ? null : JSON.parse(JSON.stringify(v)); }
+  function segs(u) { return new URL(u, location.href).pathname.replace(/\.json$/, '').split('/').filter(Boolean).map(decodeURIComponent); }
+  function getAt(ps) { var n = DB; for (var i = 0; i < ps.length; i++) { if (n == null || typeof n !== 'object') return null; n = n[ps[i]]; } return n === undefined ? null : n; }
+  function prune(v) { if (v && typeof v === 'object') { for (var k in v) { v[k] = prune(v[k]); if (v[k] === null) delete v[k]; } if (!Array.isArray(v) && !Object.keys(v).length) return null; } return v; }
+  function setAt(ps, v) {
+    v = prune(clone(v)); if (!ps.length) { DB = v || {}; return; }
+    var n = DB; for (var i = 0; i < ps.length - 1; i++) { if (typeof n[ps[i]] !== 'object' || n[ps[i]] === null) n[ps[i]] = {}; n = n[ps[i]]; }
+    if (v === null) delete n[ps[ps.length - 1]]; else n[ps[ps.length - 1]] = v;
+  }
+  function sv(v) { return JSON.parse(JSON.stringify(v), function (k, x) { return x && typeof x === 'object' && x['.sv'] === 'timestamp' ? Date.now() : x; }); }
+  function noteCode(ps) {
+    if (ps[0] === 'seminaryGames' && ps.length >= 3 && /^[A-Z0-9]{4,6}$/.test(ps[2]) && codes.indexOf(ps[2]) < 0) { codes.push(ps[2]); code = ps[2]; onCode(); }
+  }
+  function reply(v) { var out = clone(v); return { ok: true, status: 200, json: function () { return Promise.resolve(clone(out)); }, text: function () { return Promise.resolve(JSON.stringify(out)); } }; }
+  window.PRACTICE = {
+    fetch: function (url, o) {
+      var u = String(url && url.url ? url.url : url);
+      if (u.indexOf('firebaseio.com') < 0) return realFetch(url, o);
+      o = o || {}; var m = (o.method || 'GET').toUpperCase(), ps = segs(u), body = o.body ? sv(JSON.parse(o.body)) : null, out = null;
+      if (m === 'GET') { out = getAt(ps); if (/[?&]shallow=true/.test(u) && out && typeof out === 'object') { var sh = {}; for (var k in out) sh[k] = true; out = sh; } }
+      else if (m === 'PUT') { setAt(ps, body); out = body; noteCode(ps); }
+      else if (m === 'PATCH') { for (var k2 in body) { var sub = ps.concat(k2.split('/').filter(Boolean)); setAt(sub, body[k2]); noteCode(sub); } out = body; }
+      else if (m === 'POST') { var key = '-P' + Date.now().toString(36) + ('000' + (seq++)).slice(-4); setAt(ps.concat([key]), body); noteCode(ps.concat([key])); out = { name: key }; }
+      else if (m === 'DELETE') { setAt(ps, null); }
+      return new Promise(function (res) { setTimeout(function () { res(reply(out)); }, 25); });
+    },
+    stores: {},
+    storage: function (name) {
+      function mem() { var d = {}; return { getItem: function (k) { return Object.prototype.hasOwnProperty.call(d, k) ? d[k] : null; }, setItem: function (k, v) { d[k] = String(v); },
+        removeItem: function (k) { delete d[k]; }, clear: function () { d = {}; }, key: function (i) { return Object.keys(d)[i] || null; }, get length() { return Object.keys(d).length; } }; }
+      return this.stores[name] || (this.stores[name] = { local: mem(), session: mem() });
+    }
+  };
+
+  /* ---------- screens ---------- */
+  var tv = document.getElementById('tv'), box = document.getElementById('phones'), add = document.getElementById('add'), wait = document.getElementById('wait'), n = 0, list = [];
+  tv.src = G.teacher;
+  function phoneUrl() { return G.phone.replace('{code}', encodeURIComponent(code || '')); }
+  function prefill(fr, label) {
+    var tries = 0, t = setInterval(function () {
+      tries++; if (tries > 360) return clearInterval(t);
+      try {
+        var d = fr.contentDocument; if (!d) return;
+        var ins = [].slice.call(d.querySelectorAll('input[type=text], input:not([type])')).filter(function (i) {
+          return !i.value && i.offsetParent !== null && (i.id === 'nm' || /name/i.test((i.placeholder || '') + (i.getAttribute('aria-label') || '') + (i.id || '')));
+        });
+        if (ins.length) { ins[0].value = label; ins[0].dispatchEvent(new Event('input', { bubbles: true })); clearInterval(t); }
+      } catch (e) {}
+    }, 500);
+  }
+  function addPhone() {
+    if (!G.phone || list.length >= 6 || (G.needsCode && !code)) return;
+    n++; var label = 'Practice ' + n, wrap = document.createElement('div'), fr = document.createElement('iframe');
+    wrap.innerHTML = '<p class="label">' + label + '<button class="x" type="button" title="Remove this phone">&times;</button></p>';
+    var ph = document.createElement('div'); ph.className = 'phone'; fr.name = 'phone' + n; fr.title = label; fr.src = phoneUrl(); ph.appendChild(fr); wrap.appendChild(ph);
+    wrap.querySelector('.x').onclick = function () { wrap.remove(); list = list.filter(function (x) { return x !== fr; }); sync(); };
+    box.appendChild(wrap); list.push(fr); fr.addEventListener('load', function () { prefill(fr, label); }); sync();
+  }
+  function sync() {
+    add.hidden = !G.phone; add.disabled = list.length >= 6 || (G.needsCode && !code);
+    document.getElementById('phoneLabel').hidden = !G.phone;
+    wait.textContent = !G.phone ? '' : (G.needsCode && !code ? 'Waiting for the teacher screen to create a game code. If it asks, press the button to open the game.' : (list.length >= 6 ? 'That’s the most practice phones at once.' : ''));
+  }
+  function onCode() {
+    list.forEach(function (fr) { fr.src = phoneUrl(); });
+    if (!list.length) { addPhone(); addPhone(); }
+    sync();
+  }
+  add.onclick = addPhone;
+  document.getElementById('reset').onclick = function () { location.reload(); };
+  if (G.phone && !G.needsCode) { addPhone(); addPhone(); }
+  if (!G.phone) document.querySelector('.stage').style.gridTemplateColumns = '1fr';
+  sync();
+})();
+</script>
+</body>
+</html>

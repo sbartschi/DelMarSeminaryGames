@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script>/* Practice mode: when this page runs inside the site's practice page, use its pretend database and give this screen its own storage. Does nothing otherwise. */
+(function(){try{var P=window.parent!==window&&window.parent.PRACTICE;if(!P)return;window.fetch=P.fetch;var s=P.storage(window.name||location.href);Object.defineProperty(window,'localStorage',{configurable:true,get:function(){return s.local;}});Object.defineProperty(window,'sessionStorage',{configurable:true,get:function(){return s.session;}});}catch(e){}})();</script><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Who Said It?: Play</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>:root{--bg-page:#0E1B2B;--bg-panel:#16273B;--bg-panel-raised:#1E3450;--ink:#F1F6FB;--muted:#9FB4C9;--line:rgba(241,246,251,0.14);--accent:#E3B04B;--ok:#3FA66B;--bad:#C65B5B;color-scheme:dark;}
+*{box-sizing:border-box;}
+html,body{margin:0;min-height:100%;background:var(--bg-page);color:var(--ink);font-family:'Inter',-apple-system,Segoe UI,Roboto,sans-serif;}
+body{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);}
+.wrap{max-width:860px;margin:0 auto;padding:20px 16px 50px;}
+.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:6px;}
+h1{font-family:'Fraunces',Georgia,serif;font-size:1.9rem;margin:0 0 8px;}
+h2{font-family:'Fraunces',Georgia,serif;font-size:1.3rem;margin:0 0 10px;}
+.card{background:var(--bg-panel);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px;}
+.muted{color:var(--muted);font-size:0.95rem;}
+.btn{font:inherit;font-weight:700;padding:14px 20px;border-radius:10px;border:1px solid var(--line);background:var(--bg-panel-raised);color:var(--ink);cursor:pointer;}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#06121D;}
+.btn.big{font-size:1.1rem;width:100%;padding:18px;margin-top:6px;}
+.btn[disabled]{opacity:0.4;cursor:default;}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+input[type=text]{font:inherit;font-size:1.1rem;padding:14px;border-radius:10px;border:1px solid var(--line);background:var(--bg-panel-raised);color:var(--ink);width:100%;margin-bottom:10px;}
+.qr-box{display:flex;justify-content:center;padding:16px;background:#fff;border-radius:14px;margin:10px auto;width:max-content;max-width:100%;}
+.code{font-family:'IBM Plex Mono',monospace;font-size:2.4rem;letter-spacing:0.18em;text-align:center;color:var(--accent);margin:6px 0;}
+.tag{display:inline-block;background:var(--bg-panel-raised);border-radius:20px;padding:6px 14px;margin:4px;font-size:0.95rem;}
+.lb{width:100%;border-collapse:collapse;margin-top:6px;}
+.lb td,.lb th{padding:9px 6px;border-bottom:1px solid var(--line);text-align:left;font-size:1rem;}
+.lb th{color:var(--muted);font-weight:600;font-size:0.78rem;text-transform:uppercase;}
+.q{font-family:'Fraunces',Georgia,serif;font-size:1.6rem;line-height:1.35;margin:8px 0 16px;}
+.verse{font-family:'Fraunces',Georgia,serif;font-size:1.45rem;line-height:1.45;font-style:italic;margin:8px 0 16px;}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.opt{padding:16px;border-radius:12px;border:1px solid var(--line);background:var(--bg-panel-raised);font-size:1.1rem;}
+.opt.right{border-color:var(--ok);background:rgba(63,166,107,0.25);}
+.opt .n{font-family:'IBM Plex Mono',monospace;color:var(--muted);margin-right:8px;}
+.ans{display:block;width:100%;text-align:left;font:inherit;font-size:1.1rem;padding:18px 16px;margin-bottom:10px;border-radius:12px;border:1px solid var(--line);background:var(--bg-panel-raised);color:var(--ink);cursor:pointer;}
+.ans.t{background:rgba(63,166,107,0.2);border-color:var(--ok);text-align:center;font-size:1.4rem;font-weight:700;}
+.ans.f{background:rgba(198,91,91,0.2);border-color:var(--bad);text-align:center;font-size:1.4rem;font-weight:700;}
+.timerbar{height:8px;border-radius:4px;background:var(--bg-panel-raised);overflow:hidden;margin:6px 0 12px;}
+.timerbar i{display:block;height:100%;background:var(--accent);transition:width .25s linear;}
+.result-big{font-family:'Fraunces',Georgia,serif;font-size:2.2rem;font-weight:700;margin:6px 0;}
+.good{color:var(--ok);} .bad{color:var(--bad);}
+.reveal{background:var(--bg-panel-raised);border-radius:12px;padding:14px 16px;margin-top:6px;}
+.podium{display:flex;justify-content:center;align-items:flex-end;gap:14px;margin:20px 0;}
+.podium .spot{background:var(--bg-panel-raised);border-radius:10px 10px 0 0;padding:14px 16px;text-align:center;min-width:100px;}
+.podium .g1{min-height:130px;background:linear-gradient(180deg,#F0CB77,#C9A227);color:#2b2418;}
+.podium .g2{min-height:96px;} .podium .g3{min-height:72px;}
+.ph{max-width:480px;margin:0 auto;}
+.center{text-align:center;}
+@media (max-width:600px){ .opts{grid-template-columns:1fr;} .q{font-size:1.3rem;} .verse{font-size:1.2rem;} }
+.emoji{font-size:4rem;line-height:1.3;text-align:center;margin:10px 0 18px;letter-spacing:0.1em;}
+.order{margin:0 0 6px;padding-left:28px;font-size:1.15rem;line-height:1.7;}
+.order li::marker{color:var(--accent);font-weight:700;}
+.ans.picked{border-color:var(--accent);background:rgba(255,255,255,0.08);opacity:0.75;}
+.badge{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;border:1px solid var(--line);margin-right:10px;font-weight:700;font-family:'IBM Plex Mono',monospace;}
+.ans.picked .badge{background:var(--accent);color:#06121D;border-color:var(--accent);}
+.scene{font-size:1.15rem;line-height:1.5;margin:4px 0 10px;}
+.meters{display:grid;gap:10px;}
+.meter{font-size:0.95rem;}
+.mtrack{height:10px;border-radius:5px;background:var(--bg-panel-raised);overflow:hidden;margin-top:4px;}
+.mtrack i{display:block;height:100%;background:var(--accent);transition:width .4s ease;}
+.tally{display:grid;gap:8px;margin-top:8px;}
+.trow{padding:10px 12px;border-radius:10px;border:1px solid var(--line);}
+.trow.dec{border-color:var(--accent);background:rgba(255,255,255,0.05);}
+.trow .n,.opt .n{font-family:'IBM Plex Mono',monospace;color:var(--muted);margin-right:8px;}
+.did{border-color:var(--accent);}
+ul.plain{margin:0;padding-left:20px;line-height:1.6;}
+.pts{font-family:'IBM Plex Mono',monospace;font-size:0.8rem;color:var(--muted);margin-left:6px;white-space:nowrap;}
+.pts.top{color:var(--accent);font-weight:700;}
+.ctx{margin-top:14px;padding:14px 16px;border-left:4px solid var(--accent);background:rgba(227,176,75,0.10);border-radius:10px;text-align:left;}.ctx .ctx-h{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:4px;}.ctx b{display:block;font-size:1.05rem;margin-bottom:6px;color:var(--ink);}.ctx p{margin:0;line-height:1.55;color:var(--ink);font-size:0.98rem;}</style></head><body><div class="wrap" id="app"></div>
+<script>var CFG={"title": "Who Said It?", "kind": "mc", "seconds": 25, "questions": [{"options": ["Nehemiah", "Isaiah", "Nebuchadnezzar", "Esther"], "answer": 1, "ref": "Isaiah 6:8", "expl": "Isaiah answered when the Lord asked, \"Whom shall I send?\"", "verse": "Here am I; send me.", "prompt": "Who said it?", "story": "Isaiah’s call to be a prophet (Isaiah 6)", "ctx": "In the year King Uzziah died, Isaiah saw the Lord on His throne surrounded by seraphim. Feeling unworthy, he cried that he was “a man of unclean lips,” but a seraph touched his lips with a live coal from the altar and his sin was purged. When the Lord asked, “Whom shall I send?” Isaiah answered, “Here am I; send me.”"}, {"options": ["Mordecai", "Jeremiah", "Esther", "Job"], "answer": 2, "ref": "Esther 4:16", "expl": "Esther asked the Jews to fast with her three days before she went to the king", "verse": "Fast ye for me... and so will I go in unto the king, which is not according to the law: and if I perish, I perish.", "prompt": "Who said it?", "story": "Esther saves her people (Esther 4 to 8)", "ctx": "Haman got a decree to destroy every Jew in Persia. Mordecai urged Esther to plead with the king, reminding her she may have become queen “for such a time as this.” Anyone who went to the king uninvited could be put to death, so Esther and her people fasted three days. She went in, the king held out his golden sceptre, and her people were saved."}, {"options": ["Jonah", "Nehemiah", "Job", "Daniel"], "answer": 1, "ref": "Nehemiah 6:3", "expl": "Nehemiah refused to leave the wall when his enemies tried to lure him away", "verse": "I am doing a great work, so that I cannot come down: why should the work cease, whilst I leave it, and come down to you?", "prompt": "Who said it?", "story": "Rebuilding the wall (Nehemiah 4 to 6)", "ctx": "As Nehemiah’s workers rebuilt Jerusalem’s walls, enemies mocked them and plotted to attack. Nehemiah set guards and had the builders carry weapons as they worked. When his enemies tried four times to lure him away to harm him, he answered, “I am doing a great work, so that I cannot come down.” The wall was finished in 52 days."}, {"options": ["Isaiah", "Jonah", "Daniel", "Shadrach, Meshach, and Abed-nego"], "answer": 3, "ref": "Daniel 3:17-18", "expl": "They told Nebuchadnezzar God could deliver them, \"but if not\" they still would not bow", "verse": "But if not, be it known unto thee, O king, that we will not serve thy gods, nor worship the golden image which thou hast set up.", "prompt": "Who said it?", "story": "The fiery furnace (Daniel 3)", "ctx": "King Nebuchadnezzar set up a golden image and commanded everyone to bow to it or be thrown into a burning fiery furnace, heated seven times hotter than usual. Shadrach, Meshach, and Abed-nego refused, saying God could deliver them, “but if not,” they still would not bow. The king saw a fourth person in the fire, and they came out without even the smell of fire on them."}, {"options": ["Daniel", "The Lord", "Shadrach, Meshach, and Abed-nego", "Nehemiah"], "answer": 1, "ref": "Job 38:1, 4", "expl": "The Lord answered Job out of the whirlwind", "verse": "Where wast thou when I laid the foundations of the earth? declare, if thou hast understanding.", "prompt": "Who said it?", "story": "The Lord answers Job (Job 38 to 42)", "ctx": "After many chapters of asking why he was suffering, Job heard the Lord speak out of a whirlwind. The Lord asked him a series of questions about the Creation to show how far His wisdom is above man’s. Job humbled himself, prayed for his friends, and the Lord gave him twice as much as he had before."}, {"options": ["Jeremiah", "Daniel", "Isaiah", "Mordecai"], "answer": 3, "ref": "Esther 4:14", "expl": "Mordecai urged Esther to speak up for her people", "verse": "Who knoweth whether thou art come to the kingdom for such a time as this?", "prompt": "Who said it?", "story": "Esther saves her people (Esther 4 to 8)", "ctx": "Haman got a decree to destroy every Jew in Persia. Mordecai urged Esther to plead with the king, reminding her she may have become queen “for such a time as this.” Anyone who went to the king uninvited could be put to death, so Esther and her people fasted three days. She went in, the king held out his golden sceptre, and her people were saved."}, {"options": ["Shadrach, Meshach, and Abed-nego", "Jonah", "Job", "Jeremiah"], "answer": 3, "ref": "Jeremiah 1:6", "expl": "Jeremiah felt too young when the Lord called him; the Lord told him not to be afraid", "verse": "Then said I, Ah, Lord GOD! behold, I cannot speak: for I am a child.", "prompt": "Who said it?", "story": "The call of Jeremiah (Jeremiah 1)", "ctx": "The Lord told Jeremiah that He knew him and ordained him a prophet before he was born. Jeremiah protested that he was only a child and could not speak. The Lord touched his mouth, put His words there, and told him not to be afraid. Jeremiah prophesied for about forty years, in the same era as Lehi."}, {"options": ["Shadrach, Meshach, and Abed-nego", "Daniel", "Nebuchadnezzar", "Nehemiah"], "answer": 2, "ref": "Daniel 3:24-25", "expl": "The king was astonished to see a fourth person in the furnace", "verse": "Lo, I see four men loose, walking in the midst of the fire, and they have no hurt; and the form of the fourth is like the Son of God.", "prompt": "Who said it?", "story": "The fiery furnace (Daniel 3)", "ctx": "King Nebuchadnezzar set up a golden image and commanded everyone to bow to it or be thrown into a burning fiery furnace, heated seven times hotter than usual. Shadrach, Meshach, and Abed-nego refused, saying God could deliver them, “but if not,” they still would not bow. The king saw a fourth person in the fire, and they came out without even the smell of fire on them."}, {"options": ["Jeremiah", "Mordecai", "Isaiah", "Jonah"], "answer": 3, "ref": "Jonah 4:2", "expl": "Jonah admitted he fled because he knew the Lord would be merciful to Nineveh", "verse": "I knew that thou art a gracious God, and merciful, slow to anger, and of great kindness.", "prompt": "Who said it?", "story": "Jonah and Nineveh (Jonah 1 to 4)", "ctx": "The Lord sent Jonah to warn Nineveh, an enemy city, but he fled by ship toward Tarshish. In a storm he was thrown overboard and swallowed by a great fish, where he prayed for three days and three nights. When he finally preached, the whole city repented and was spared. Jonah was angry, admitting he had run because he knew the Lord would be merciful."}, {"options": ["Job", "The Lord", "Jeremiah", "Nehemiah"], "answer": 0, "ref": "Job 1:21", "expl": "Job said this right after losing his children and possessions", "verse": "The LORD gave, and the LORD hath taken away; blessed be the name of the LORD.", "prompt": "Who said it?", "story": "Job’s trial begins (Job 1 to 2)", "ctx": "Job was a perfect and upright man with great wealth and ten children. Satan claimed Job was faithful only because he was blessed, so the Lord allowed Job to be tried. In one day he lost his animals, servants, and children, and later his health. Job worshipped and said, “The LORD gave, and the LORD hath taken away,” and he did not curse God."}, {"options": ["The Lord", "Daniel", "Jeremiah", "Job"], "answer": 1, "ref": "Daniel 5:25-27", "expl": "Daniel interpreted the writing on the wall for King Belshazzar", "verse": "TEKEL; Thou art weighed in the balances, and art found wanting.", "prompt": "Who said it?", "story": "The writing on the wall (Daniel 5)", "ctx": "King Belshazzar of Babylon held a great feast and drank from the sacred vessels taken from the temple in Jerusalem. Fingers of a man’s hand appeared and wrote on the wall, and only Daniel could read it: the kingdom had been weighed and found wanting. That very night Belshazzar was slain."}, {"options": ["King Ahasuerus", "Shadrach, Meshach, and Abed-nego", "Mordecai", "Job"], "answer": 0, "ref": "Esther 6:6", "expl": "The king asked Haman, who assumed the honor was for himself; it was for Mordecai", "verse": "What shall be done unto the man whom the king delighteth to honour?", "prompt": "Who said it?", "story": "Haman’s pride backfires (Esther 6)", "ctx": "One sleepless night, King Ahasuerus learned that Mordecai had once saved his life and had never been rewarded. When Haman arrived, the king asked how to honor such a man. Thinking the king meant him, Haman described a royal parade, and was then ordered to lead it for Mordecai."}, {"options": ["Job", "Isaiah", "Jeremiah", "David"], "answer": 0, "ref": "Job 19:25", "expl": "Job testified of his Redeemer in the middle of his suffering", "verse": "I know that my redeemer liveth, and that he shall stand at the latter day upon the earth.", "prompt": "Who said it?", "story": "Job’s testimony (Job 19)", "ctx": "Job had lost his children, wealth, and health, and his friends insisted he must be suffering for secret sins. Feeling abandoned, Job still bore powerful testimony that his Redeemer lives and that he would see God in the flesh, a witness of the Resurrection."}, {"options": ["Jonah", "Job", "Jeremiah", "Daniel"], "answer": 1, "ref": "Job 13:15", "expl": "Job answered friends who insisted he must have sinned", "verse": "Though he slay me, yet will I trust in him.", "prompt": "Who said it?", "story": "Job and his friends (Job 3 to 37)", "ctx": "Job’s friends Eliphaz, Bildad, and Zophar insisted that suffering always comes from sin, so Job must be hiding something. Job maintained his integrity and said, “Though he slay me, yet will I trust in him.” In the end, the Lord rebuked the friends for not speaking what was right."}, {"options": ["Jonah", "Hezekiah", "Solomon", "David"], "answer": 3, "ref": "Psalm 51:10", "expl": "David prayed this after Nathan confronted him about his sin", "verse": "Create in me a clean heart, O God; and renew a right spirit within me.", "prompt": "Who said it?", "story": "David’s prayer of repentance (Psalm 51)", "ctx": "David wrote this psalm after the prophet Nathan confronted him about his sin with Bathsheba. He pleads, “Create in me a clean heart, O God,” and teaches that God desires “a broken and a contrite heart.” The resurrected Savior asked the Nephites for this same sacrifice (3 Nephi 9:20)."}, {"options": ["Shadrach, Meshach, and Abed-nego", "Daniel", "Mordecai", "Nehemiah"], "answer": 1, "ref": "Daniel 6:22", "expl": "Daniel called this up to King Darius the morning after", "verse": "My God hath sent his angel, and hath shut the lions’ mouths, that they have not hurt me.", "prompt": "Who said it?", "story": "Daniel in the lions’ den (Daniel 6)", "ctx": "Jealous officials tricked King Darius into making a law that no one could pray to anyone but the king for thirty days. Daniel kept praying three times a day with his windows open toward Jerusalem. He was thrown to the lions, but God sent His angel to shut their mouths, and Daniel was unharmed."}, {"options": ["Jonah", "The king of Nineveh", "Nahum", "The Lord"], "answer": 3, "ref": "Jonah 4:11", "expl": "The Lord taught Jonah about mercy using a gourd", "verse": "And should not I spare Nineveh, that great city?", "prompt": "Who said it?", "story": "Jonah’s gourd (Jonah 4)", "ctx": "After Nineveh was spared, Jonah sat outside the city sulking. The Lord made a gourd grow to shade him, then sent a worm to wither it. When Jonah grieved over the plant, the Lord asked whether He should not care even more about the more than 120,000 people of Nineveh."}, {"options": ["Ezekiel", "Isaiah", "Jeremiah", "Daniel"], "answer": 1, "ref": "Isaiah 6:5", "expl": "Isaiah felt unworthy after seeing the Lord on His throne", "verse": "Woe is me! for I am undone; because I am a man of unclean lips.", "prompt": "Who said it?", "story": "Isaiah’s call to be a prophet (Isaiah 6)", "ctx": "In the year King Uzziah died, Isaiah saw the Lord on His throne surrounded by seraphim. Feeling unworthy, he cried that he was “a man of unclean lips,” but a seraph touched his lips with a live coal from the altar and his sin was purged. When the Lord asked, “Whom shall I send?” Isaiah answered, “Here am I; send me.”"}, {"options": ["Job", "Isaiah", "The Preacher (Solomon)", "David"], "answer": 2, "ref": "Ecclesiastes 12:1", "expl": "The Preacher’s counsel to the young", "verse": "Remember now thy Creator in the days of thy youth.", "prompt": "Who said it?", "story": "The whole duty of man (Ecclesiastes 12)", "ctx": "After exploring wealth, pleasure, work, and wisdom and calling them all vanity on their own, the Preacher reaches his conclusion: “Fear God, and keep his commandments: for this is the whole duty of man.” The same chapter begins, “Remember now thy Creator in the days of thy youth.”"}, {"options": ["Zerubbabel", "Nehemiah", "Ezra", "Mordecai"], "answer": 1, "ref": "Nehemiah 4:6", "expl": "Nehemiah described how the people kept building despite mockery", "verse": "So built we the wall... for the people had a mind to work.", "prompt": "Who said it?", "story": "Rebuilding the wall (Nehemiah 4 to 6)", "ctx": "As Nehemiah’s workers rebuilt Jerusalem’s walls, enemies mocked them and plotted to attack. Nehemiah set guards and had the builders carry weapons as they worked. When his enemies tried four times to lure him away to harm him, he answered, “I am doing a great work, so that I cannot come down.” The wall was finished in 52 days."}, {"options": ["The Lord", "Daniel", "Isaiah", "Ezekiel"], "answer": 0, "ref": "Ezekiel 37:3", "expl": "The Lord asked Ezekiel, who answered, “O Lord GOD, thou knowest”", "verse": "Son of man, can these bones live?", "prompt": "Who said it?", "story": "The valley of dry bones (Ezekiel 37)", "ctx": "In vision, the Lord set Ezekiel in a valley full of very dry bones and asked, “Can these bones live?” As Ezekiel prophesied, the bones came together, received flesh, and were filled with breath. The Lord explained it represented the house of Israel being gathered and given new life, and it also points to the Resurrection."}, {"options": ["The Lord", "Jeremiah", "Ezra", "Hezekiah"], "answer": 0, "ref": "Isaiah 38:5", "expl": "The Lord answered Hezekiah’s prayer through Isaiah", "verse": "I have heard thy prayer, I have seen thy tears: behold, I will add unto thy days fifteen years.", "prompt": "Who said it?", "story": "Hezekiah’s prayer for healing (Isaiah 38; 2 Kings 20)", "ctx": "Righteous King Hezekiah became deathly ill, and Isaiah told him to set his house in order. Hezekiah turned his face to the wall and prayed with tears. Before Isaiah had even left the palace, the Lord sent him back to promise fifteen more years, with the sun’s shadow going backward as a sign."}, {"options": ["Nehemiah", "Ezra", "Daniel", "Mordecai"], "answer": 2, "ref": "Daniel 1:12", "expl": "Daniel asked for a ten-day test instead of the king’s food", "verse": "Let them give us pulse to eat, and water to drink.", "prompt": "Who said it?", "story": "Daniel’s food test (Daniel 1)", "ctx": "Daniel and three friends were young Jewish captives chosen for training in the Babylonian king’s court. Rather than defile themselves with the king’s food and wine, they asked to eat pulse (vegetables) and drink water for ten days. At the end they were healthier than the others, and God gave them knowledge and wisdom."}, {"options": ["Amos", "Isaiah", "Jeremiah", "Jonah"], "answer": 2, "ref": "Jeremiah 20:9", "expl": "Jeremiah could not stop speaking the Lord’s word, even when mocked", "verse": "His word was in mine heart as a burning fire shut up in my bones.", "prompt": "Who said it?", "story": "The call of Jeremiah (Jeremiah 1)", "ctx": "The Lord told Jeremiah that He knew him and ordained him a prophet before he was born. Jeremiah protested that he was only a child and could not speak. The Lord touched his mouth, put His words there, and told him not to be afraid. Jeremiah prophesied for about forty years, in the same era as Lehi."}, {"options": ["Jeremiah", "Job", "Jonah", "Elijah"], "answer": 2, "ref": "Jonah 4:3", "expl": "Jonah was angry that the Lord spared Nineveh", "verse": "O LORD, take, I beseech thee, my life from me; for it is better for me to die than to live.", "prompt": "Who said it?", "story": "Jonah and Nineveh (Jonah 1 to 4)", "ctx": "The Lord sent Jonah to warn Nineveh, an enemy city, but he fled by ship toward Tarshish. In a storm he was thrown overboard and swallowed by a great fish, where he prayed for three days and three nights. When he finally preached, the whole city repented and was spared. Jonah was angry, admitting he had run because he knew the Lord would be merciful."}], "root": "seminaryGames/whosaid", "intro": "Famous lines from Job through Malachi. Pick who said it", "round": 10, "banked": true};
+var DBURL = "https://penny-project-fb5da-default-rtdb.firebaseio.com";
+var FAKE = null; try{ if (window.parent && window.parent !== window && window.parent.FAKE) FAKE = window.parent.FAKE; }catch(e){}
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function dbPath(code, path){ return CFG.root + '/' + code + (path ? '/' + path : ''); }
+function req(method, code, path, v){
+  var p = dbPath(code, path);
+  if (FAKE) return FAKE.req(method, p, v);
+  var o = {method: method, cache: 'no-store'}; if (v !== undefined) o.body = JSON.stringify(v);
+  return fetch(DBURL + '/' + p + '.json', o).then(function(r){ return r.json(); }).catch(function(){ return null; });
+}
+function jget(c,p){ return req('GET',c,p); }
+function jput(c,p,v){ return req('PUT',c,p,v); }
+function jpatch(c,p,v){ return req('PATCH',c,p,v); }
+function jpost(c,p,v){ return req('POST',c,p,v); }
+var TS = {".sv":"timestamp"};
+function ranked(players){ var a=[]; for (var k in (players||{})) a.push({id:k, name:players[k].name, score:players[k].score||0}); a.sort(function(x,y){ return y.score-x.score || String(x.name).localeCompare(String(y.name)); }); return a; }
+var MEM={};
+function store(k, v){ if (FAKE){ if (v===undefined) return MEM[k]||null; MEM[k]=v; return; } try{ if (v===undefined) return sessionStorage.getItem(k); sessionStorage.setItem(k, v); }catch(e){ return null; } }
+function optsOf(q){ return CFG.kind==='tf' ? ['True','False'] : q.options; }
+function correctIdx(q){ return CFG.kind==='tf' ? (q.answer?0:1) : q.answer; }
+function QA(m){ var ids=m&&m.qids; return CFG.questions[ids?ids[m.q]:m.q]; }
+function QN(m){ return (m&&m.qids)?m.qids.length:CFG.questions.length; }
+
+function ctxHtml(q){ if(!q||(!q.story&&!q.ctx)) return ''; return '<div class="ctx"><div class="ctx-h">The story</div>'+(q.story?'<b>'+esc(q.story)+'</b>':'')+(q.ctx?'<p>'+esc(q.ctx)+'</p>':'')+'</div>'; }
+
+</script>
+<script>(function(){
+var seq=[], seqQ=-1;
+var app=document.getElementById('app'), Q=CFG.questions, code='', pid='', room=null, busy=false, lastKey='', sending=false;
+function param(n){ try{ return new URLSearchParams(location.search).get(n); }catch(e){ return null; } }
+code=(param('g')||'').toUpperCase();
+if (!code && FAKE && FAKE.latestCode) code=FAKE.latestCode(CFG.root);
+function me(){ return (room&&room.players||{})[pid]; }
+function rankOf(){ var r=ranked(room.players); for (var i=0;i<r.length;i++) if (r[i].id===pid) return i+1; return 0; }
+function joinScreen(msg){
+  app.innerHTML='<div class="ph"><div class="eyebrow">'+esc(CFG.title)+'</div><h1>Join the game</h1><div class="card">'+
+    (code?'':'<input type="text" id="cd" maxlength="4" placeholder="Game code" autocapitalize="characters">')+
+    '<input type="text" id="nm" maxlength="20" placeholder="Your first name" autocomplete="off">'+
+    '<button class="btn primary big" data-a="join">Join</button>'+(msg?'<p class="bad">'+esc(msg)+'</p>':'')+'</div></div>';
+}
+function render(){
+  var m=room.meta, p=me(), h='';
+  if (!p){ store('pid_'+code,''); pid=''; joinScreen('You were removed from this game. Join again.'); return; }
+  var head='<div class="row" style="justify-content:space-between;margin-bottom:10px"><span class="muted">'+esc(p.name)+'</span><span class="muted">'+(p.score||0).toLocaleString()+' points</span></div>';
+  if (m.phase==='lobby') h='<div class="card center"><h2>You are in</h2><p class="muted">Watch the screen. The game starts soon</p></div>';
+  else if (m.phase==='question'){
+    var q=QA(m), mine=((room.ans||{})[m.q]||{})[pid];
+    if (mine) h='<div class="card center"><div class="eyebrow">Question '+(m.q+1)+' of '+QN(m)+'</div><h2>Answer locked in</h2>'+(CFG.kind==='order'?'':'<p class="muted">You picked: '+esc(optsOf(q)[mine.i])+'</p>')+'<p class="muted">Waiting for the reveal</p></div>';
+    else if (CFG.kind==='order'){
+      if (seqQ!==m.q){ seq=[]; seqQ=m.q; }
+      h='<div class="card"><div class="eyebrow">Question '+(m.q+1)+' of '+QN(m)+'</div><div class="q" style="font-size:1.15rem">'+esc(q.text)+'</div><div class="muted">Tap the events from first to last</div></div>';
+      h+=q.shown.map(function(k,i){ var pos=seq.indexOf(i); return '<button class="ans'+(pos>=0?' picked':'')+'" data-a="seq" data-i="'+i+'"'+(pos>=0?' disabled':'')+'><span class="badge">'+(pos>=0?pos+1:'')+'</span>'+esc(q.items[k])+'</button>'; }).join('');
+      h+='<div class="row"><button class="btn" data-a="undo"'+(seq.length?'':' disabled')+' style="flex:1">Undo</button><button class="btn primary" data-a="lock"'+(seq.length===q.items.length?'':' disabled')+' style="flex:2">Lock in my order</button></div>';
+    }
+    else {
+      h='<div class="card"><div class="eyebrow">Question '+(m.q+1)+' of '+QN(m)+'</div>'+(q.verse?'<div class="muted">'+esc(q.prompt||CFG.prompt||'')+'</div><div class="verse" style="font-size:1.1rem">&ldquo;'+esc(q.verse)+'&rdquo;</div>':q.emoji?'<div class="muted">'+esc(q.prompt||CFG.prompt||'')+'</div><div class="emoji" style="font-size:2.6rem">'+esc(q.emoji)+'</div>':'<div class="q" style="font-size:1.2rem">'+esc(q.text)+'</div>')+'</div>';
+      if (CFG.kind==='tf') h+='<button class="ans t" data-a="pick" data-i="0">True</button><button class="ans f" data-a="pick" data-i="1">False</button>';
+      else h+=q.options.map(function(o,i){ return '<button class="ans" data-a="pick" data-i="'+i+'"><b>'+'ABCD'[i]+'</b> &nbsp;'+esc(o)+'</button>'; }).join('');
+    }
+  } else if (m.phase==='reveal'){
+    var q=QA(m), ok=p.last===1;
+    h='<div class="card center"><div class="result-big '+(ok?'good':'bad')+'">'+(ok?'Correct':'Not quite')+'</div>'+(CFG.kind==='order'?'<p>'+(p.hits||0)+' of '+q.items.length+' in the right spot</p><p>+'+(p.gain||0)+' points</p><p class="muted">The correct order is on the screen</p>':ok?'<p>+'+(p.gain||0)+' points</p>':'<p class="muted">Answer: '+esc(optsOf(q)[correctIdx(q)])+'</p>')+
+      '<p class="muted">'+esc(q.ref)+'</p>'+ctxHtml(q)+'<p class="muted">You are in place '+rankOf()+' of '+Object.keys(room.players).length+'</p></div>';
+  } else if (m.phase==='final'){
+    h='<div class="card center"><h2>Game over</h2><div class="result-big">'+(p.score||0).toLocaleString()+'</div><p class="muted">points, place '+rankOf()+' of '+Object.keys(room.players).length+'</p><p class="muted">Look at the screen for the podium</p></div>';
+  }
+  app.innerHTML='<div class="ph">'+head+h+'</div>';
+}
+function poll(){
+  if (busy || !code || !pid) return; busy=true;
+  jget(code,'').then(function(d){ busy=false; if (!d || !d.meta) return; room=d;
+    var m=d.meta, p=me(), mine=p&&((d.ans||{})[m.q]||{})[pid];
+    var k=[m.phase,m.q,!!p,!!mine,p&&p.score,p&&p.last,rankOf()].join('~'); if (k!==lastKey){ lastKey=k; render(); }
+  });
+}
+app.addEventListener('click', function(e){
+  var b=e.target.closest('[data-a]'); if (!b) return; var a=b.getAttribute('data-a');
+  if (a==='join'){
+    var nm=(document.getElementById('nm').value||'').trim(), cd=document.getElementById('cd');
+    if (cd) code=(cd.value||'').trim().toUpperCase();
+    if (!nm || !code) return; b.disabled=true;
+    jget(code,'meta').then(function(m){
+      if (!m){ joinScreen('That game code was not found'); return; }
+      return jpost(code,'players',{name:nm, score:0}).then(function(r){ pid=r&&r.name; store('pid_'+code,pid); lastKey=''; poll(); });
+    });
+  } else if (a==='seq'){ var i=parseInt(b.getAttribute('data-i'),10); if (seq.indexOf(i)<0) seq.push(i); render();
+  } else if (a==='undo'){ seq.pop(); render();
+  } else if (a==='lock' && !sending){
+    sending=true; var q=room.meta.q; b.disabled=true;
+    jput(code,'ans/'+q+'/'+pid,{seq:seq.slice(), t:TS}).then(function(){ sending=false; lastKey=''; poll(); });
+  } else if (a==='pick' && !sending){
+    sending=true; var i=parseInt(b.getAttribute('data-i'),10), q=room.meta.q;
+    Array.prototype.forEach.call(app.querySelectorAll('[data-a=pick]'),function(x){ x.disabled=true; });
+    b.style.outline='3px solid var(--accent)';
+    jput(code,'ans/'+q+'/'+pid,{i:i, t:TS}).then(function(){ sending=false; lastKey=''; poll(); });
+  }
+});
+if (code){ pid=store('pid_'+code)||''; }
+if (pid) poll(); else joinScreen();
+setInterval(poll, 1200);
+})();
+</script></body></html>

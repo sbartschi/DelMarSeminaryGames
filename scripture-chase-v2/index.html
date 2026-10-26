@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>/* Practice mode: when this page runs inside the site's practice page, use its pretend database and give this screen its own storage. Does nothing otherwise. */
+(function(){try{var P=window.parent!==window&&window.parent.PRACTICE;if(!P)return;window.fetch=P.fetch;var s=P.storage(window.name||location.href);Object.defineProperty(window,'localStorage',{configurable:true,get:function(){return s.local;}});Object.defineProperty(window,'sessionStorage',{configurable:true,get:function(){return s.session;}});}catch(e){}})();</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Scripture Chase - Doctrinal Mastery (Version 2)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@500;600&display=swap');
+
+  :root{
+    --parchment: #EAE0C4;
+    --parchment-deep: #DED0A8;
+    --parchment-edge: #C9B888;
+    --ink: #2A2013;
+    --ink-soft: #6B5A3F;
+    --gold: #9C6B1A;
+    --oxblood: #7A2E2E;
+    --lapis: #2C5F63;
+    --olive: #6B7A3A;
+    --plum: #6B3A5C;
+    --slate: #445566;
+    --amber: #B8860B;
+    color-scheme: light;
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; min-height: 100%;
+    background: var(--parchment);
+    background-image:
+      radial-gradient(ellipse at top left, rgba(255,255,255,0.15), transparent 60%),
+      radial-gradient(ellipse at bottom right, rgba(0,0,0,0.05), transparent 60%);
+    color: var(--ink);
+    font-family: 'Crimson Pro', serif;
+    -webkit-font-smoothing: antialiased;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .screen { display: none; min-height: 100vh; flex-direction: column; align-items: center; padding: 24px 16px 48px; }
+  .screen.active { display: flex; }
+
+  h1, h2, h3 { font-family: 'Cinzel', serif; letter-spacing: 0.03em; margin: 0; color: var(--ink); }
+  .mono { font-family: 'IBM Plex Mono', monospace; }
+
+  .eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 6px;
+    text-align: center;
+  }
+
+  .header { text-align: center; margin: 20px 0 28px; }
+  .header h1 { font-size: 2.1rem; color: var(--ink); }
+  .header .sub { color: var(--ink-soft); font-style: italic; margin-top: 6px; font-size: 1.05rem; }
+
+  .scroll-card {
+    background: var(--parchment-deep);
+    border: 1px solid var(--parchment-edge);
+    border-radius: 6px;
+    box-shadow: 0 1px 0 rgba(255,255,255,0.4) inset, 0 12px 30px rgba(40,30,10,0.15);
+    padding: 32px;
+    width: 100%;
+    max-width: 720px;
+    position: relative;
+  }
+  .scroll-card::before, .scroll-card::after {
+    content: "";
+    position: absolute;
+    left: 0; right: 0;
+    height: 14px;
+    background: linear-gradient(var(--parchment-edge), var(--parchment-deep));
+    border-radius: 6px 6px 0 0;
+  }
+  .scroll-card::before { top: -7px; }
+  .scroll-card::after { bottom: -7px; border-radius: 0 0 6px 6px; }
+
+  .field-group { margin-bottom: 22px; width: 100%; }
+  .field-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink-soft);
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  .stepper { display: flex; align-items: center; gap: 14px; }
+  .stepper button {
+    width: 40px; height: 40px; border-radius: 50%;
+    border: 1px solid var(--parchment-edge);
+    background: var(--parchment);
+    color: var(--ink);
+    font-size: 1.2rem; font-family: 'IBM Plex Mono', monospace;
+    cursor: pointer;
+  }
+  .stepper button:hover { background: var(--parchment-edge); }
+  .stepper .count { font-family: 'Cinzel', serif; font-size: 1.6rem; min-width: 32px; text-align: center; }
+
+  .team-name-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .seal-dot { width: 16px; height: 16px; border-radius: 50%; flex-shrink: 0; }
+  .team-name-row input {
+    flex: 1;
+    font-family: 'Crimson Pro', serif;
+    font-size: 1.05rem;
+    padding: 9px 12px;
+    border: 1px solid var(--parchment-edge);
+    border-radius: 4px;
+    background: #F5EED8;
+    color: var(--ink);
+  }
+  .team-name-row input:focus { outline: 2px solid var(--gold); outline-offset: 1px; }
+
+  details.verse-editor { width: 100%; margin-top: 4px; max-height: 340px; overflow-y: auto; }
+  details.verse-editor summary {
+    cursor: pointer;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--lapis);
+    padding: 8px 0;
+    position: sticky; top: 0; background: var(--parchment-deep);
+  }
+  .verse-edit-row { display: grid; grid-template-columns: 140px 1fr; gap: 8px; margin-bottom: 8px; align-items: start; }
+  .verse-edit-row input {
+    font-family: inherit; font-size: 0.9rem; padding: 7px 9px;
+    border: 1px solid var(--parchment-edge); border-radius: 4px; background: #F5EED8; color: var(--ink);
+    width: 100%;
+  }
+  .verse-edit-row input.ref-input { font-family: 'IBM Plex Mono', monospace; font-size: 0.78rem; }
+
+  .btn {
+    font-family: 'Cinzel', serif;
+    font-size: 0.95rem;
+    letter-spacing: 0.05em;
+    padding: 14px 30px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    color: #F5EED8;
+    background: var(--oxblood);
+    transition: transform 0.08s ease, box-shadow 0.15s ease;
+    box-shadow: 0 3px 0 rgba(0,0,0,0.25);
+  }
+  .btn:hover { transform: translateY(-1px); }
+  .btn:active { transform: translateY(1px); box-shadow: 0 1px 0 rgba(0,0,0,0.25); }
+  .btn.secondary { background: var(--lapis); }
+  .btn.ghost { background: transparent; color: var(--ink-soft); border: 1px solid var(--parchment-edge); box-shadow: none; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+
+  .actions-row { display: flex; gap: 14px; margin-top: 24px; justify-content: center; flex-wrap: wrap; }
+
+  .game-controls { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 18px; }
+  .btn.small { font-size: 0.75rem; padding: 8px 16px; box-shadow: none; }
+
+  .scoreboard {
+    width: 100%;
+    max-width: 900px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 28px;
+  }
+  .score-chip {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--parchment-deep);
+    border: 1px solid var(--parchment-edge);
+    border-radius: 30px;
+    padding: 8px 18px 8px 10px;
+    min-width: 140px;
+  }
+  .score-chip.leading { box-shadow: 0 0 0 2px var(--gold); }
+  .score-chip .seal-dot { width: 22px; height: 22px; }
+  .score-chip .name { font-size: 0.95rem; font-weight: 600; flex: 1; }
+  .score-chip .pts { font-family: 'IBM Plex Mono', monospace; font-size: 1.1rem; font-weight: 600; color: var(--ink); }
+
+  .progress-line {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--ink-soft); margin-bottom: 12px;
+  }
+
+  .ref-pill {
+    display: inline-block; font-family: 'IBM Plex Mono', monospace; font-size: 0.85rem;
+    letter-spacing: 0.08em; text-transform: uppercase; color: var(--oxblood);
+    border: 1px solid var(--oxblood); border-radius: 20px; padding: 4px 16px; margin-bottom: 16px; font-weight: 600;
+  }
+
+  .clue-text {
+    font-size: 1.45rem; line-height: 1.5; text-align: center; color: var(--ink);
+    padding: 4px 4px 20px;
+  }
+
+  .reveal-box {
+    margin-top: 10px; padding-top: 20px; border-top: 1px dashed var(--parchment-edge);
+    text-align: center; display: none;
+  }
+  .reveal-box.shown { display: block; }
+  .reveal-box .ans { font-size: 1.1rem; font-style: italic; color: var(--ink-soft); }
+  .reveal-box .ctx { margin: 16px auto 0; max-width: 560px; text-align: left; padding: 12px 16px; border-left: 4px solid var(--oxblood); background: rgba(255,255,255,0.35); border-radius: 6px; }
+  .reveal-box .ctx .ctx-h { font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--oxblood); margin-bottom: 4px; }
+  .reveal-box .ctx b { display: block; font-family: 'Cinzel', serif; font-size: 1rem; margin-bottom: 4px; color: var(--ink); }
+  .reveal-box .ctx p { margin: 0; font-size: 1rem; line-height: 1.5; color: var(--ink); }
+
+  .award-row { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 22px; }
+  .award-btn {
+    font-family: 'Cinzel', serif; font-size: 0.85rem; letter-spacing: 0.03em;
+    padding: 10px 16px; border-radius: 4px; border: 1px solid transparent;
+    cursor: pointer; color: #F5EED8;
+    box-shadow: 0 2px 0 rgba(0,0,0,0.2);
+  }
+  .award-btn:active { transform: translateY(1px); box-shadow: none; }
+  .award-btn:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+
+  .stamp-flash {
+    position: fixed; inset: 0; pointer-events: none;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; z-index: 50;
+  }
+  .stamp-flash.play { animation: stampPop 0.55s ease forwards; }
+  .stamp-flash .stamp-circle {
+    width: 180px; height: 180px; border-radius: 50%;
+    border: 6px solid currentColor;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Cinzel', serif; font-size: 1.1rem; text-align: center;
+    color: currentColor; text-transform: uppercase; letter-spacing: 0.08em;
+    padding: 10px;
+  }
+  @keyframes stampPop {
+    0% { opacity: 0; transform: scale(1.6) rotate(-8deg); }
+    35% { opacity: 1; transform: scale(0.95) rotate(-8deg); }
+    55% { transform: scale(1.05) rotate(-8deg); }
+    100% { opacity: 0; transform: scale(1) rotate(-8deg); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .stamp-flash.play { animation: none; opacity: 0; }
+  }
+
+  .standings { width: 100%; max-width: 480px; margin: 16px 0 24px; }
+  .standing-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 16px; border-bottom: 1px solid var(--parchment-edge);
+  }
+  .standing-row .rank { font-family: 'IBM Plex Mono', monospace; color: var(--ink-soft); width: 24px; }
+  .standing-row .name { flex: 1; font-size: 1.1rem; }
+  .standing-row .pts { font-family: 'IBM Plex Mono', monospace; font-size: 1.2rem; font-weight: 600; }
+  .standing-row.winner { background: rgba(156,107,26,0.12); border-radius: 4px; }
+  .standing-row.winner .name { font-weight: 700; }
+
+  .winner-banner { font-family: 'Cinzel', serif; font-size: 1.3rem; color: var(--gold); margin-bottom: 4px; text-align: center; }
+
+  .fade-in { animation: fadeIn 0.35s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px);} to { opacity: 1; transform: translateY(0);} }
+
+  footer.hint { margin-top: 30px; color: var(--ink-soft); font-size: 0.8rem; text-align: center; max-width: 500px; }
+
+  @media (max-width: 560px) {
+    .header h1 { font-size: 1.5rem; }
+    .clue-text { font-size: 1.2rem; }
+    .scroll-card { padding: 22px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="stamp-flash" id="stampFlash"><div class="stamp-circle" id="stampCircle"></div></div>
+
+<!-- SETUP SCREEN -->
+<div class="screen active" id="setupScreen">
+  <div class="header">
+    <div class="eyebrow">Doctrinal Mastery &middot; Version 2 &middot; New Questions</div>
+    <h1>Scripture Chase</h1>
+    <div class="sub">First to the verse wins the point</div>
+  </div>
+
+  <div class="scroll-card">
+    <div class="field-group">
+      <span class="field-label">Number of teams</span>
+      <div class="stepper">
+        <button type="button" id="teamMinus" aria-label="Fewer teams">&minus;</button>
+        <span class="count" id="teamCount">4</span>
+        <button type="button" id="teamPlus" aria-label="More teams">+</button>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <span class="field-label">Team names</span>
+      <div id="teamNameList"></div>
+    </div>
+
+    <details class="verse-editor">
+      <summary>Edit the scripture clues (<span id="verseTotalLabel"></span> verses)</summary>
+      <div id="verseEditList"></div>
+    </details>
+
+    <div class="actions-row">
+      <button class="btn" id="startGameBtn">Start Game</button>
+    </div>
+  </div>
+
+  <footer class="hint">Teams race to find the reference and answer the clue aloud. Tap "Reveal" once someone has an answer, then award the point to whichever team got there first.</footer>
+</div>
+
+<!-- GAME SCREEN -->
+<div class="screen" id="gameScreen">
+  <div class="game-controls" id="gameControlsRow">
+    <button class="btn ghost small" id="backBtn">&larr; Back One Question</button>
+    <button class="btn ghost small" id="resetGameBtn">Reset Full Game</button>
+  </div>
+  <div class="game-controls" id="resetConfirmRow" style="display:none;">
+    <span style="font-size:0.8rem; color: var(--ink-soft); align-self:center;">Reset scores and start over at verse 1?</span>
+    <button class="btn small" id="resetConfirmYes" style="background: var(--oxblood);">Yes, Reset</button>
+    <button class="btn ghost small" id="resetConfirmNo">Cancel</button>
+  </div>
+  <div class="scoreboard" id="scoreboard"></div>
+
+  <div class="scroll-card fade-in" id="clueCard">
+    <div class="progress-line" id="progressLine">Verse 1 of 10</div>
+    <div style="text-align:center;"><span class="ref-pill" id="refPill"></span></div>
+    <div class="clue-text" id="clueText"></div>
+
+    <div class="reveal-box" id="revealBox">
+      <div class="ans" id="revealAns"></div>
+      <div class="ctx" id="revealCtx" hidden><div class="ctx-h">The story</div><b id="revealStory"></b><p id="revealCtxText"></p></div>
+    </div>
+
+    <div class="actions-row">
+      <button class="btn secondary" id="revealBtn">Reveal Answer</button>
+    </div>
+
+    <div class="award-row" id="awardRow" style="display:none;"></div>
+
+    <div class="actions-row" id="skipRow" style="display:none;">
+      <button class="btn ghost" id="skipBtn">No One Got It &mdash; Next Verse</button>
+      <button class="btn" id="nextBtn" style="display:none;">Next Verse</button>
+    </div>
+  </div>
+</div>
+
+<!-- END SCREEN -->
+<div class="screen" id="endScreen">
+  <div class="header">
+    <div class="eyebrow">Game Complete</div>
+    <h1>Final Standings</h1>
+  </div>
+  <div class="winner-banner" id="winnerBanner"></div>
+  <div class="scroll-card">
+    <div class="standings" id="standingsList"></div>
+    <div class="actions-row">
+      <button class="btn" id="playAgainBtn">Play Again (Same Teams)</button>
+      <button class="btn ghost" id="newGameBtn">New Game / Edit Setup</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+
+  var SEAL_COLORS = ['#9C6B1A', '#7A2E2E', '#2C5F63', '#6B7A3A', '#6B3A5C', '#445566'];
+
+  var STORIES = {"Moses 1:39": ["Moses sees God (Moses 1)", "In the Pearl of Great Price, Moses is caught up to a high mountain and sees God face to face. Satan then tries to deceive him, but Moses casts him out in the name of the Only Begotten. When Moses asks why God made all these things, the Lord explains His purpose: our immortality and eternal life."], "Moses 7:18": ["Enoch’s city of Zion (Moses 7)", "Enoch preached repentance in a wicked world, and those who followed him built a city so righteous that the Lord called it Zion. They were of one heart and one mind and had no poor among them. Eventually the whole city was taken up into heaven. Latter-day Saints work to build Zion today."], "Abraham 2:9-11": ["The Abrahamic covenant (Abraham 2)", "The Lord promised Abraham a great posterity, a promised land, and that through his seed the gospel and the priesthood would bless all nations. Latter-day Saints who are baptized become heirs of these same promises and share in the responsibility to bless others."], "Abraham 3:22-23": ["Abraham’s vision of premortal life (Abraham 3)", "The Lord showed Abraham the spirits that were organized before the world was. Among them were many noble and great ones, and the Lord told Abraham he was chosen before he was born. It teaches that we all lived with God before coming to earth."], "Genesis 1:26-27": ["The Creation (Genesis 1)", "Genesis 1 describes God creating the earth in six creative periods. On the sixth, He created man and woman in His own image and gave them dominion over the earth. It teaches that every person is a child of God with divine nature and potential."], "Genesis 2:24": ["Adam and Eve in the garden (Genesis 2)", "After creating Adam, the Lord said it was not good for him to be alone and created Eve as “an help meet,” a partner equal to him. The Lord then taught that a husband and wife should leave their parents, cleave to each other, and become one."], "Genesis 39:9": ["Joseph and Potiphar’s wife (Genesis 39)", "Joseph was sold as a slave to Potiphar, an Egyptian officer, and became overseer of his house. Potiphar’s wife tried to tempt him day after day, but Joseph refused because it would be a sin against God. When she grabbed him, he fled and left his garment behind. She lied about him and he was put in prison, yet the Lord was with him."], "Exodus 20:3-17": ["The Ten Commandments (Exodus 19 to 20)", "Three months after leaving Egypt, Israel camped at the foot of Mount Sinai. The mountain shook and was covered in smoke as the Lord descended, and He gave the Ten Commandments to Moses. They teach how to love God (the first four) and how to love others (the last six)."], "Joshua 24:15": ["Joshua’s final challenge (Joshua 24)", "After leading Israel into the promised land, the elderly Joshua gathered the tribes at Shechem. He reviewed everything the Lord had done for them and challenged them to choose whom they would serve. Joshua declared that he and his house would serve the Lord, and the people covenanted to do the same."], "Psalm 24:3-4": ["Worthy to enter the temple (Psalm 24)", "Psalm 24 may have been sung as worshippers went up to the temple in Jerusalem. It asks who is worthy to stand in the Lord’s holy place and answers: those with clean hands, meaning righteous actions, and a pure heart, meaning righteous desires."], "Proverbs 3:5-6": ["Trusting the Lord (Proverbs 3)", "Proverbs is a collection of wise sayings, many attributed to King Solomon, written like a father’s counsel to his son. This passage teaches that when we trust the Lord with all our heart instead of relying only on our own understanding, He will direct our paths."], "Isaiah 1:18": ["Sins as scarlet (Isaiah 1)", "Isaiah opened his book by describing Judah as rebellious and spiritually sick, offering empty sacrifices. Yet in the middle of these warnings, the Lord invited them, “Come now, and let us reason together,” promising that even sins as deep red as scarlet could become white as snow through repentance."], "Isaiah 5:20": ["Calling evil good (Isaiah 5)", "Isaiah compared Israel to a vineyard the Lord had carefully planted that produced only wild grapes. He then listed woes upon the people’s sins, including those who flip right and wrong, calling evil good and good evil. The warning fits any world that relabels sin as acceptable."], "Isaiah 29:13-14": ["A marvellous work and a wonder (Isaiah 29)", "Isaiah described people who honored God with their lips while their hearts were far from Him, and prophesied that the Lord would respond with “a marvellous work and a wonder.” The Savior quoted the first part to Joseph Smith in the First Vision (Joseph Smith, History 1:19). Latter-day Saints see the Restoration and the Book of Mormon as that marvellous work."], "Isaiah 53:3-5": ["The suffering servant (Isaiah 53)", "Isaiah 53 describes a servant who would be despised and rejected, wounded for our transgressions and bruised for our iniquities. Written centuries before Christ, it is one of the clearest Old Testament prophecies of the Savior’s Atonement. Abinadi quoted it to King Noah’s priests (Mosiah 14)."], "Isaiah 58:6-7": ["The true fast (Isaiah 58)", "The people of Isaiah’s day fasted but wondered why God did not seem to notice. The Lord explained that a true fast is not just going without food, but loosing the bands of wickedness, freeing the oppressed, and feeding the hungry. Fast offerings put this teaching into practice today."], "Isaiah 58:13-14": ["Making the Sabbath a delight (Isaiah 58)", "In the same chapter as his teachings on fasting, Isaiah taught how to keep the Sabbath. Turning away from “doing thy pleasure” on the Lord’s holy day and calling it a delight brings the promise, “Then shalt thou delight thyself in the LORD.”"], "Jeremiah 1:4-5": ["The call of Jeremiah (Jeremiah 1)", "The Lord told Jeremiah that He knew him and ordained him a prophet before he was born. Jeremiah protested that he was only a child and could not speak. The Lord touched his mouth, put His words there, and told him not to be afraid. Jeremiah prophesied for about forty years, in the same era as Lehi."], "Ezekiel 3:16-17": ["Ezekiel the watchman (Ezekiel 3)", "Ezekiel was called as a prophet to the Jews in exile in Babylon. The Lord compared him to a watchman on a city wall whose job is to warn of approaching danger. If he warned the people and they ignored him, he was free of blame; if he stayed silent, he would be accountable. Modern prophets serve as watchmen in the same way."], "Ezekiel 37:15-17": ["The two sticks (Ezekiel 37)", "Right after the vision of the dry bones, the Lord told Ezekiel to take one stick for Judah and one for Joseph and join them in his hand. Latter-day Saints understand the stick of Judah as the Bible and the stick of Joseph as the Book of Mormon, which now testify together of Jesus Christ."], "Daniel 2:44-45": ["Nebuchadnezzar’s dream (Daniel 2)", "King Nebuchadnezzar demanded that his wise men tell him both his dream and its meaning, or die. Daniel and his friends prayed, and God revealed it. The great image stood for kingdoms that would rise and fall, and the stone cut out without hands stood for God’s kingdom in the last days, which would fill the whole earth."], "Amos 3:7": ["Amos the herdsman prophet (Amos 3)", "Amos was a herdsman and fig farmer from Judah, not a trained prophet, whom the Lord sent to warn the northern kingdom of Israel. He taught that the Lord reveals His plans to His prophets before acting, a key reason we follow living prophets today."], "Malachi 3:8-10": ["Malachi on tithing (Malachi 3)", "Malachi was the last prophet of the Old Testament. The Lord asked, “Will a man rob God?” and explained the people robbed Him in tithes and offerings. He promised that if they brought their tithes into the storehouse, He would open the windows of heaven. The Savior later taught these same words to the Nephites (3 Nephi 24)."], "Malachi 4:5-6": ["Elijah’s promised return (Malachi 4)", "In the last verses of the Old Testament, Malachi promised the Lord would send Elijah before His Second Coming to turn the hearts of the fathers and children to each other. Moroni quoted these verses to Joseph Smith in 1823, and Elijah came to the Kirtland Temple in 1836 to restore the sealing power that binds families forever (D&C 110)."], "Matthew 5:14-16": ["The Sermon on the Mount (Matthew 5)", "Early in His ministry, Jesus taught His disciples on a mountain in Galilee. Right after the Beatitudes, He told them they are the light of the world, like a city on a hill that cannot be hid, and to let their light shine so others would see their good works and glorify God."], "Matthew 11:28-30": ["Come unto me (Matthew 11)", "Jesus spoke to people weighed down by heavy religious rules and the burdens of life. He invited all who labor and are heavy laden to come to Him for rest, and to take His yoke, because walking with Him makes every burden lighter."]};
+
+  var DEFAULT_VERSES = [
+    { ref: "Isaiah 58:13-14", clue: "What does Isaiah 58:13 say we should turn away from doing on the Lord's holy day?", answer: "Our own pleasure" },
+    { ref: "Jeremiah 1:4-5", clue: "Before Jeremiah was even born, what did the Lord say He did to him?", answer: "He sanctified (ordained) him" },
+    { ref: "Daniel 2:44-45", clue: "In the king's dream, what cut out of the mountain without hands represents God's kingdom?", answer: "A stone" },
+    { ref: "Genesis 39:9", clue: "Who tempted Joseph, leading him to ask how he could do this great wickedness and sin against God?", answer: "Potiphar's wife" },
+    { ref: "Matthew 11:28-30", clue: "What does the Savior say His yoke and burden are?", answer: "Easy and light" },
+    { ref: "Malachi 4:5-6", clue: "Who does the Lord say He will send before the great and dreadful day of the Lord?", answer: "Elijah the prophet" },
+    { ref: "Ezekiel 37:15-17", clue: "What two sticks does the Lord command Ezekiel to join together in his hand?", answer: "The stick of Judah and the stick of Joseph (Ephraim)" },
+    { ref: "Proverbs 3:5-6", clue: "What does Proverbs 3:5-6 warn us not to lean on?", answer: "Our own understanding" },
+    { ref: "Isaiah 29:13-14", clue: "Isaiah 29:13 says people draw near to the Lord with their lips, but their hearts are doing what?", answer: "Far removed from Him" },
+    { ref: "Moses 7:18", clue: "Why did the Lord call His people Zion?", answer: "Because they were of one heart and one mind" },
+    { ref: "Exodus 20:3-17", clue: "On what mountain did the Lord give Moses the Ten Commandments?", answer: "Mount Sinai" },
+    { ref: "Genesis 2:24", clue: "What does Genesis 2:24 say a husband and wife become?", answer: "One flesh" },
+    { ref: "Amos 3:7", clue: "According to Amos 3:7, what will the Lord God not do without revealing it to His servants first?", answer: "Nothing" },
+    { ref: "Isaiah 53:3-5", clue: "According to Isaiah 53:5, the Savior was wounded for our transgressions and bruised for our what?", answer: "Our iniquities" },
+    { ref: "Abraham 3:22-23", clue: "What does Abraham 3:22 say about our spirits in relation to this world?", answer: "They existed before the world was (organized before the world)" },
+    { ref: "Malachi 3:8-10", clue: "What does the Lord invite us to do in Malachi 3:10, to prove Him?", answer: "Bring all the tithes into the storehouse" },
+    { ref: "Isaiah 1:18", clue: "What two colors does Isaiah 1:18 use to describe sins being made clean?", answer: "Scarlet (crimson) becoming white as snow (wool)" },
+    { ref: "Joshua 24:15", clue: "What does Joshua say about himself and his own house, no matter what others choose?", answer: "As for me and my house, we will serve the Lord" },
+    { ref: "Ezekiel 3:16-17", clue: "What is a watchman's job, according to the calling given to Ezekiel?", answer: "To warn the people" },
+    { ref: "Isaiah 5:20", clue: "Isaiah 5:20 pronounces woe on those who put bitter for what, and what for bitter?", answer: "Sweet for bitter, and bitter for sweet" },
+    { ref: "Abraham 2:9-11", clue: "Who did the Lord promise would carry this ministry and Priesthood to all nations?", answer: "Abraham's seed (his posterity)" },
+    { ref: "Psalm 24:3-4", clue: "Besides clean hands, what else does Psalm 24:3-4 say a person needs to stand in the Lord's holy place?", answer: "A pure heart" },
+    { ref: "Genesis 1:26-27", clue: "In what two forms does Genesis 1:27 say God created humankind?", answer: "Male and female" },
+    { ref: "Isaiah 58:6-7", clue: "Besides feeding the hungry, what does Isaiah 58:7 say we should do for the poor that are cast out?", answer: "Bring them into our house" },
+    { ref: "Moses 1:39", clue: "According to Moses 1:39, what two things will the Lord bring to pass through His work?", answer: "The immortality and eternal life of man" },
+    { ref: "Matthew 5:14-16", clue: "In Matthew 5:14, what does the Savior compare His disciples to, something that cannot be hid?", answer: "A city set on a hill" }
+  ];
+
+  var state = {
+    teamCount: 4,
+    teamNames: [],
+    verses: JSON.parse(JSON.stringify(DEFAULT_VERSES)),
+    scores: [],
+    currentVerse: 0,
+    order: [],
+    pointAwardedThisVerse: false
+  };
+
+  // Version 2: every verse is shuffled together (no priority grouping), so the
+  // class hits the same 26 references in a fresh order with fresh clues each time.
+  function shuffle(arr){
+    for (var i = arr.length - 1; i > 0; i--){
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+    }
+    return arr;
+  }
+
+  function buildOrder(){
+    return shuffle(state.verses.map(function(_, i){ return i; }));
+  }
+
+  function $(id){ return document.getElementById(id); }
+
+  function showScreen(id){
+    document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
+    $(id).classList.add('active');
+  }
+
+  $('verseTotalLabel').textContent = state.verses.length;
+
+  // ---------- SETUP ----------
+  function renderTeamNameInputs(){
+    var wrap = $('teamNameList');
+    wrap.innerHTML = '';
+    for (var i=0; i<state.teamCount; i++){
+      var row = document.createElement('div');
+      row.className = 'team-name-row';
+      var dot = document.createElement('div');
+      dot.className = 'seal-dot';
+      dot.style.background = SEAL_COLORS[i % SEAL_COLORS.length];
+      var input = document.createElement('input');
+      input.type = 'text';
+      input.value = state.teamNames[i] || ('Team ' + (i+1));
+      input.setAttribute('aria-label', 'Team ' + (i+1) + ' name');
+      input.addEventListener('input', function(idx){
+        return function(e){ state.teamNames[idx] = e.target.value; };
+      }(i));
+      row.appendChild(dot);
+      row.appendChild(input);
+      wrap.appendChild(row);
+    }
+  }
+
+  function renderVerseEditor(){
+    var wrap = $('verseEditList');
+    wrap.innerHTML = '';
+    state.verses.forEach(function(v, idx){
+      var row = document.createElement('div');
+      row.className = 'verse-edit-row';
+
+      var refInput = document.createElement('input');
+      refInput.className = 'ref-input';
+      refInput.value = v.ref;
+      refInput.setAttribute('aria-label', 'Reference for verse ' + (idx+1));
+      refInput.addEventListener('input', function(e){ state.verses[idx].ref = e.target.value; });
+
+      var clueInput = document.createElement('input');
+      clueInput.value = v.clue;
+      clueInput.setAttribute('aria-label', 'Clue for verse ' + (idx+1));
+      clueInput.addEventListener('input', function(e){ state.verses[idx].clue = e.target.value; });
+
+      row.appendChild(refInput);
+      row.appendChild(clueInput);
+      wrap.appendChild(row);
+    });
+  }
+
+  $('teamMinus').addEventListener('click', function(){
+    if (state.teamCount > 2){ state.teamCount--; renderTeamNameInputs(); }
+    $('teamCount').textContent = state.teamCount;
+  });
+  $('teamPlus').addEventListener('click', function(){
+    if (state.teamCount < 6){ state.teamCount++; renderTeamNameInputs(); }
+    $('teamCount').textContent = state.teamCount;
+  });
+
+  $('startGameBtn').addEventListener('click', function(){
+    state.scores = new Array(state.teamCount).fill(0);
+    state.currentVerse = 0;
+    state.order = buildOrder();
+    showScreen('gameScreen');
+    renderScoreboard();
+    renderVerse();
+  });
+
+  renderTeamNameInputs();
+  renderVerseEditor();
+
+  // ---------- GAME ----------
+  function renderScoreboard(){
+    var wrap = $('scoreboard');
+    wrap.innerHTML = '';
+    var maxScore = Math.max.apply(null, state.scores);
+    for (var i=0; i<state.teamCount; i++){
+      var chip = document.createElement('div');
+      chip.className = 'score-chip' + (state.scores[i] === maxScore && maxScore > 0 ? ' leading' : '');
+      var dot = document.createElement('div');
+      dot.className = 'seal-dot';
+      dot.style.background = SEAL_COLORS[i % SEAL_COLORS.length];
+      var name = document.createElement('div');
+      name.className = 'name';
+      name.textContent = state.teamNames[i] || ('Team ' + (i+1));
+      var pts = document.createElement('div');
+      pts.className = 'pts';
+      pts.textContent = state.scores[i];
+      chip.appendChild(dot); chip.appendChild(name); chip.appendChild(pts);
+      wrap.appendChild(chip);
+    }
+  }
+
+  function renderVerse(){
+    var idx = state.order[state.currentVerse];
+    var v = state.verses[idx];
+    $('progressLine').textContent = 'Verse ' + (state.currentVerse+1) + ' of ' + state.order.length;
+    $('refPill').textContent = v.ref;
+    $('clueText').textContent = v.clue;
+    $('revealBox').classList.remove('shown');
+    $('revealBtn').style.display = 'inline-block';
+    $('awardRow').style.display = 'none';
+    $('skipRow').style.display = 'none';
+    $('nextBtn').style.display = 'none';
+    $('clueCard').classList.remove('fade-in'); void $('clueCard').offsetWidth; $('clueCard').classList.add('fade-in');
+  }
+
+  $('revealBtn').addEventListener('click', function(){
+    var idx = state.order[state.currentVerse];
+    var v = state.verses[idx];
+    $('revealAns').textContent = v.answer;
+    var st = STORIES[v.ref];
+    if (st) { $('revealStory').textContent = st[0]; $('revealCtxText').textContent = st[1]; $('revealCtx').hidden = false; } else { $('revealCtx').hidden = true; }
+    $('revealBox').classList.add('shown');
+    $('revealBtn').style.display = 'none';
+
+    var awardRow = $('awardRow');
+    awardRow.innerHTML = '';
+    for (var i=0; i<state.teamCount; i++){
+      var btn = document.createElement('button');
+      btn.className = 'award-btn';
+      btn.style.background = SEAL_COLORS[i % SEAL_COLORS.length];
+      btn.textContent = 'Point to ' + (state.teamNames[i] || ('Team ' + (i+1)));
+      btn.addEventListener('click', function(teamIdx){
+        return function(){ awardPoint(teamIdx); };
+      }(i));
+      awardRow.appendChild(btn);
+    }
+    awardRow.style.display = 'flex';
+    $('skipRow').style.display = 'flex';
+    $('nextBtn').style.display = 'none';
+  });
+
+  function awardPoint(teamIdx){
+    state.scores[teamIdx]++;
+    renderScoreboard();
+    playStamp(teamIdx);
+    $('awardRow').style.display = 'none';
+    document.getElementById('skipBtn').style.display = 'none';
+    $('nextBtn').style.display = 'inline-block';
+  }
+
+  function playStamp(teamIdx){
+    var flash = $('stampFlash');
+    var circle = $('stampCircle');
+    circle.style.color = SEAL_COLORS[teamIdx % SEAL_COLORS.length];
+    circle.textContent = (state.teamNames[teamIdx] || ('Team ' + (teamIdx+1))) + ' scores';
+    flash.classList.remove('play');
+    void flash.offsetWidth;
+    flash.classList.add('play');
+  }
+
+  $('skipBtn').addEventListener('click', advanceVerse);
+  $('nextBtn').addEventListener('click', advanceVerse);
+
+  function advanceVerse(){
+    state.currentVerse++;
+    document.getElementById('skipBtn').style.display = 'inline-block';
+    if (state.currentVerse >= state.order.length){
+      renderEndScreen();
+      showScreen('endScreen');
+    } else {
+      renderVerse();
+    }
+  }
+
+  $('backBtn').addEventListener('click', function(){
+    if (state.currentVerse > 0){
+      state.currentVerse--;
+      renderVerse();
+    }
+  });
+
+  $('resetGameBtn').addEventListener('click', function(){
+    $('gameControlsRow').style.display = 'none';
+    $('resetConfirmRow').style.display = 'flex';
+  });
+
+  $('resetConfirmNo').addEventListener('click', function(){
+    $('resetConfirmRow').style.display = 'none';
+    $('gameControlsRow').style.display = 'flex';
+  });
+
+  $('resetConfirmYes').addEventListener('click', function(){
+    state.scores = new Array(state.teamCount).fill(0);
+    state.currentVerse = 0;
+    $('resetConfirmRow').style.display = 'none';
+    $('gameControlsRow').style.display = 'flex';
+    renderScoreboard();
+    renderVerse();
+  });
+
+  // ---------- END ----------
+  function renderEndScreen(){
+    var wrap = $('standingsList');
+    wrap.innerHTML = '';
+    var ranked = state.teamNames.map(function(name, i){
+      return { name: name || ('Team ' + (i+1)), score: state.scores[i], color: SEAL_COLORS[i % SEAL_COLORS.length] };
+    }).sort(function(a,b){ return b.score - a.score; });
+
+    $('winnerBanner').textContent = ranked.length ? (ranked[0].name + ' wins!') : '';
+
+    ranked.forEach(function(t, i){
+      var row = document.createElement('div');
+      row.className = 'standing-row' + (i === 0 && t.score > 0 ? ' winner' : '');
+      var rank = document.createElement('div');
+      rank.className = 'rank mono';
+      rank.textContent = (i+1) + '.';
+      var dot = document.createElement('div');
+      dot.className = 'seal-dot';
+      dot.style.background = t.color;
+      var name = document.createElement('div');
+      name.className = 'name';
+      name.textContent = t.name;
+      var pts = document.createElement('div');
+      pts.className = 'pts';
+      pts.textContent = t.score;
+      row.appendChild(rank); row.appendChild(dot); row.appendChild(name); row.appendChild(pts);
+      wrap.appendChild(row);
+    });
+  }
+
+  $('playAgainBtn').addEventListener('click', function(){
+    state.scores = new Array(state.teamCount).fill(0);
+    state.currentVerse = 0;
+    state.order = buildOrder();
+    showScreen('gameScreen');
+    renderScoreboard();
+    renderVerse();
+  });
+
+  $('newGameBtn').addEventListener('click', function(){
+    showScreen('setupScreen');
+  });
+
+})();
+</script>
+
+</body>
+</html>

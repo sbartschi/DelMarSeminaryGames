@@ -1,0 +1,4035 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>/* Practice mode: when this page runs inside the site's practice page, use its pretend database and give this screen its own storage. Does nothing otherwise. */
+(function(){try{var P=window.parent!==window&&window.parent.PRACTICE;if(!P)return;window.fetch=P.fetch;var s=P.storage(window.name||location.href);Object.defineProperty(window,'localStorage',{configurable:true,get:function(){return s.local;}});Object.defineProperty(window,'sessionStorage',{configurable:true,get:function(){return s.session;}});}catch(e){}})();</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Life Choices: Teacher</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F3F1FF; --surface:#FFFFFF; --ink:#1A1744; --muted:#625F8F; --line:#D9D5F4; --soft:#ECE8FF;
+  --accent:#5B3DF5; --accent-ink:#FFFFFF; --gold:#F5B700; --gold-ink:#2A2100; --mint:#14A87E; --coral:#E8456B; --sky:#2E8BFF;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F0D2B; --surface:#1B1845; --ink:#F2F0FF; --muted:#ABA8D8; --line:#332F6D; --soft:#26225A;
+    --accent:#9380FF; --accent-ink:#0F0D2B; --gold:#FFC933; --gold-ink:#2A2100; --mint:#34D3A0; --coral:#FF6B8E; --sky:#5CA9FF;
+    color-scheme:dark;
+  }
+}
+[data-theme="dark"]{
+  --bg:#0F0D2B; --surface:#1B1845; --ink:#F2F0FF; --muted:#ABA8D8; --line:#332F6D; --soft:#26225A;
+  --accent:#9380FF; --accent-ink:#0F0D2B; --gold:#FFC933; --gold-ink:#2A2100; --mint:#34D3A0; --coral:#FF6B8E; --sky:#5CA9FF;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none !important}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:"Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+button{font-family:inherit}
+.num{font-variant-numeric:tabular-nums}
+
+/* ================= HOST SCREEN ================= */
+.hs-wrap{container-type:inline-size; width:100%}
+.hs{
+  font-size:max(11px,1.25cqw); line-height:1.3;
+  background:var(--bg); color:var(--ink);
+  min-height:100%; display:flex; flex-direction:column; gap:1em; padding:1.1em 1.8em 1.4em;
+}
+.hs-top{display:flex; align-items:center; justify-content:space-between; gap:1em}
+.hs-logo{font-size:1.5em; font-weight:800; letter-spacing:-.02em}
+.hs-logo span{color:var(--accent)}
+.hs-pips{display:flex; align-items:center; gap:.45em}
+.pip{width:2em; height:2em; border-radius:50%; display:grid; place-items:center; font-weight:700; font-size:.95em; background:var(--soft); color:var(--muted); border:2px solid transparent}
+.pip.done{background:var(--mint); color:#fff}
+.pip.now{background:var(--gold); color:var(--gold-ink); border-color:var(--ink); transform:scale(1.15)}
+.hs-count{font-weight:600; color:var(--muted)}
+.hs-main{flex:1; display:flex; flex-direction:column; gap:1em; min-height:0}
+.hs-title{font-size:2.5em; font-weight:800; letter-spacing:-.02em; line-height:1.05; margin:0}
+.hs-sub{font-size:1.3em; color:var(--muted); margin:.15em 0 0}
+.hs-foot{display:flex; align-items:center; justify-content:space-between; gap:1em; flex-wrap:wrap}
+.hs-btn{font:inherit; font-size:1.4em; font-weight:800; border:0; border-radius:.7em; padding:.6em 1.3em; background:var(--accent); color:var(--accent-ink); cursor:pointer; box-shadow:0 .2em 0 rgba(0,0,0,.18)}
+.hs-btn:hover{filter:brightness(1.08)}
+.hs-btn:active{transform:translateY(.1em); box-shadow:0 .1em 0 rgba(0,0,0,.18)}
+.hs-btn.gold{background:var(--gold); color:var(--gold-ink)}
+.hs-btn.ghost{background:var(--surface); color:var(--ink); border:2px solid var(--line); box-shadow:none; font-size:1em; font-weight:600; padding:.55em 1em}
+.hs-btn[disabled]{opacity:.45; cursor:default}
+.hs-toast{position:fixed; left:50%; bottom:1.5em; transform:translateX(-50%); background:var(--coral); color:#fff; padding:.6em 1.2em; border-radius:.7em; font-weight:700; z-index:9; font-size:1.1em}
+.hs-offline{background:var(--coral); color:#fff; padding:.3em .8em; border-radius:.5em; font-weight:700; font-size:.9em}
+
+/* lobby */
+.hs-lobby{display:grid; grid-template-columns:minmax(14em,23em) minmax(0,1fr); gap:2em; align-items:start}
+.hs-qr{background:#fff; border-radius:1em; padding:1em; box-shadow:0 .3em 1.2em rgba(40,20,120,.18)}
+.hs-qr svg{display:block; width:100%; height:auto}
+.hs-url{margin-top:.8em; font-weight:700; font-size:1.1em; word-break:break-all}
+.hs-steps{color:var(--muted); font-size:1.05em; margin:.4em 0 0; padding-left:1.2em}
+.hs-names{display:flex; flex-wrap:wrap; gap:.5em; margin-top:.8em}
+.tag{background:var(--surface); border:2px solid var(--line); border-radius:999px; padding:.3em .9em; font-weight:700; font-size:1.15em; animation:pop .35s cubic-bezier(.2,1.4,.4,1) both; display:inline-flex; gap:.4em; align-items:center}
+.tag button{border:0; background:none; color:var(--muted); font-size:1em; cursor:pointer; padding:0; line-height:1}
+@keyframes pop{from{transform:scale(.4); opacity:0}}
+.hs-empty{color:var(--muted); font-size:1.2em; margin-top:.8em}
+.hs-panel{background:var(--surface); border:2px solid var(--line); border-radius:1em; padding:1em 1.2em}
+.hs-panel h3{margin:0 0 .6em; font-size:1.2em}
+.hs-set{display:grid; grid-template-columns:repeat(auto-fill,minmax(15em,1fr)); gap:.7em 1.2em}
+.hs-set label{display:block; font-size:.85em; color:var(--muted); margin-bottom:.15em}
+.hs-set input,.hs-set select{width:100%; font:inherit; font-size:1em; padding:.4em .5em; border-radius:.4em; border:2px solid var(--line); background:var(--bg); color:var(--ink)}
+.hs-note{font-size:.85em; color:var(--muted); margin:.6em 0 0}
+
+/* choosing */
+.hs-prompts{display:flex; flex-wrap:wrap; gap:.6em; margin-top:.6em}
+.hs-prompt{background:var(--gold); color:var(--gold-ink); font-weight:800; border-radius:.6em; padding:.35em .9em; font-size:1.2em}
+.hs-meter{height:1em; border-radius:.5em; background:var(--soft); overflow:hidden}
+.hs-meter i{display:block; height:100%; background:var(--mint); transition:width .4s}
+.hs-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(11em,1fr)); gap:.6em}
+.pchip{background:var(--surface); border:2px solid var(--line); border-radius:.8em; padding:.55em .8em; font-weight:700; display:flex; justify-content:space-between; gap:.5em; align-items:center}
+.pchip.done{border-color:var(--mint)}
+.pchip .st{color:var(--muted); font-weight:600}
+.pchip.done .st{color:var(--mint); font-weight:800}
+
+/* reveal */
+.hs-cards{display:grid; grid-template-columns:repeat(auto-fill,minmax(15em,1fr)); gap:.7em}
+.pcard{background:var(--surface); border:2px solid var(--line); border-radius:.9em; padding:.7em .9em; animation:pop .4s both}
+.pcard h4{margin:0 0 .35em; font-size:1.2em}
+.chip{display:inline-block; background:var(--soft); border-radius:.5em; padding:.2em .6em; margin:0 .3em .3em 0; font-size:.95em; font-weight:600}
+.chip.yes{background:color-mix(in srgb,var(--mint) 25%,transparent)}
+.chip.no{background:color-mix(in srgb,var(--coral) 18%,transparent)}
+.pcard .pay{display:flex; align-items:center; gap:.4em; font-size:.85em; color:var(--muted); margin-top:.3em}
+.pcard .pay input{width:7em; font:inherit; padding:.2em .4em; border:2px solid var(--line); border-radius:.4em; background:var(--bg); color:var(--ink)}
+.pcard .miss{color:var(--coral); font-weight:700; font-size:.85em}
+
+/* leaderboard */
+.hs-seg{display:inline-flex; border:2px solid var(--line); border-radius:.7em; overflow:hidden}
+.hs-seg button{font:inherit; font-size:1em; font-weight:700; padding:.4em 1em; border:0; background:var(--surface); color:var(--ink); cursor:pointer}
+.hs-seg button[aria-pressed="true"]{background:var(--accent); color:var(--accent-ink)}
+.lb{display:flex; flex-direction:column; gap:.3em; flex:1; justify-content:flex-start}
+.lb-row{display:grid; grid-template-columns:2.2em 10em minmax(0,1fr) 9em 5em; align-items:center; gap:.7em; min-height:2.2em}
+.lb.dense .lb-row{min-height:1.6em; gap:.5em; font-size:.82em}
+.lb-rank{font-weight:800; font-size:1.2em; text-align:center; color:var(--muted)}
+.lb-row:nth-child(1) .lb-rank{color:var(--gold)}
+.lb-name{line-height:1.1; overflow:hidden}
+.lb-name b{display:block; font-size:1.15em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.lb-name small{color:var(--muted); font-size:.8em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block}
+.lb-bar{position:relative; height:1.6em; background:var(--soft); border-radius:.4em; overflow:hidden}
+.lb-zero{position:absolute; top:0; bottom:0; width:2px; background:var(--ink); opacity:.5; z-index:2}
+.lb-fill{position:absolute; top:0; bottom:0; border-radius:.3em}
+.lb-fill.pos{background:var(--mint); transform-origin:left center}
+.lb-fill.neg{background:var(--coral); transform-origin:right center}
+.enter .lb-fill{animation:grow .9s cubic-bezier(.2,.8,.2,1) both}
+@keyframes grow{from{transform:scaleX(0)}}
+.lb-val{font-weight:800; font-size:1.2em; text-align:right}
+.lb-val.neg{color:var(--coral)}
+.lb-delta{font-size:.8em; text-align:right; color:var(--muted); font-weight:600; line-height:1.1}
+.lb-delta.up{color:var(--mint)} .lb-delta.dn{color:var(--coral)}
+.hs-table{width:100%; border-collapse:collapse; font-size:.95em}
+.hs-table th,.hs-table td{padding:.4em .6em; border-bottom:1px solid var(--line); text-align:right; white-space:nowrap; font-weight:400}
+.hs-table th{color:var(--muted); font-size:.85em}
+.hs-table td:nth-child(-n+3),.hs-table th:nth-child(-n+3){text-align:left}
+.hs-table td:last-child,.hs-table th:last-child{text-align:left; white-space:normal; min-width:18em}
+.hs-table td b{font-weight:800}
+.hs-scroll{overflow:auto; max-height:60vh}
+
+/* final */
+.hs-podium{display:flex; align-items:flex-end; justify-content:center; gap:1.2em; margin:.5em 0 1em}
+.pod{width:14em; text-align:center; border-radius:1em 1em 0 0; padding:.8em .6em; color:#fff; animation:rise .8s cubic-bezier(.2,.8,.2,1) both}
+.pod .nm{font-size:1.6em; font-weight:800}
+.pod .am{font-size:1.2em; font-weight:700}
+.pod .cr{opacity:.9; font-size:.9em}
+.pod.p1{height:12em; background:var(--gold); color:var(--gold-ink)}
+.pod.p2{height:9em; background:var(--sky); animation-delay:.2s}
+.pod.p3{height:7em; background:var(--mint); animation-delay:.4s}
+.pod .medal{font-size:2.2em}
+@keyframes rise{from{transform:translateY(3em) scaleY(.2); opacity:0}}
+
+/* ================= PHONE ================= */
+.ph{
+  font-size:17px; line-height:1.35; background:var(--bg); color:var(--ink);
+  min-height:100%; display:flex; flex-direction:column; padding:18px 16px 24px; gap:14px;
+}
+.ph-top{display:flex; justify-content:space-between; align-items:center; font-size:14px; color:var(--muted); font-weight:600}
+.ph h1{font-size:30px; line-height:1.05; margin:0; font-weight:800; letter-spacing:-.02em}
+.ph h2{font-size:22px; margin:0; font-weight:800}
+.ph p{margin:0}
+.ph .muted{color:var(--muted)}
+.ph input[type=text]{width:100%; font:inherit; font-size:20px; padding:14px 14px; border-radius:14px; border:2px solid var(--line); background:var(--surface); color:var(--ink)}
+.ph input[type=text]:focus-visible,.ph button:focus-visible{outline:3px solid var(--accent); outline-offset:2px}
+.ph-btn{font:inherit; font-size:20px; font-weight:800; border:0; border-radius:16px; padding:16px; background:var(--accent); color:var(--accent-ink); cursor:pointer; width:100%; box-shadow:0 4px 0 rgba(0,0,0,.2)}
+.ph-btn:active{transform:translateY(2px); box-shadow:0 2px 0 rgba(0,0,0,.2)}
+.ph-btn[disabled]{opacity:.4; box-shadow:none}
+.ph-btn.ghost{background:var(--surface); color:var(--ink); border:2px solid var(--line); box-shadow:none; font-size:16px; font-weight:600}
+.ph-card{background:var(--surface); border:2px solid var(--line); border-radius:18px; padding:16px}
+.ph-q{font-size:20px; font-weight:800; margin:6px 0 10px}
+.ph-opts{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+.ph-opt{font:inherit; font-size:16px; font-weight:700; border:2px solid var(--line); background:var(--surface); color:var(--ink); border-radius:14px; padding:12px 8px; display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer; min-height:78px; text-align:center}
+.ph-opt .ic{font-size:26px}
+.ph-opt.on{border-color:var(--accent); background:var(--soft); box-shadow:0 0 0 3px var(--accent)}
+.ph-yn{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+.ph-yn .ph-opt{min-height:64px; font-size:17px}
+.ph-center{text-align:center; display:flex; flex-direction:column; align-items:center; gap:10px; margin:auto 0; padding:10px}
+.ph-big{font-size:56px; line-height:1}
+.ph-stat{font-size:34px; font-weight:800}
+.ph-err{color:var(--coral); font-weight:700; min-height:1.3em}
+.ph-sticky{margin-top:auto}
+
+.hs-codebox{background:var(--surface); border:2px solid var(--line); border-radius:1em; padding:.6em 1em; margin-top:.8em; display:flex; flex-direction:column; align-items:center}
+.hs-codebox span{font-size:.9em; color:var(--muted); font-weight:600}
+.hs-codebox b{font-size:3em; letter-spacing:.2em; line-height:1.1; font-weight:800; color:var(--accent)}
+.hs-gh{margin:.9em 0 .4em; font-size:1em; color:var(--accent)}
+.ph-code{text-transform:uppercase; letter-spacing:.3em; text-align:center}
+
+.hs-split{display:grid; grid-template-columns:minmax(0,1fr) 22em; gap:1.2em; align-items:start; flex:1}
+.hs-focus{position:sticky; top:1em}
+.hs-notes{margin:.3em 0 0; padding-left:1.2em; font-size:.95em}
+.hs-notes li{margin:.3em 0}
+.lb-row{cursor:pointer}
+.lb-row.sel{background:var(--soft); border-radius:.5em}
+.ph-notes{text-align:left}
+.ph-notes ul{margin:0; padding-left:18px; font-size:15px}
+.ph-notes li{margin:5px 0}
+@media (max-width:900px){.hs-split{grid-template-columns:minmax(0,1fr)}}
+
+.ph-opt .cur{font-style:normal; font-size:12px; color:var(--muted); font-weight:600}
+
+.hs-chart{background:var(--surface); border:2px solid var(--line); border-radius:1em; padding:.8em 1em 1em; margin-top:1em}
+.hs-chart h3{margin:0 0 .4em; font-size:1.2em}
+.hs-chart svg{display:block; width:100%; height:auto; overflow:visible}
+.ch-axis{font-size:15px; fill:var(--muted); font-family:inherit}
+.ch-label{font-size:17px; font-weight:700; font-family:inherit}
+.hs-legend{display:flex; flex-wrap:wrap; gap:.35em .5em; margin-top:.6em}
+.hs-legend button{font:inherit; font-size:.9em; border:2px solid var(--line); background:var(--bg); color:var(--ink); border-radius:999px; padding:.15em .7em; cursor:pointer; display:inline-flex; align-items:center; gap:.4em}
+.hs-legend button.on{border-color:var(--ink); font-weight:700}
+.hs-legend i{width:.8em; height:.8em; border-radius:50%; display:inline-block}
+.hs-foot{position:sticky; bottom:0; background:var(--bg); padding:.7em 0 .3em; z-index:5}
+
+.confetti{position:fixed; inset:0; overflow:hidden; pointer-events:none; z-index:60}
+.confetti i,.confetti span{position:absolute; top:-6vh; animation-name:confall; animation-timing-function:linear; animation-fill-mode:both; border-radius:2px}
+@keyframes confall{from{transform:translate3d(0,0,0) rotate(0deg); opacity:1} 85%{opacity:1} to{transform:translate3d(var(--dx),112vh,0) rotate(var(--rot)); opacity:.9}}
+.hs-stats{display:flex; flex-wrap:wrap; gap:.5em; margin-bottom:.8em}
+.hs-stat{background:var(--surface); border:2px solid var(--line); border-radius:.7em; padding:.3em .8em; display:flex; flex-direction:column; line-height:1.15}
+.hs-stat small{color:var(--muted); font-size:.75em}
+.hs-stat b{font-size:1.05em}
+.hs-table.recap td,.hs-table.recap th{text-align:left; white-space:nowrap; font-size:.85em}
+.hs-table.recap td:last-child,.hs-table.recap th:last-child{min-width:0; white-space:nowrap}
+.hs-table.recap td.yes{color:var(--mint); font-weight:700}
+.hs-table.recap td.no{color:var(--muted)}
+
+.hs-wrap{position:relative}
+.hs-wrap.inside .hs{min-height:640px}
+.hs-modal{position:fixed; inset:0; background:rgba(8,6,32,.78); display:grid; place-items:center; z-index:40; padding:1em}
+.hs-modal.inside{position:absolute}
+.hs-modal-card{background:var(--surface); border-radius:1.2em; padding:1em 2em 1.4em; text-align:center; width:min(94%, 34em); max-height:96%; overflow:auto; box-shadow:0 1em 3em rgba(0,0,0,.45)}
+.hs-modal-card h2{margin:.1em 0 .4em; font-size:1.6em}
+.wheel-box{position:relative; width:min(100%, 24em); margin:.3em auto .6em}
+.wheel-spin{transition:transform 6s cubic-bezier(.12,.62,.12,1); will-change:transform}
+.wheel-spin svg{display:block; width:100%; height:auto; filter:drop-shadow(0 .3em .5em rgba(0,0,0,.35))}
+.wheel-pointer{position:absolute; top:-.55em; left:50%; transform:translateX(-50%); font-size:2.4em; line-height:1; color:var(--coral); text-shadow:0 2px 0 #fff}
+.wheel-out{font-size:1.6em; font-weight:800; margin:.2em 0}
+@media (prefers-reduced-motion:reduce){.wheel-spin{transition-duration:.01s}}
+
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{padding:16px}
+.pv-wrap{max-width:1300px;margin:0 auto}
+.pv-wrap h1{font-size:26px;margin:0 0 4px;font-weight:800}
+.pv-note{color:var(--muted);margin:0 0 14px;max-width:80ch}
+.pv-tv{border:6px solid var(--ink);border-radius:14px;overflow:auto;height:min(78vh,720px);background:var(--bg)}
+.pv-label{font-weight:700;margin:18px 0 8px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.pv-add{font:inherit;font-weight:700;border:2px solid var(--line);background:var(--surface);color:var(--ink);border-radius:10px;padding:6px 14px;cursor:pointer}
+.pv-phones{display:flex;gap:16px;overflow-x:auto;padding-bottom:10px}
+.pv-phone{flex:0 0 310px;height:600px;border:8px solid var(--ink);border-radius:30px;overflow:auto;background:var(--bg)}
+
+.ph-opt .fx{display:flex;flex-direction:column;gap:3px;margin-top:6px;width:100%}.ph-opt .fx i{font-style:normal;font-size:12.5px;font-weight:600;line-height:1.3;padding:3px 6px;border-radius:8px;background:rgba(98,95,143,.10);color:var(--muted)}.ph-opt .fx i.up{background:rgba(20,168,126,.13);color:var(--mint)}.ph-opt .fx i.down{background:rgba(232,69,107,.11);color:var(--coral)}
+
+</style>
+</head>
+<body>
+<div id="tv"></div>
+<script>
+//---------------------------------------------------------------------
+//
+// QR Code Generator for JavaScript
+//
+// Copyright (c) 2009 Kazuhiko Arase
+//
+// URL: http://www.d-project.com/
+//
+// Licensed under the MIT license:
+//  http://www.opensource.org/licenses/mit-license.php
+//
+// The word 'QR Code' is registered trademark of
+// DENSO WAVE INCORPORATED
+//  http://www.denso-wave.com/qrcode/faqpatent-e.html
+//
+//---------------------------------------------------------------------
+
+var qrcode = function() {
+
+  //---------------------------------------------------------------------
+  // qrcode
+  //---------------------------------------------------------------------
+
+  /**
+   * qrcode
+   * @param typeNumber 1 to 40
+   * @param errorCorrectionLevel 'L','M','Q','H'
+   */
+  var qrcode = function(typeNumber, errorCorrectionLevel) {
+
+    var PAD0 = 0xEC;
+    var PAD1 = 0x11;
+
+    var _typeNumber = typeNumber;
+    var _errorCorrectionLevel = QRErrorCorrectionLevel[errorCorrectionLevel];
+    var _modules = null;
+    var _moduleCount = 0;
+    var _dataCache = null;
+    var _dataList = [];
+
+    var _this = {};
+
+    var makeImpl = function(test, maskPattern) {
+
+      _moduleCount = _typeNumber * 4 + 17;
+      _modules = function(moduleCount) {
+        var modules = new Array(moduleCount);
+        for (var row = 0; row < moduleCount; row += 1) {
+          modules[row] = new Array(moduleCount);
+          for (var col = 0; col < moduleCount; col += 1) {
+            modules[row][col] = null;
+          }
+        }
+        return modules;
+      }(_moduleCount);
+
+      setupPositionProbePattern(0, 0);
+      setupPositionProbePattern(_moduleCount - 7, 0);
+      setupPositionProbePattern(0, _moduleCount - 7);
+      setupPositionAdjustPattern();
+      setupTimingPattern();
+      setupTypeInfo(test, maskPattern);
+
+      if (_typeNumber >= 7) {
+        setupTypeNumber(test);
+      }
+
+      if (_dataCache == null) {
+        _dataCache = createData(_typeNumber, _errorCorrectionLevel, _dataList);
+      }
+
+      mapData(_dataCache, maskPattern);
+    };
+
+    var setupPositionProbePattern = function(row, col) {
+
+      for (var r = -1; r <= 7; r += 1) {
+
+        if (row + r <= -1 || _moduleCount <= row + r) continue;
+
+        for (var c = -1; c <= 7; c += 1) {
+
+          if (col + c <= -1 || _moduleCount <= col + c) continue;
+
+          if ( (0 <= r && r <= 6 && (c == 0 || c == 6) )
+              || (0 <= c && c <= 6 && (r == 0 || r == 6) )
+              || (2 <= r && r <= 4 && 2 <= c && c <= 4) ) {
+            _modules[row + r][col + c] = true;
+          } else {
+            _modules[row + r][col + c] = false;
+          }
+        }
+      }
+    };
+
+    var getBestMaskPattern = function() {
+
+      var minLostPoint = 0;
+      var pattern = 0;
+
+      for (var i = 0; i < 8; i += 1) {
+
+        makeImpl(true, i);
+
+        var lostPoint = QRUtil.getLostPoint(_this);
+
+        if (i == 0 || minLostPoint > lostPoint) {
+          minLostPoint = lostPoint;
+          pattern = i;
+        }
+      }
+
+      return pattern;
+    };
+
+    var setupTimingPattern = function() {
+
+      for (var r = 8; r < _moduleCount - 8; r += 1) {
+        if (_modules[r][6] != null) {
+          continue;
+        }
+        _modules[r][6] = (r % 2 == 0);
+      }
+
+      for (var c = 8; c < _moduleCount - 8; c += 1) {
+        if (_modules[6][c] != null) {
+          continue;
+        }
+        _modules[6][c] = (c % 2 == 0);
+      }
+    };
+
+    var setupPositionAdjustPattern = function() {
+
+      var pos = QRUtil.getPatternPosition(_typeNumber);
+
+      for (var i = 0; i < pos.length; i += 1) {
+
+        for (var j = 0; j < pos.length; j += 1) {
+
+          var row = pos[i];
+          var col = pos[j];
+
+          if (_modules[row][col] != null) {
+            continue;
+          }
+
+          for (var r = -2; r <= 2; r += 1) {
+
+            for (var c = -2; c <= 2; c += 1) {
+
+              if (r == -2 || r == 2 || c == -2 || c == 2
+                  || (r == 0 && c == 0) ) {
+                _modules[row + r][col + c] = true;
+              } else {
+                _modules[row + r][col + c] = false;
+              }
+            }
+          }
+        }
+      }
+    };
+
+    var setupTypeNumber = function(test) {
+
+      var bits = QRUtil.getBCHTypeNumber(_typeNumber);
+
+      for (var i = 0; i < 18; i += 1) {
+        var mod = (!test && ( (bits >> i) & 1) == 1);
+        _modules[Math.floor(i / 3)][i % 3 + _moduleCount - 8 - 3] = mod;
+      }
+
+      for (var i = 0; i < 18; i += 1) {
+        var mod = (!test && ( (bits >> i) & 1) == 1);
+        _modules[i % 3 + _moduleCount - 8 - 3][Math.floor(i / 3)] = mod;
+      }
+    };
+
+    var setupTypeInfo = function(test, maskPattern) {
+
+      var data = (_errorCorrectionLevel << 3) | maskPattern;
+      var bits = QRUtil.getBCHTypeInfo(data);
+
+      // vertical
+      for (var i = 0; i < 15; i += 1) {
+
+        var mod = (!test && ( (bits >> i) & 1) == 1);
+
+        if (i < 6) {
+          _modules[i][8] = mod;
+        } else if (i < 8) {
+          _modules[i + 1][8] = mod;
+        } else {
+          _modules[_moduleCount - 15 + i][8] = mod;
+        }
+      }
+
+      // horizontal
+      for (var i = 0; i < 15; i += 1) {
+
+        var mod = (!test && ( (bits >> i) & 1) == 1);
+
+        if (i < 8) {
+          _modules[8][_moduleCount - i - 1] = mod;
+        } else if (i < 9) {
+          _modules[8][15 - i - 1 + 1] = mod;
+        } else {
+          _modules[8][15 - i - 1] = mod;
+        }
+      }
+
+      // fixed module
+      _modules[_moduleCount - 8][8] = (!test);
+    };
+
+    var mapData = function(data, maskPattern) {
+
+      var inc = -1;
+      var row = _moduleCount - 1;
+      var bitIndex = 7;
+      var byteIndex = 0;
+      var maskFunc = QRUtil.getMaskFunction(maskPattern);
+
+      for (var col = _moduleCount - 1; col > 0; col -= 2) {
+
+        if (col == 6) col -= 1;
+
+        while (true) {
+
+          for (var c = 0; c < 2; c += 1) {
+
+            if (_modules[row][col - c] == null) {
+
+              var dark = false;
+
+              if (byteIndex < data.length) {
+                dark = ( ( (data[byteIndex] >>> bitIndex) & 1) == 1);
+              }
+
+              var mask = maskFunc(row, col - c);
+
+              if (mask) {
+                dark = !dark;
+              }
+
+              _modules[row][col - c] = dark;
+              bitIndex -= 1;
+
+              if (bitIndex == -1) {
+                byteIndex += 1;
+                bitIndex = 7;
+              }
+            }
+          }
+
+          row += inc;
+
+          if (row < 0 || _moduleCount <= row) {
+            row -= inc;
+            inc = -inc;
+            break;
+          }
+        }
+      }
+    };
+
+    var createBytes = function(buffer, rsBlocks) {
+
+      var offset = 0;
+
+      var maxDcCount = 0;
+      var maxEcCount = 0;
+
+      var dcdata = new Array(rsBlocks.length);
+      var ecdata = new Array(rsBlocks.length);
+
+      for (var r = 0; r < rsBlocks.length; r += 1) {
+
+        var dcCount = rsBlocks[r].dataCount;
+        var ecCount = rsBlocks[r].totalCount - dcCount;
+
+        maxDcCount = Math.max(maxDcCount, dcCount);
+        maxEcCount = Math.max(maxEcCount, ecCount);
+
+        dcdata[r] = new Array(dcCount);
+
+        for (var i = 0; i < dcdata[r].length; i += 1) {
+          dcdata[r][i] = 0xff & buffer.getBuffer()[i + offset];
+        }
+        offset += dcCount;
+
+        var rsPoly = QRUtil.getErrorCorrectPolynomial(ecCount);
+        var rawPoly = qrPolynomial(dcdata[r], rsPoly.getLength() - 1);
+
+        var modPoly = rawPoly.mod(rsPoly);
+        ecdata[r] = new Array(rsPoly.getLength() - 1);
+        for (var i = 0; i < ecdata[r].length; i += 1) {
+          var modIndex = i + modPoly.getLength() - ecdata[r].length;
+          ecdata[r][i] = (modIndex >= 0)? modPoly.getAt(modIndex) : 0;
+        }
+      }
+
+      var totalCodeCount = 0;
+      for (var i = 0; i < rsBlocks.length; i += 1) {
+        totalCodeCount += rsBlocks[i].totalCount;
+      }
+
+      var data = new Array(totalCodeCount);
+      var index = 0;
+
+      for (var i = 0; i < maxDcCount; i += 1) {
+        for (var r = 0; r < rsBlocks.length; r += 1) {
+          if (i < dcdata[r].length) {
+            data[index] = dcdata[r][i];
+            index += 1;
+          }
+        }
+      }
+
+      for (var i = 0; i < maxEcCount; i += 1) {
+        for (var r = 0; r < rsBlocks.length; r += 1) {
+          if (i < ecdata[r].length) {
+            data[index] = ecdata[r][i];
+            index += 1;
+          }
+        }
+      }
+
+      return data;
+    };
+
+    var createData = function(typeNumber, errorCorrectionLevel, dataList) {
+
+      var rsBlocks = QRRSBlock.getRSBlocks(typeNumber, errorCorrectionLevel);
+
+      var buffer = qrBitBuffer();
+
+      for (var i = 0; i < dataList.length; i += 1) {
+        var data = dataList[i];
+        buffer.put(data.getMode(), 4);
+        buffer.put(data.getLength(), QRUtil.getLengthInBits(data.getMode(), typeNumber) );
+        data.write(buffer);
+      }
+
+      // calc num max data.
+      var totalDataCount = 0;
+      for (var i = 0; i < rsBlocks.length; i += 1) {
+        totalDataCount += rsBlocks[i].dataCount;
+      }
+
+      if (buffer.getLengthInBits() > totalDataCount * 8) {
+        throw 'code length overflow. ('
+          + buffer.getLengthInBits()
+          + '>'
+          + totalDataCount * 8
+          + ')';
+      }
+
+      // end code
+      if (buffer.getLengthInBits() + 4 <= totalDataCount * 8) {
+        buffer.put(0, 4);
+      }
+
+      // padding
+      while (buffer.getLengthInBits() % 8 != 0) {
+        buffer.putBit(false);
+      }
+
+      // padding
+      while (true) {
+
+        if (buffer.getLengthInBits() >= totalDataCount * 8) {
+          break;
+        }
+        buffer.put(PAD0, 8);
+
+        if (buffer.getLengthInBits() >= totalDataCount * 8) {
+          break;
+        }
+        buffer.put(PAD1, 8);
+      }
+
+      return createBytes(buffer, rsBlocks);
+    };
+
+    _this.addData = function(data, mode) {
+
+      mode = mode || 'Byte';
+
+      var newData = null;
+
+      switch(mode) {
+      case 'Numeric' :
+        newData = qrNumber(data);
+        break;
+      case 'Alphanumeric' :
+        newData = qrAlphaNum(data);
+        break;
+      case 'Byte' :
+        newData = qr8BitByte(data);
+        break;
+      case 'Kanji' :
+        newData = qrKanji(data);
+        break;
+      default :
+        throw 'mode:' + mode;
+      }
+
+      _dataList.push(newData);
+      _dataCache = null;
+    };
+
+    _this.isDark = function(row, col) {
+      if (row < 0 || _moduleCount <= row || col < 0 || _moduleCount <= col) {
+        throw row + ',' + col;
+      }
+      return _modules[row][col];
+    };
+
+    _this.getModuleCount = function() {
+      return _moduleCount;
+    };
+
+    _this.make = function() {
+      if (_typeNumber < 1) {
+        var typeNumber = 1;
+
+        for (; typeNumber < 40; typeNumber++) {
+          var rsBlocks = QRRSBlock.getRSBlocks(typeNumber, _errorCorrectionLevel);
+          var buffer = qrBitBuffer();
+
+          for (var i = 0; i < _dataList.length; i++) {
+            var data = _dataList[i];
+            buffer.put(data.getMode(), 4);
+            buffer.put(data.getLength(), QRUtil.getLengthInBits(data.getMode(), typeNumber) );
+            data.write(buffer);
+          }
+
+          var totalDataCount = 0;
+          for (var i = 0; i < rsBlocks.length; i++) {
+            totalDataCount += rsBlocks[i].dataCount;
+          }
+
+          if (buffer.getLengthInBits() <= totalDataCount * 8) {
+            break;
+          }
+        }
+
+        _typeNumber = typeNumber;
+      }
+
+      makeImpl(false, getBestMaskPattern() );
+    };
+
+    _this.createTableTag = function(cellSize, margin) {
+
+      cellSize = cellSize || 2;
+      margin = (typeof margin == 'undefined')? cellSize * 4 : margin;
+
+      var qrHtml = '';
+
+      qrHtml += '<table style="';
+      qrHtml += ' border-width: 0px; border-style: none;';
+      qrHtml += ' border-collapse: collapse;';
+      qrHtml += ' padding: 0px; margin: ' + margin + 'px;';
+      qrHtml += '">';
+      qrHtml += '<tbody>';
+
+      for (var r = 0; r < _this.getModuleCount(); r += 1) {
+
+        qrHtml += '<tr>';
+
+        for (var c = 0; c < _this.getModuleCount(); c += 1) {
+          qrHtml += '<td style="';
+          qrHtml += ' border-width: 0px; border-style: none;';
+          qrHtml += ' border-collapse: collapse;';
+          qrHtml += ' padding: 0px; margin: 0px;';
+          qrHtml += ' width: ' + cellSize + 'px;';
+          qrHtml += ' height: ' + cellSize + 'px;';
+          qrHtml += ' background-color: ';
+          qrHtml += _this.isDark(r, c)? '#000000' : '#ffffff';
+          qrHtml += ';';
+          qrHtml += '"/>';
+        }
+
+        qrHtml += '</tr>';
+      }
+
+      qrHtml += '</tbody>';
+      qrHtml += '</table>';
+
+      return qrHtml;
+    };
+
+    _this.createSvgTag = function(cellSize, margin, alt, title) {
+
+      var opts = {};
+      if (typeof arguments[0] == 'object') {
+        // Called by options.
+        opts = arguments[0];
+        // overwrite cellSize and margin.
+        cellSize = opts.cellSize;
+        margin = opts.margin;
+        alt = opts.alt;
+        title = opts.title;
+      }
+
+      cellSize = cellSize || 2;
+      margin = (typeof margin == 'undefined')? cellSize * 4 : margin;
+
+      // Compose alt property surrogate
+      alt = (typeof alt === 'string') ? {text: alt} : alt || {};
+      alt.text = alt.text || null;
+      alt.id = (alt.text) ? alt.id || 'qrcode-description' : null;
+
+      // Compose title property surrogate
+      title = (typeof title === 'string') ? {text: title} : title || {};
+      title.text = title.text || null;
+      title.id = (title.text) ? title.id || 'qrcode-title' : null;
+
+      var size = _this.getModuleCount() * cellSize + margin * 2;
+      var c, mc, r, mr, qrSvg='', rect;
+
+      rect = 'l' + cellSize + ',0 0,' + cellSize +
+        ' -' + cellSize + ',0 0,-' + cellSize + 'z ';
+
+      qrSvg += '<svg version="1.1" xmlns="http://www.w3.org/2000/svg"';
+      qrSvg += !opts.scalable ? ' width="' + size + 'px" height="' + size + 'px"' : '';
+      qrSvg += ' viewBox="0 0 ' + size + ' ' + size + '" ';
+      qrSvg += ' preserveAspectRatio="xMinYMin meet"';
+      qrSvg += (title.text || alt.text) ? ' role="img" aria-labelledby="' +
+          escapeXml([title.id, alt.id].join(' ').trim() ) + '"' : '';
+      qrSvg += '>';
+      qrSvg += (title.text) ? '<title id="' + escapeXml(title.id) + '">' +
+          escapeXml(title.text) + '</title>' : '';
+      qrSvg += (alt.text) ? '<description id="' + escapeXml(alt.id) + '">' +
+          escapeXml(alt.text) + '</description>' : '';
+      qrSvg += '<rect width="100%" height="100%" fill="white" cx="0" cy="0"/>';
+      qrSvg += '<path d="';
+
+      for (r = 0; r < _this.getModuleCount(); r += 1) {
+        mr = r * cellSize + margin;
+        for (c = 0; c < _this.getModuleCount(); c += 1) {
+          if (_this.isDark(r, c) ) {
+            mc = c*cellSize+margin;
+            qrSvg += 'M' + mc + ',' + mr + rect;
+          }
+        }
+      }
+
+      qrSvg += '" stroke="transparent" fill="black"/>';
+      qrSvg += '</svg>';
+
+      return qrSvg;
+    };
+
+    _this.createDataURL = function(cellSize, margin) {
+
+      cellSize = cellSize || 2;
+      margin = (typeof margin == 'undefined')? cellSize * 4 : margin;
+
+      var size = _this.getModuleCount() * cellSize + margin * 2;
+      var min = margin;
+      var max = size - margin;
+
+      return createDataURL(size, size, function(x, y) {
+        if (min <= x && x < max && min <= y && y < max) {
+          var c = Math.floor( (x - min) / cellSize);
+          var r = Math.floor( (y - min) / cellSize);
+          return _this.isDark(r, c)? 0 : 1;
+        } else {
+          return 1;
+        }
+      } );
+    };
+
+    _this.createImgTag = function(cellSize, margin, alt) {
+
+      cellSize = cellSize || 2;
+      margin = (typeof margin == 'undefined')? cellSize * 4 : margin;
+
+      var size = _this.getModuleCount() * cellSize + margin * 2;
+
+      var img = '';
+      img += '<img';
+      img += '\u0020src="';
+      img += _this.createDataURL(cellSize, margin);
+      img += '"';
+      img += '\u0020width="';
+      img += size;
+      img += '"';
+      img += '\u0020height="';
+      img += size;
+      img += '"';
+      if (alt) {
+        img += '\u0020alt="';
+        img += escapeXml(alt);
+        img += '"';
+      }
+      img += '/>';
+
+      return img;
+    };
+
+    var escapeXml = function(s) {
+      var escaped = '';
+      for (var i = 0; i < s.length; i += 1) {
+        var c = s.charAt(i);
+        switch(c) {
+        case '<': escaped += '&lt;'; break;
+        case '>': escaped += '&gt;'; break;
+        case '&': escaped += '&amp;'; break;
+        case '"': escaped += '&quot;'; break;
+        default : escaped += c; break;
+        }
+      }
+      return escaped;
+    };
+
+    var _createHalfASCII = function(margin) {
+      var cellSize = 1;
+      margin = (typeof margin == 'undefined')? cellSize * 2 : margin;
+
+      var size = _this.getModuleCount() * cellSize + margin * 2;
+      var min = margin;
+      var max = size - margin;
+
+      var y, x, r1, r2, p;
+
+      var blocks = {
+        '██': '█',
+        '█ ': '▀',
+        ' █': '▄',
+        '  ': ' '
+      };
+
+      var blocksLastLineNoMargin = {
+        '██': '▀',
+        '█ ': '▀',
+        ' █': ' ',
+        '  ': ' '
+      };
+
+      var ascii = '';
+      for (y = 0; y < size; y += 2) {
+        r1 = Math.floor((y - min) / cellSize);
+        r2 = Math.floor((y + 1 - min) / cellSize);
+        for (x = 0; x < size; x += 1) {
+          p = '█';
+
+          if (min <= x && x < max && min <= y && y < max && _this.isDark(r1, Math.floor((x - min) / cellSize))) {
+            p = ' ';
+          }
+
+          if (min <= x && x < max && min <= y+1 && y+1 < max && _this.isDark(r2, Math.floor((x - min) / cellSize))) {
+            p += ' ';
+          }
+          else {
+            p += '█';
+          }
+
+          // Output 2 characters per pixel, to create full square. 1 character per pixels gives only half width of square.
+          ascii += (margin < 1 && y+1 >= max) ? blocksLastLineNoMargin[p] : blocks[p];
+        }
+
+        ascii += '\n';
+      }
+
+      if (size % 2 && margin > 0) {
+        return ascii.substring(0, ascii.length - size - 1) + Array(size+1).join('▀');
+      }
+
+      return ascii.substring(0, ascii.length-1);
+    };
+
+    _this.createASCII = function(cellSize, margin) {
+      cellSize = cellSize || 1;
+
+      if (cellSize < 2) {
+        return _createHalfASCII(margin);
+      }
+
+      cellSize -= 1;
+      margin = (typeof margin == 'undefined')? cellSize * 2 : margin;
+
+      var size = _this.getModuleCount() * cellSize + margin * 2;
+      var min = margin;
+      var max = size - margin;
+
+      var y, x, r, p;
+
+      var white = Array(cellSize+1).join('██');
+      var black = Array(cellSize+1).join('  ');
+
+      var ascii = '';
+      var line = '';
+      for (y = 0; y < size; y += 1) {
+        r = Math.floor( (y - min) / cellSize);
+        line = '';
+        for (x = 0; x < size; x += 1) {
+          p = 1;
+
+          if (min <= x && x < max && min <= y && y < max && _this.isDark(r, Math.floor((x - min) / cellSize))) {
+            p = 0;
+          }
+
+          // Output 2 characters per pixel, to create full square. 1 character per pixels gives only half width of square.
+          line += p ? white : black;
+        }
+
+        for (r = 0; r < cellSize; r += 1) {
+          ascii += line + '\n';
+        }
+      }
+
+      return ascii.substring(0, ascii.length-1);
+    };
+
+    _this.renderTo2dContext = function(context, cellSize) {
+      cellSize = cellSize || 2;
+      var length = _this.getModuleCount();
+      for (var row = 0; row < length; row++) {
+        for (var col = 0; col < length; col++) {
+          context.fillStyle = _this.isDark(row, col) ? 'black' : 'white';
+          context.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
+        }
+      }
+    }
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // qrcode.stringToBytes
+  //---------------------------------------------------------------------
+
+  qrcode.stringToBytesFuncs = {
+    'default' : function(s) {
+      var bytes = [];
+      for (var i = 0; i < s.length; i += 1) {
+        var c = s.charCodeAt(i);
+        bytes.push(c & 0xff);
+      }
+      return bytes;
+    }
+  };
+
+  qrcode.stringToBytes = qrcode.stringToBytesFuncs['default'];
+
+  //---------------------------------------------------------------------
+  // qrcode.createStringToBytes
+  //---------------------------------------------------------------------
+
+  /**
+   * @param unicodeData base64 string of byte array.
+   * [16bit Unicode],[16bit Bytes], ...
+   * @param numChars
+   */
+  qrcode.createStringToBytes = function(unicodeData, numChars) {
+
+    // create conversion map.
+
+    var unicodeMap = function() {
+
+      var bin = base64DecodeInputStream(unicodeData);
+      var read = function() {
+        var b = bin.read();
+        if (b == -1) throw 'eof';
+        return b;
+      };
+
+      var count = 0;
+      var unicodeMap = {};
+      while (true) {
+        var b0 = bin.read();
+        if (b0 == -1) break;
+        var b1 = read();
+        var b2 = read();
+        var b3 = read();
+        var k = String.fromCharCode( (b0 << 8) | b1);
+        var v = (b2 << 8) | b3;
+        unicodeMap[k] = v;
+        count += 1;
+      }
+      if (count != numChars) {
+        throw count + ' != ' + numChars;
+      }
+
+      return unicodeMap;
+    }();
+
+    var unknownChar = '?'.charCodeAt(0);
+
+    return function(s) {
+      var bytes = [];
+      for (var i = 0; i < s.length; i += 1) {
+        var c = s.charCodeAt(i);
+        if (c < 128) {
+          bytes.push(c);
+        } else {
+          var b = unicodeMap[s.charAt(i)];
+          if (typeof b == 'number') {
+            if ( (b & 0xff) == b) {
+              // 1byte
+              bytes.push(b);
+            } else {
+              // 2bytes
+              bytes.push(b >>> 8);
+              bytes.push(b & 0xff);
+            }
+          } else {
+            bytes.push(unknownChar);
+          }
+        }
+      }
+      return bytes;
+    };
+  };
+
+  //---------------------------------------------------------------------
+  // QRMode
+  //---------------------------------------------------------------------
+
+  var QRMode = {
+    MODE_NUMBER :    1 << 0,
+    MODE_ALPHA_NUM : 1 << 1,
+    MODE_8BIT_BYTE : 1 << 2,
+    MODE_KANJI :     1 << 3
+  };
+
+  //---------------------------------------------------------------------
+  // QRErrorCorrectionLevel
+  //---------------------------------------------------------------------
+
+  var QRErrorCorrectionLevel = {
+    L : 1,
+    M : 0,
+    Q : 3,
+    H : 2
+  };
+
+  //---------------------------------------------------------------------
+  // QRMaskPattern
+  //---------------------------------------------------------------------
+
+  var QRMaskPattern = {
+    PATTERN000 : 0,
+    PATTERN001 : 1,
+    PATTERN010 : 2,
+    PATTERN011 : 3,
+    PATTERN100 : 4,
+    PATTERN101 : 5,
+    PATTERN110 : 6,
+    PATTERN111 : 7
+  };
+
+  //---------------------------------------------------------------------
+  // QRUtil
+  //---------------------------------------------------------------------
+
+  var QRUtil = function() {
+
+    var PATTERN_POSITION_TABLE = [
+      [],
+      [6, 18],
+      [6, 22],
+      [6, 26],
+      [6, 30],
+      [6, 34],
+      [6, 22, 38],
+      [6, 24, 42],
+      [6, 26, 46],
+      [6, 28, 50],
+      [6, 30, 54],
+      [6, 32, 58],
+      [6, 34, 62],
+      [6, 26, 46, 66],
+      [6, 26, 48, 70],
+      [6, 26, 50, 74],
+      [6, 30, 54, 78],
+      [6, 30, 56, 82],
+      [6, 30, 58, 86],
+      [6, 34, 62, 90],
+      [6, 28, 50, 72, 94],
+      [6, 26, 50, 74, 98],
+      [6, 30, 54, 78, 102],
+      [6, 28, 54, 80, 106],
+      [6, 32, 58, 84, 110],
+      [6, 30, 58, 86, 114],
+      [6, 34, 62, 90, 118],
+      [6, 26, 50, 74, 98, 122],
+      [6, 30, 54, 78, 102, 126],
+      [6, 26, 52, 78, 104, 130],
+      [6, 30, 56, 82, 108, 134],
+      [6, 34, 60, 86, 112, 138],
+      [6, 30, 58, 86, 114, 142],
+      [6, 34, 62, 90, 118, 146],
+      [6, 30, 54, 78, 102, 126, 150],
+      [6, 24, 50, 76, 102, 128, 154],
+      [6, 28, 54, 80, 106, 132, 158],
+      [6, 32, 58, 84, 110, 136, 162],
+      [6, 26, 54, 82, 110, 138, 166],
+      [6, 30, 58, 86, 114, 142, 170]
+    ];
+    var G15 = (1 << 10) | (1 << 8) | (1 << 5) | (1 << 4) | (1 << 2) | (1 << 1) | (1 << 0);
+    var G18 = (1 << 12) | (1 << 11) | (1 << 10) | (1 << 9) | (1 << 8) | (1 << 5) | (1 << 2) | (1 << 0);
+    var G15_MASK = (1 << 14) | (1 << 12) | (1 << 10) | (1 << 4) | (1 << 1);
+
+    var _this = {};
+
+    var getBCHDigit = function(data) {
+      var digit = 0;
+      while (data != 0) {
+        digit += 1;
+        data >>>= 1;
+      }
+      return digit;
+    };
+
+    _this.getBCHTypeInfo = function(data) {
+      var d = data << 10;
+      while (getBCHDigit(d) - getBCHDigit(G15) >= 0) {
+        d ^= (G15 << (getBCHDigit(d) - getBCHDigit(G15) ) );
+      }
+      return ( (data << 10) | d) ^ G15_MASK;
+    };
+
+    _this.getBCHTypeNumber = function(data) {
+      var d = data << 12;
+      while (getBCHDigit(d) - getBCHDigit(G18) >= 0) {
+        d ^= (G18 << (getBCHDigit(d) - getBCHDigit(G18) ) );
+      }
+      return (data << 12) | d;
+    };
+
+    _this.getPatternPosition = function(typeNumber) {
+      return PATTERN_POSITION_TABLE[typeNumber - 1];
+    };
+
+    _this.getMaskFunction = function(maskPattern) {
+
+      switch (maskPattern) {
+
+      case QRMaskPattern.PATTERN000 :
+        return function(i, j) { return (i + j) % 2 == 0; };
+      case QRMaskPattern.PATTERN001 :
+        return function(i, j) { return i % 2 == 0; };
+      case QRMaskPattern.PATTERN010 :
+        return function(i, j) { return j % 3 == 0; };
+      case QRMaskPattern.PATTERN011 :
+        return function(i, j) { return (i + j) % 3 == 0; };
+      case QRMaskPattern.PATTERN100 :
+        return function(i, j) { return (Math.floor(i / 2) + Math.floor(j / 3) ) % 2 == 0; };
+      case QRMaskPattern.PATTERN101 :
+        return function(i, j) { return (i * j) % 2 + (i * j) % 3 == 0; };
+      case QRMaskPattern.PATTERN110 :
+        return function(i, j) { return ( (i * j) % 2 + (i * j) % 3) % 2 == 0; };
+      case QRMaskPattern.PATTERN111 :
+        return function(i, j) { return ( (i * j) % 3 + (i + j) % 2) % 2 == 0; };
+
+      default :
+        throw 'bad maskPattern:' + maskPattern;
+      }
+    };
+
+    _this.getErrorCorrectPolynomial = function(errorCorrectLength) {
+      var a = qrPolynomial([1], 0);
+      for (var i = 0; i < errorCorrectLength; i += 1) {
+        a = a.multiply(qrPolynomial([1, QRMath.gexp(i)], 0) );
+      }
+      return a;
+    };
+
+    _this.getLengthInBits = function(mode, type) {
+
+      if (1 <= type && type < 10) {
+
+        // 1 - 9
+
+        switch(mode) {
+        case QRMode.MODE_NUMBER    : return 10;
+        case QRMode.MODE_ALPHA_NUM : return 9;
+        case QRMode.MODE_8BIT_BYTE : return 8;
+        case QRMode.MODE_KANJI     : return 8;
+        default :
+          throw 'mode:' + mode;
+        }
+
+      } else if (type < 27) {
+
+        // 10 - 26
+
+        switch(mode) {
+        case QRMode.MODE_NUMBER    : return 12;
+        case QRMode.MODE_ALPHA_NUM : return 11;
+        case QRMode.MODE_8BIT_BYTE : return 16;
+        case QRMode.MODE_KANJI     : return 10;
+        default :
+          throw 'mode:' + mode;
+        }
+
+      } else if (type < 41) {
+
+        // 27 - 40
+
+        switch(mode) {
+        case QRMode.MODE_NUMBER    : return 14;
+        case QRMode.MODE_ALPHA_NUM : return 13;
+        case QRMode.MODE_8BIT_BYTE : return 16;
+        case QRMode.MODE_KANJI     : return 12;
+        default :
+          throw 'mode:' + mode;
+        }
+
+      } else {
+        throw 'type:' + type;
+      }
+    };
+
+    _this.getLostPoint = function(qrcode) {
+
+      var moduleCount = qrcode.getModuleCount();
+
+      var lostPoint = 0;
+
+      // LEVEL1
+
+      for (var row = 0; row < moduleCount; row += 1) {
+        for (var col = 0; col < moduleCount; col += 1) {
+
+          var sameCount = 0;
+          var dark = qrcode.isDark(row, col);
+
+          for (var r = -1; r <= 1; r += 1) {
+
+            if (row + r < 0 || moduleCount <= row + r) {
+              continue;
+            }
+
+            for (var c = -1; c <= 1; c += 1) {
+
+              if (col + c < 0 || moduleCount <= col + c) {
+                continue;
+              }
+
+              if (r == 0 && c == 0) {
+                continue;
+              }
+
+              if (dark == qrcode.isDark(row + r, col + c) ) {
+                sameCount += 1;
+              }
+            }
+          }
+
+          if (sameCount > 5) {
+            lostPoint += (3 + sameCount - 5);
+          }
+        }
+      };
+
+      // LEVEL2
+
+      for (var row = 0; row < moduleCount - 1; row += 1) {
+        for (var col = 0; col < moduleCount - 1; col += 1) {
+          var count = 0;
+          if (qrcode.isDark(row, col) ) count += 1;
+          if (qrcode.isDark(row + 1, col) ) count += 1;
+          if (qrcode.isDark(row, col + 1) ) count += 1;
+          if (qrcode.isDark(row + 1, col + 1) ) count += 1;
+          if (count == 0 || count == 4) {
+            lostPoint += 3;
+          }
+        }
+      }
+
+      // LEVEL3
+
+      for (var row = 0; row < moduleCount; row += 1) {
+        for (var col = 0; col < moduleCount - 6; col += 1) {
+          if (qrcode.isDark(row, col)
+              && !qrcode.isDark(row, col + 1)
+              &&  qrcode.isDark(row, col + 2)
+              &&  qrcode.isDark(row, col + 3)
+              &&  qrcode.isDark(row, col + 4)
+              && !qrcode.isDark(row, col + 5)
+              &&  qrcode.isDark(row, col + 6) ) {
+            lostPoint += 40;
+          }
+        }
+      }
+
+      for (var col = 0; col < moduleCount; col += 1) {
+        for (var row = 0; row < moduleCount - 6; row += 1) {
+          if (qrcode.isDark(row, col)
+              && !qrcode.isDark(row + 1, col)
+              &&  qrcode.isDark(row + 2, col)
+              &&  qrcode.isDark(row + 3, col)
+              &&  qrcode.isDark(row + 4, col)
+              && !qrcode.isDark(row + 5, col)
+              &&  qrcode.isDark(row + 6, col) ) {
+            lostPoint += 40;
+          }
+        }
+      }
+
+      // LEVEL4
+
+      var darkCount = 0;
+
+      for (var col = 0; col < moduleCount; col += 1) {
+        for (var row = 0; row < moduleCount; row += 1) {
+          if (qrcode.isDark(row, col) ) {
+            darkCount += 1;
+          }
+        }
+      }
+
+      var ratio = Math.abs(100 * darkCount / moduleCount / moduleCount - 50) / 5;
+      lostPoint += ratio * 10;
+
+      return lostPoint;
+    };
+
+    return _this;
+  }();
+
+  //---------------------------------------------------------------------
+  // QRMath
+  //---------------------------------------------------------------------
+
+  var QRMath = function() {
+
+    var EXP_TABLE = new Array(256);
+    var LOG_TABLE = new Array(256);
+
+    // initialize tables
+    for (var i = 0; i < 8; i += 1) {
+      EXP_TABLE[i] = 1 << i;
+    }
+    for (var i = 8; i < 256; i += 1) {
+      EXP_TABLE[i] = EXP_TABLE[i - 4]
+        ^ EXP_TABLE[i - 5]
+        ^ EXP_TABLE[i - 6]
+        ^ EXP_TABLE[i - 8];
+    }
+    for (var i = 0; i < 255; i += 1) {
+      LOG_TABLE[EXP_TABLE[i] ] = i;
+    }
+
+    var _this = {};
+
+    _this.glog = function(n) {
+
+      if (n < 1) {
+        throw 'glog(' + n + ')';
+      }
+
+      return LOG_TABLE[n];
+    };
+
+    _this.gexp = function(n) {
+
+      while (n < 0) {
+        n += 255;
+      }
+
+      while (n >= 256) {
+        n -= 255;
+      }
+
+      return EXP_TABLE[n];
+    };
+
+    return _this;
+  }();
+
+  //---------------------------------------------------------------------
+  // qrPolynomial
+  //---------------------------------------------------------------------
+
+  function qrPolynomial(num, shift) {
+
+    if (typeof num.length == 'undefined') {
+      throw num.length + '/' + shift;
+    }
+
+    var _num = function() {
+      var offset = 0;
+      while (offset < num.length && num[offset] == 0) {
+        offset += 1;
+      }
+      var _num = new Array(num.length - offset + shift);
+      for (var i = 0; i < num.length - offset; i += 1) {
+        _num[i] = num[i + offset];
+      }
+      return _num;
+    }();
+
+    var _this = {};
+
+    _this.getAt = function(index) {
+      return _num[index];
+    };
+
+    _this.getLength = function() {
+      return _num.length;
+    };
+
+    _this.multiply = function(e) {
+
+      var num = new Array(_this.getLength() + e.getLength() - 1);
+
+      for (var i = 0; i < _this.getLength(); i += 1) {
+        for (var j = 0; j < e.getLength(); j += 1) {
+          num[i + j] ^= QRMath.gexp(QRMath.glog(_this.getAt(i) ) + QRMath.glog(e.getAt(j) ) );
+        }
+      }
+
+      return qrPolynomial(num, 0);
+    };
+
+    _this.mod = function(e) {
+
+      if (_this.getLength() - e.getLength() < 0) {
+        return _this;
+      }
+
+      var ratio = QRMath.glog(_this.getAt(0) ) - QRMath.glog(e.getAt(0) );
+
+      var num = new Array(_this.getLength() );
+      for (var i = 0; i < _this.getLength(); i += 1) {
+        num[i] = _this.getAt(i);
+      }
+
+      for (var i = 0; i < e.getLength(); i += 1) {
+        num[i] ^= QRMath.gexp(QRMath.glog(e.getAt(i) ) + ratio);
+      }
+
+      // recursive call
+      return qrPolynomial(num, 0).mod(e);
+    };
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // QRRSBlock
+  //---------------------------------------------------------------------
+
+  var QRRSBlock = function() {
+
+    var RS_BLOCK_TABLE = [
+
+      // L
+      // M
+      // Q
+      // H
+
+      // 1
+      [1, 26, 19],
+      [1, 26, 16],
+      [1, 26, 13],
+      [1, 26, 9],
+
+      // 2
+      [1, 44, 34],
+      [1, 44, 28],
+      [1, 44, 22],
+      [1, 44, 16],
+
+      // 3
+      [1, 70, 55],
+      [1, 70, 44],
+      [2, 35, 17],
+      [2, 35, 13],
+
+      // 4
+      [1, 100, 80],
+      [2, 50, 32],
+      [2, 50, 24],
+      [4, 25, 9],
+
+      // 5
+      [1, 134, 108],
+      [2, 67, 43],
+      [2, 33, 15, 2, 34, 16],
+      [2, 33, 11, 2, 34, 12],
+
+      // 6
+      [2, 86, 68],
+      [4, 43, 27],
+      [4, 43, 19],
+      [4, 43, 15],
+
+      // 7
+      [2, 98, 78],
+      [4, 49, 31],
+      [2, 32, 14, 4, 33, 15],
+      [4, 39, 13, 1, 40, 14],
+
+      // 8
+      [2, 121, 97],
+      [2, 60, 38, 2, 61, 39],
+      [4, 40, 18, 2, 41, 19],
+      [4, 40, 14, 2, 41, 15],
+
+      // 9
+      [2, 146, 116],
+      [3, 58, 36, 2, 59, 37],
+      [4, 36, 16, 4, 37, 17],
+      [4, 36, 12, 4, 37, 13],
+
+      // 10
+      [2, 86, 68, 2, 87, 69],
+      [4, 69, 43, 1, 70, 44],
+      [6, 43, 19, 2, 44, 20],
+      [6, 43, 15, 2, 44, 16],
+
+      // 11
+      [4, 101, 81],
+      [1, 80, 50, 4, 81, 51],
+      [4, 50, 22, 4, 51, 23],
+      [3, 36, 12, 8, 37, 13],
+
+      // 12
+      [2, 116, 92, 2, 117, 93],
+      [6, 58, 36, 2, 59, 37],
+      [4, 46, 20, 6, 47, 21],
+      [7, 42, 14, 4, 43, 15],
+
+      // 13
+      [4, 133, 107],
+      [8, 59, 37, 1, 60, 38],
+      [8, 44, 20, 4, 45, 21],
+      [12, 33, 11, 4, 34, 12],
+
+      // 14
+      [3, 145, 115, 1, 146, 116],
+      [4, 64, 40, 5, 65, 41],
+      [11, 36, 16, 5, 37, 17],
+      [11, 36, 12, 5, 37, 13],
+
+      // 15
+      [5, 109, 87, 1, 110, 88],
+      [5, 65, 41, 5, 66, 42],
+      [5, 54, 24, 7, 55, 25],
+      [11, 36, 12, 7, 37, 13],
+
+      // 16
+      [5, 122, 98, 1, 123, 99],
+      [7, 73, 45, 3, 74, 46],
+      [15, 43, 19, 2, 44, 20],
+      [3, 45, 15, 13, 46, 16],
+
+      // 17
+      [1, 135, 107, 5, 136, 108],
+      [10, 74, 46, 1, 75, 47],
+      [1, 50, 22, 15, 51, 23],
+      [2, 42, 14, 17, 43, 15],
+
+      // 18
+      [5, 150, 120, 1, 151, 121],
+      [9, 69, 43, 4, 70, 44],
+      [17, 50, 22, 1, 51, 23],
+      [2, 42, 14, 19, 43, 15],
+
+      // 19
+      [3, 141, 113, 4, 142, 114],
+      [3, 70, 44, 11, 71, 45],
+      [17, 47, 21, 4, 48, 22],
+      [9, 39, 13, 16, 40, 14],
+
+      // 20
+      [3, 135, 107, 5, 136, 108],
+      [3, 67, 41, 13, 68, 42],
+      [15, 54, 24, 5, 55, 25],
+      [15, 43, 15, 10, 44, 16],
+
+      // 21
+      [4, 144, 116, 4, 145, 117],
+      [17, 68, 42],
+      [17, 50, 22, 6, 51, 23],
+      [19, 46, 16, 6, 47, 17],
+
+      // 22
+      [2, 139, 111, 7, 140, 112],
+      [17, 74, 46],
+      [7, 54, 24, 16, 55, 25],
+      [34, 37, 13],
+
+      // 23
+      [4, 151, 121, 5, 152, 122],
+      [4, 75, 47, 14, 76, 48],
+      [11, 54, 24, 14, 55, 25],
+      [16, 45, 15, 14, 46, 16],
+
+      // 24
+      [6, 147, 117, 4, 148, 118],
+      [6, 73, 45, 14, 74, 46],
+      [11, 54, 24, 16, 55, 25],
+      [30, 46, 16, 2, 47, 17],
+
+      // 25
+      [8, 132, 106, 4, 133, 107],
+      [8, 75, 47, 13, 76, 48],
+      [7, 54, 24, 22, 55, 25],
+      [22, 45, 15, 13, 46, 16],
+
+      // 26
+      [10, 142, 114, 2, 143, 115],
+      [19, 74, 46, 4, 75, 47],
+      [28, 50, 22, 6, 51, 23],
+      [33, 46, 16, 4, 47, 17],
+
+      // 27
+      [8, 152, 122, 4, 153, 123],
+      [22, 73, 45, 3, 74, 46],
+      [8, 53, 23, 26, 54, 24],
+      [12, 45, 15, 28, 46, 16],
+
+      // 28
+      [3, 147, 117, 10, 148, 118],
+      [3, 73, 45, 23, 74, 46],
+      [4, 54, 24, 31, 55, 25],
+      [11, 45, 15, 31, 46, 16],
+
+      // 29
+      [7, 146, 116, 7, 147, 117],
+      [21, 73, 45, 7, 74, 46],
+      [1, 53, 23, 37, 54, 24],
+      [19, 45, 15, 26, 46, 16],
+
+      // 30
+      [5, 145, 115, 10, 146, 116],
+      [19, 75, 47, 10, 76, 48],
+      [15, 54, 24, 25, 55, 25],
+      [23, 45, 15, 25, 46, 16],
+
+      // 31
+      [13, 145, 115, 3, 146, 116],
+      [2, 74, 46, 29, 75, 47],
+      [42, 54, 24, 1, 55, 25],
+      [23, 45, 15, 28, 46, 16],
+
+      // 32
+      [17, 145, 115],
+      [10, 74, 46, 23, 75, 47],
+      [10, 54, 24, 35, 55, 25],
+      [19, 45, 15, 35, 46, 16],
+
+      // 33
+      [17, 145, 115, 1, 146, 116],
+      [14, 74, 46, 21, 75, 47],
+      [29, 54, 24, 19, 55, 25],
+      [11, 45, 15, 46, 46, 16],
+
+      // 34
+      [13, 145, 115, 6, 146, 116],
+      [14, 74, 46, 23, 75, 47],
+      [44, 54, 24, 7, 55, 25],
+      [59, 46, 16, 1, 47, 17],
+
+      // 35
+      [12, 151, 121, 7, 152, 122],
+      [12, 75, 47, 26, 76, 48],
+      [39, 54, 24, 14, 55, 25],
+      [22, 45, 15, 41, 46, 16],
+
+      // 36
+      [6, 151, 121, 14, 152, 122],
+      [6, 75, 47, 34, 76, 48],
+      [46, 54, 24, 10, 55, 25],
+      [2, 45, 15, 64, 46, 16],
+
+      // 37
+      [17, 152, 122, 4, 153, 123],
+      [29, 74, 46, 14, 75, 47],
+      [49, 54, 24, 10, 55, 25],
+      [24, 45, 15, 46, 46, 16],
+
+      // 38
+      [4, 152, 122, 18, 153, 123],
+      [13, 74, 46, 32, 75, 47],
+      [48, 54, 24, 14, 55, 25],
+      [42, 45, 15, 32, 46, 16],
+
+      // 39
+      [20, 147, 117, 4, 148, 118],
+      [40, 75, 47, 7, 76, 48],
+      [43, 54, 24, 22, 55, 25],
+      [10, 45, 15, 67, 46, 16],
+
+      // 40
+      [19, 148, 118, 6, 149, 119],
+      [18, 75, 47, 31, 76, 48],
+      [34, 54, 24, 34, 55, 25],
+      [20, 45, 15, 61, 46, 16]
+    ];
+
+    var qrRSBlock = function(totalCount, dataCount) {
+      var _this = {};
+      _this.totalCount = totalCount;
+      _this.dataCount = dataCount;
+      return _this;
+    };
+
+    var _this = {};
+
+    var getRsBlockTable = function(typeNumber, errorCorrectionLevel) {
+
+      switch(errorCorrectionLevel) {
+      case QRErrorCorrectionLevel.L :
+        return RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 0];
+      case QRErrorCorrectionLevel.M :
+        return RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 1];
+      case QRErrorCorrectionLevel.Q :
+        return RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 2];
+      case QRErrorCorrectionLevel.H :
+        return RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 3];
+      default :
+        return undefined;
+      }
+    };
+
+    _this.getRSBlocks = function(typeNumber, errorCorrectionLevel) {
+
+      var rsBlock = getRsBlockTable(typeNumber, errorCorrectionLevel);
+
+      if (typeof rsBlock == 'undefined') {
+        throw 'bad rs block @ typeNumber:' + typeNumber +
+            '/errorCorrectionLevel:' + errorCorrectionLevel;
+      }
+
+      var length = rsBlock.length / 3;
+
+      var list = [];
+
+      for (var i = 0; i < length; i += 1) {
+
+        var count = rsBlock[i * 3 + 0];
+        var totalCount = rsBlock[i * 3 + 1];
+        var dataCount = rsBlock[i * 3 + 2];
+
+        for (var j = 0; j < count; j += 1) {
+          list.push(qrRSBlock(totalCount, dataCount) );
+        }
+      }
+
+      return list;
+    };
+
+    return _this;
+  }();
+
+  //---------------------------------------------------------------------
+  // qrBitBuffer
+  //---------------------------------------------------------------------
+
+  var qrBitBuffer = function() {
+
+    var _buffer = [];
+    var _length = 0;
+
+    var _this = {};
+
+    _this.getBuffer = function() {
+      return _buffer;
+    };
+
+    _this.getAt = function(index) {
+      var bufIndex = Math.floor(index / 8);
+      return ( (_buffer[bufIndex] >>> (7 - index % 8) ) & 1) == 1;
+    };
+
+    _this.put = function(num, length) {
+      for (var i = 0; i < length; i += 1) {
+        _this.putBit( ( (num >>> (length - i - 1) ) & 1) == 1);
+      }
+    };
+
+    _this.getLengthInBits = function() {
+      return _length;
+    };
+
+    _this.putBit = function(bit) {
+
+      var bufIndex = Math.floor(_length / 8);
+      if (_buffer.length <= bufIndex) {
+        _buffer.push(0);
+      }
+
+      if (bit) {
+        _buffer[bufIndex] |= (0x80 >>> (_length % 8) );
+      }
+
+      _length += 1;
+    };
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // qrNumber
+  //---------------------------------------------------------------------
+
+  var qrNumber = function(data) {
+
+    var _mode = QRMode.MODE_NUMBER;
+    var _data = data;
+
+    var _this = {};
+
+    _this.getMode = function() {
+      return _mode;
+    };
+
+    _this.getLength = function(buffer) {
+      return _data.length;
+    };
+
+    _this.write = function(buffer) {
+
+      var data = _data;
+
+      var i = 0;
+
+      while (i + 2 < data.length) {
+        buffer.put(strToNum(data.substring(i, i + 3) ), 10);
+        i += 3;
+      }
+
+      if (i < data.length) {
+        if (data.length - i == 1) {
+          buffer.put(strToNum(data.substring(i, i + 1) ), 4);
+        } else if (data.length - i == 2) {
+          buffer.put(strToNum(data.substring(i, i + 2) ), 7);
+        }
+      }
+    };
+
+    var strToNum = function(s) {
+      var num = 0;
+      for (var i = 0; i < s.length; i += 1) {
+        num = num * 10 + chatToNum(s.charAt(i) );
+      }
+      return num;
+    };
+
+    var chatToNum = function(c) {
+      if ('0' <= c && c <= '9') {
+        return c.charCodeAt(0) - '0'.charCodeAt(0);
+      }
+      throw 'illegal char :' + c;
+    };
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // qrAlphaNum
+  //---------------------------------------------------------------------
+
+  var qrAlphaNum = function(data) {
+
+    var _mode = QRMode.MODE_ALPHA_NUM;
+    var _data = data;
+
+    var _this = {};
+
+    _this.getMode = function() {
+      return _mode;
+    };
+
+    _this.getLength = function(buffer) {
+      return _data.length;
+    };
+
+    _this.write = function(buffer) {
+
+      var s = _data;
+
+      var i = 0;
+
+      while (i + 1 < s.length) {
+        buffer.put(
+          getCode(s.charAt(i) ) * 45 +
+          getCode(s.charAt(i + 1) ), 11);
+        i += 2;
+      }
+
+      if (i < s.length) {
+        buffer.put(getCode(s.charAt(i) ), 6);
+      }
+    };
+
+    var getCode = function(c) {
+
+      if ('0' <= c && c <= '9') {
+        return c.charCodeAt(0) - '0'.charCodeAt(0);
+      } else if ('A' <= c && c <= 'Z') {
+        return c.charCodeAt(0) - 'A'.charCodeAt(0) + 10;
+      } else {
+        switch (c) {
+        case ' ' : return 36;
+        case '$' : return 37;
+        case '%' : return 38;
+        case '*' : return 39;
+        case '+' : return 40;
+        case '-' : return 41;
+        case '.' : return 42;
+        case '/' : return 43;
+        case ':' : return 44;
+        default :
+          throw 'illegal char :' + c;
+        }
+      }
+    };
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // qr8BitByte
+  //---------------------------------------------------------------------
+
+  var qr8BitByte = function(data) {
+
+    var _mode = QRMode.MODE_8BIT_BYTE;
+    var _data = data;
+    var _bytes = qrcode.stringToBytes(data);
+
+    var _this = {};
+
+    _this.getMode = function() {
+      return _mode;
+    };
+
+    _this.getLength = function(buffer) {
+      return _bytes.length;
+    };
+
+    _this.write = function(buffer) {
+      for (var i = 0; i < _bytes.length; i += 1) {
+        buffer.put(_bytes[i], 8);
+      }
+    };
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // qrKanji
+  //---------------------------------------------------------------------
+
+  var qrKanji = function(data) {
+
+    var _mode = QRMode.MODE_KANJI;
+    var _data = data;
+
+    var stringToBytes = qrcode.stringToBytesFuncs['SJIS'];
+    if (!stringToBytes) {
+      throw 'sjis not supported.';
+    }
+    !function(c, code) {
+      // self test for sjis support.
+      var test = stringToBytes(c);
+      if (test.length != 2 || ( (test[0] << 8) | test[1]) != code) {
+        throw 'sjis not supported.';
+      }
+    }('\u53cb', 0x9746);
+
+    var _bytes = stringToBytes(data);
+
+    var _this = {};
+
+    _this.getMode = function() {
+      return _mode;
+    };
+
+    _this.getLength = function(buffer) {
+      return ~~(_bytes.length / 2);
+    };
+
+    _this.write = function(buffer) {
+
+      var data = _bytes;
+
+      var i = 0;
+
+      while (i + 1 < data.length) {
+
+        var c = ( (0xff & data[i]) << 8) | (0xff & data[i + 1]);
+
+        if (0x8140 <= c && c <= 0x9FFC) {
+          c -= 0x8140;
+        } else if (0xE040 <= c && c <= 0xEBBF) {
+          c -= 0xC140;
+        } else {
+          throw 'illegal char at ' + (i + 1) + '/' + c;
+        }
+
+        c = ( (c >>> 8) & 0xff) * 0xC0 + (c & 0xff);
+
+        buffer.put(c, 13);
+
+        i += 2;
+      }
+
+      if (i < data.length) {
+        throw 'illegal char at ' + (i + 1);
+      }
+    };
+
+    return _this;
+  };
+
+  //=====================================================================
+  // GIF Support etc.
+  //
+
+  //---------------------------------------------------------------------
+  // byteArrayOutputStream
+  //---------------------------------------------------------------------
+
+  var byteArrayOutputStream = function() {
+
+    var _bytes = [];
+
+    var _this = {};
+
+    _this.writeByte = function(b) {
+      _bytes.push(b & 0xff);
+    };
+
+    _this.writeShort = function(i) {
+      _this.writeByte(i);
+      _this.writeByte(i >>> 8);
+    };
+
+    _this.writeBytes = function(b, off, len) {
+      off = off || 0;
+      len = len || b.length;
+      for (var i = 0; i < len; i += 1) {
+        _this.writeByte(b[i + off]);
+      }
+    };
+
+    _this.writeString = function(s) {
+      for (var i = 0; i < s.length; i += 1) {
+        _this.writeByte(s.charCodeAt(i) );
+      }
+    };
+
+    _this.toByteArray = function() {
+      return _bytes;
+    };
+
+    _this.toString = function() {
+      var s = '';
+      s += '[';
+      for (var i = 0; i < _bytes.length; i += 1) {
+        if (i > 0) {
+          s += ',';
+        }
+        s += _bytes[i];
+      }
+      s += ']';
+      return s;
+    };
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // base64EncodeOutputStream
+  //---------------------------------------------------------------------
+
+  var base64EncodeOutputStream = function() {
+
+    var _buffer = 0;
+    var _buflen = 0;
+    var _length = 0;
+    var _base64 = '';
+
+    var _this = {};
+
+    var writeEncoded = function(b) {
+      _base64 += String.fromCharCode(encode(b & 0x3f) );
+    };
+
+    var encode = function(n) {
+      if (n < 0) {
+        // error.
+      } else if (n < 26) {
+        return 0x41 + n;
+      } else if (n < 52) {
+        return 0x61 + (n - 26);
+      } else if (n < 62) {
+        return 0x30 + (n - 52);
+      } else if (n == 62) {
+        return 0x2b;
+      } else if (n == 63) {
+        return 0x2f;
+      }
+      throw 'n:' + n;
+    };
+
+    _this.writeByte = function(n) {
+
+      _buffer = (_buffer << 8) | (n & 0xff);
+      _buflen += 8;
+      _length += 1;
+
+      while (_buflen >= 6) {
+        writeEncoded(_buffer >>> (_buflen - 6) );
+        _buflen -= 6;
+      }
+    };
+
+    _this.flush = function() {
+
+      if (_buflen > 0) {
+        writeEncoded(_buffer << (6 - _buflen) );
+        _buffer = 0;
+        _buflen = 0;
+      }
+
+      if (_length % 3 != 0) {
+        // padding
+        var padlen = 3 - _length % 3;
+        for (var i = 0; i < padlen; i += 1) {
+          _base64 += '=';
+        }
+      }
+    };
+
+    _this.toString = function() {
+      return _base64;
+    };
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // base64DecodeInputStream
+  //---------------------------------------------------------------------
+
+  var base64DecodeInputStream = function(str) {
+
+    var _str = str;
+    var _pos = 0;
+    var _buffer = 0;
+    var _buflen = 0;
+
+    var _this = {};
+
+    _this.read = function() {
+
+      while (_buflen < 8) {
+
+        if (_pos >= _str.length) {
+          if (_buflen == 0) {
+            return -1;
+          }
+          throw 'unexpected end of file./' + _buflen;
+        }
+
+        var c = _str.charAt(_pos);
+        _pos += 1;
+
+        if (c == '=') {
+          _buflen = 0;
+          return -1;
+        } else if (c.match(/^\s$/) ) {
+          // ignore if whitespace.
+          continue;
+        }
+
+        _buffer = (_buffer << 6) | decode(c.charCodeAt(0) );
+        _buflen += 6;
+      }
+
+      var n = (_buffer >>> (_buflen - 8) ) & 0xff;
+      _buflen -= 8;
+      return n;
+    };
+
+    var decode = function(c) {
+      if (0x41 <= c && c <= 0x5a) {
+        return c - 0x41;
+      } else if (0x61 <= c && c <= 0x7a) {
+        return c - 0x61 + 26;
+      } else if (0x30 <= c && c <= 0x39) {
+        return c - 0x30 + 52;
+      } else if (c == 0x2b) {
+        return 62;
+      } else if (c == 0x2f) {
+        return 63;
+      } else {
+        throw 'c:' + c;
+      }
+    };
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // gifImage (B/W)
+  //---------------------------------------------------------------------
+
+  var gifImage = function(width, height) {
+
+    var _width = width;
+    var _height = height;
+    var _data = new Array(width * height);
+
+    var _this = {};
+
+    _this.setPixel = function(x, y, pixel) {
+      _data[y * _width + x] = pixel;
+    };
+
+    _this.write = function(out) {
+
+      //---------------------------------
+      // GIF Signature
+
+      out.writeString('GIF87a');
+
+      //---------------------------------
+      // Screen Descriptor
+
+      out.writeShort(_width);
+      out.writeShort(_height);
+
+      out.writeByte(0x80); // 2bit
+      out.writeByte(0);
+      out.writeByte(0);
+
+      //---------------------------------
+      // Global Color Map
+
+      // black
+      out.writeByte(0x00);
+      out.writeByte(0x00);
+      out.writeByte(0x00);
+
+      // white
+      out.writeByte(0xff);
+      out.writeByte(0xff);
+      out.writeByte(0xff);
+
+      //---------------------------------
+      // Image Descriptor
+
+      out.writeString(',');
+      out.writeShort(0);
+      out.writeShort(0);
+      out.writeShort(_width);
+      out.writeShort(_height);
+      out.writeByte(0);
+
+      //---------------------------------
+      // Local Color Map
+
+      //---------------------------------
+      // Raster Data
+
+      var lzwMinCodeSize = 2;
+      var raster = getLZWRaster(lzwMinCodeSize);
+
+      out.writeByte(lzwMinCodeSize);
+
+      var offset = 0;
+
+      while (raster.length - offset > 255) {
+        out.writeByte(255);
+        out.writeBytes(raster, offset, 255);
+        offset += 255;
+      }
+
+      out.writeByte(raster.length - offset);
+      out.writeBytes(raster, offset, raster.length - offset);
+      out.writeByte(0x00);
+
+      //---------------------------------
+      // GIF Terminator
+      out.writeString(';');
+    };
+
+    var bitOutputStream = function(out) {
+
+      var _out = out;
+      var _bitLength = 0;
+      var _bitBuffer = 0;
+
+      var _this = {};
+
+      _this.write = function(data, length) {
+
+        if ( (data >>> length) != 0) {
+          throw 'length over';
+        }
+
+        while (_bitLength + length >= 8) {
+          _out.writeByte(0xff & ( (data << _bitLength) | _bitBuffer) );
+          length -= (8 - _bitLength);
+          data >>>= (8 - _bitLength);
+          _bitBuffer = 0;
+          _bitLength = 0;
+        }
+
+        _bitBuffer = (data << _bitLength) | _bitBuffer;
+        _bitLength = _bitLength + length;
+      };
+
+      _this.flush = function() {
+        if (_bitLength > 0) {
+          _out.writeByte(_bitBuffer);
+        }
+      };
+
+      return _this;
+    };
+
+    var getLZWRaster = function(lzwMinCodeSize) {
+
+      var clearCode = 1 << lzwMinCodeSize;
+      var endCode = (1 << lzwMinCodeSize) + 1;
+      var bitLength = lzwMinCodeSize + 1;
+
+      // Setup LZWTable
+      var table = lzwTable();
+
+      for (var i = 0; i < clearCode; i += 1) {
+        table.add(String.fromCharCode(i) );
+      }
+      table.add(String.fromCharCode(clearCode) );
+      table.add(String.fromCharCode(endCode) );
+
+      var byteOut = byteArrayOutputStream();
+      var bitOut = bitOutputStream(byteOut);
+
+      // clear code
+      bitOut.write(clearCode, bitLength);
+
+      var dataIndex = 0;
+
+      var s = String.fromCharCode(_data[dataIndex]);
+      dataIndex += 1;
+
+      while (dataIndex < _data.length) {
+
+        var c = String.fromCharCode(_data[dataIndex]);
+        dataIndex += 1;
+
+        if (table.contains(s + c) ) {
+
+          s = s + c;
+
+        } else {
+
+          bitOut.write(table.indexOf(s), bitLength);
+
+          if (table.size() < 0xfff) {
+
+            if (table.size() == (1 << bitLength) ) {
+              bitLength += 1;
+            }
+
+            table.add(s + c);
+          }
+
+          s = c;
+        }
+      }
+
+      bitOut.write(table.indexOf(s), bitLength);
+
+      // end code
+      bitOut.write(endCode, bitLength);
+
+      bitOut.flush();
+
+      return byteOut.toByteArray();
+    };
+
+    var lzwTable = function() {
+
+      var _map = {};
+      var _size = 0;
+
+      var _this = {};
+
+      _this.add = function(key) {
+        if (_this.contains(key) ) {
+          throw 'dup key:' + key;
+        }
+        _map[key] = _size;
+        _size += 1;
+      };
+
+      _this.size = function() {
+        return _size;
+      };
+
+      _this.indexOf = function(key) {
+        return _map[key];
+      };
+
+      _this.contains = function(key) {
+        return typeof _map[key] != 'undefined';
+      };
+
+      return _this;
+    };
+
+    return _this;
+  };
+
+  var createDataURL = function(width, height, getPixel) {
+    var gif = gifImage(width, height);
+    for (var y = 0; y < height; y += 1) {
+      for (var x = 0; x < width; x += 1) {
+        gif.setPixel(x, y, getPixel(x, y) );
+      }
+    }
+
+    var b = byteArrayOutputStream();
+    gif.write(b);
+
+    var base64 = base64EncodeOutputStream();
+    var bytes = b.toByteArray();
+    for (var i = 0; i < bytes.length; i += 1) {
+      base64.writeByte(bytes[i]);
+    }
+    base64.flush();
+
+    return 'data:image/gif;base64,' + base64;
+  };
+
+  //---------------------------------------------------------------------
+  // returns qrcode function.
+
+  return qrcode;
+}();
+
+// multibyte support
+!function() {
+
+  qrcode.stringToBytesFuncs['UTF-8'] = function(s) {
+    // http://stackoverflow.com/questions/18729405/how-to-convert-utf8-string-to-byte-array
+    function toUTF8Array(str) {
+      var utf8 = [];
+      for (var i=0; i < str.length; i++) {
+        var charcode = str.charCodeAt(i);
+        if (charcode < 0x80) utf8.push(charcode);
+        else if (charcode < 0x800) {
+          utf8.push(0xc0 | (charcode >> 6),
+              0x80 | (charcode & 0x3f));
+        }
+        else if (charcode < 0xd800 || charcode >= 0xe000) {
+          utf8.push(0xe0 | (charcode >> 12),
+              0x80 | ((charcode>>6) & 0x3f),
+              0x80 | (charcode & 0x3f));
+        }
+        // surrogate pair
+        else {
+          i++;
+          // UTF-16 encodes 0x10000-0x10FFFF by
+          // subtracting 0x10000 and splitting the
+          // 20 bits of 0x0-0xFFFFF into two halves
+          charcode = 0x10000 + (((charcode & 0x3ff)<<10)
+            | (str.charCodeAt(i) & 0x3ff));
+          utf8.push(0xf0 | (charcode >>18),
+              0x80 | ((charcode>>12) & 0x3f),
+              0x80 | ((charcode>>6) & 0x3f),
+              0x80 | (charcode & 0x3f));
+        }
+      }
+      return utf8;
+    }
+    return toUTF8Array(s);
+  };
+
+}();
+
+(function (factory) {
+  if (typeof define === 'function' && define.amd) {
+      define([], factory);
+  } else if (typeof exports === 'object') {
+      module.exports = factory();
+  }
+}(function () {
+    return qrcode;
+}));
+
+</script>
+<script>
+/* Life Choices: game engine (runs in the teacher's browser; the preview page runs it the same way) */
+(function (root, factory) {
+  if (typeof module === "object" && module.exports) module.exports = factory();
+  else root.LifeEngine = factory();
+})(typeof self !== "undefined" ? self : this, function () {
+  "use strict";
+
+  var YEARS = 5, TOTAL = 6, START_AGE = 18;
+
+  /* Approximate typical annual pay, rounded (BLS national medians, with California minimum-wage floors). */
+  var CAREERS = [
+    { id: "doctor",      name: "Doctor",             icon: "🩺", pay: 140000, ramp: [0.15, 0.6] },
+    { id: "lawyer",      name: "Lawyer",             icon: "⚖️", pay: 118000, ramp: [0.3, 0.85] },
+    { id: "software",    name: "Software developer", icon: "💻", pay: 104000, ramp: [0.75] },
+    { id: "analyst",     name: "Financial analyst",  icon: "📈", pay: 90000, ramp: [0.75] },
+    { id: "nurse",       name: "Registered nurse",   icon: "🏥", pay: 82000, ramp: [0.75] },
+    { id: "accountant",  name: "Accountant",         icon: "🧮", pay: 76000, ramp: [0.8] },
+    { id: "police",      name: "Police officer",     icon: "🚓", pay: 72000 },
+    { id: "teacher",     name: "Elementary teacher", icon: "🍎", pay: 68000, ramp: [0.75] },
+    { id: "electrician", name: "Electrician",        icon: "⚡", pay: 66000 },
+    { id: "firefighter", name: "Firefighter",        icon: "🚒", pay: 64000 },
+    { id: "artist",      name: "Artist",             icon: "🎨", pay: 58000 },
+    { id: "mechanic",    name: "Auto mechanic",      icon: "🔧", pay: 58000 },
+    { id: "fastfood",    name: "Fast food worker",   icon: "🍔", pay: 52000 },
+    { id: "retail",      name: "Retail salesperson", icon: "🛍️", pay: 50000 },
+    { id: "entrepreneur", name: "Entrepreneur",      icon: "🌟", pay: 60000, ramp: [0.2, 0.25, 0.3, 2, 2], alwaysRamp: true, rampNote: "Startup years" }
+  ];
+
+  var DEFAULTS = {
+    /* basics */
+    showEffects: true, livingCostPerYear: 42000, useTaxes: true, otherCareerPay: 50000, firstJobPay: 30000, round1LivingPct: 30,
+    /* round 1 extras */
+    carCost: 20000, carValuePerYear: 1000, summerJobPay: 4000, alaskaSavingsPerYear: 15000,
+    /* round 2: insurance (you leave your parents' plan) */
+    entrepreneurWindfall: 4000000, wheelRound: 5, wheelCount: 1, netWorthFloor: 2000,
+    starterUpfront: 30000, starterExtraPerYear: 6000, starterEquityPerRound: 50000, starterUpgradeCost: 45000, starterUpgradeAfter: 2,
+    foreverUpfront: 80000, foreverExtraPerYear: 10000, foreverEquityPerRound: 90000,
+    insBasicPerYear: 2400, insPremiumPerYear: 6000, accidentRound: 4, accidentBasic: 120000, accidentPremium: 6000, insWaiting: "next",
+    useRamp: true, noCollegeBoost: 50000, lowIncomeBoost: 50000, lowIncomeLimit: 60000,
+    missionPenaltyPct: 40, missionBoostPct: 5, missionCost: 10000, missionValue: 0,
+    /* rounds 1 to 3 */
+    collegePenaltyPct: 50, collegeBoostPct: 15, collegeCost: 24000,
+    marriageBoostPct: 50, marriageDelayRounds: 2, marriageMode: "compound",
+    weddingCost: 25000, marriedExtraCostPerYear: 12000,
+    kidsPenaltyPct: 20, kidsBoostPct: 20, kidsCostPerYear: 15000,
+    /* round 4: home and money */
+    investPct: 15, investReturnPct: 7, tripCost: 12000, tripValue: 20000, tripBoostPct: 2,
+    /* round 5: health and giving back */
+    screeningCost: 2500, screeningValue: 50000, screeningLateValue: 25000, healthTripCost: 10000, healthTripValue: 12000, healthSkipBill: 30000,
+    serveCostPerYear: 2000, serveValuePerRound: 60000, serveBoostPct: 5, workHoursBonusPct: 6, workHoursBoostPct: 1,
+    businessCost: 20000, businessFirstPct: 5, businessBoostPct: 8,
+    /* round 6: family and legacy */
+    helpFamCost: 50000, helpFamValue: 90000,
+    promoPct: 25, familyPct: 15, familyValue: 60000,
+    dogCostPerYear: 2500, dogValuePerRound: 20000
+  };
+  var LIMITS = {
+    livingCostPerYear: [0, 200000], otherCareerPay: [0, 1000000], firstJobPay: [0, 200000], round1LivingPct: [0, 150],
+    carCost: [0, 200000], carValuePerYear: [0, 50000], summerJobPay: [0, 50000], alaskaSavingsPerYear: [0, 100000],
+    insBasicPerYear: [0, 50000], insPremiumPerYear: [0, 50000], accidentRound: [2, 6], accidentBasic: [0, 1000000], accidentPremium: [0, 1000000],
+    
+    noCollegeBoost: [0, 500000], lowIncomeBoost: [0, 500000], lowIncomeLimit: [0, 500000],
+    missionPenaltyPct: [0, 100], missionBoostPct: [0, 100], missionCost: [0, 200000], missionValue: [0, 1000000],
+    tripCost: [0, 200000], tripValue: [0, 1000000], tripBoostPct: [0, 100], businessCost: [0, 500000], businessFirstPct: [0, 100], businessBoostPct: [0, 100],
+    dogCostPerYear: [0, 50000], dogValuePerRound: [0, 1000000],
+    collegePenaltyPct: [0, 100], collegeBoostPct: [0, 200], collegeCost: [0, 500000],
+    marriageBoostPct: [0, 300], marriageDelayRounds: [0, 4], weddingCost: [0, 200000], marriedExtraCostPerYear: [0, 100000],
+    kidsPenaltyPct: [0, 100], kidsBoostPct: [0, 200], kidsCostPerYear: [0, 100000],
+    entrepreneurWindfall: [0, 20000000], wheelRound: [0, 6], wheelCount: [0, 5], netWorthFloor: [0, 1000000],
+    starterUpfront: [0, 500000], starterExtraPerYear: [0, 100000], starterEquityPerRound: [0, 1000000], starterUpgradeCost: [0, 500000], starterUpgradeAfter: [1, 4],
+    foreverUpfront: [0, 500000], foreverExtraPerYear: [0, 100000], foreverEquityPerRound: [0, 1000000],
+    investPct: [0, 100], investReturnPct: [0, 30],
+    screeningCost: [0, 100000], screeningValue: [0, 1000000], screeningLateValue: [0, 1000000], healthTripCost: [0, 200000], healthTripValue: [0, 1000000], healthSkipBill: [0, 500000],
+    serveCostPerYear: [0, 50000], serveValuePerRound: [0, 1000000], serveBoostPct: [0, 100], workHoursBonusPct: [0, 200], workHoursBoostPct: [0, 100],
+    helpFamCost: [0, 500000], helpFamValue: [0, 1000000],
+    promoPct: [0, 200], familyPct: [0, 100], familyValue: [0, 1000000]
+  };
+  var SETTING_FIELDS = [
+    { k: "livingCostPerYear", l: "Living costs per year, single ($)", g: "Basics" },
+    { k: "useTaxes", l: "Include estimated taxes", g: "Basics", opts: [["true", "Yes"], ["false", "No"]] },
+    { k: "showEffects", l: "Show what each choice does to pay, costs, and life value on phones", g: "Basics", opts: [["true", "Yes"], ["false", "No"]] },
+    { k: "otherCareerPay", l: "Write-in career: default pay per year ($)", g: "Basics" },
+    { k: "netWorthFloor", l: "Lowest possible net worth: nobody goes into debt ($)", g: "Basics" },
+    { k: "useRamp", l: "Career training years (doctors and lawyers start low)", g: "Round 1 extras", opts: [["true", "Yes"], ["false", "No"]] },
+    { k: "noCollegeBoost", l: "No college: head start cash ($)", g: "Round 1 extras" },
+    { k: "alaskaSavingsPerYear", l: "Rural Alaska: living cost savings per year ($)", g: "Round 1 extras" },
+    { k: "lowIncomeBoost", l: "Career launch fund: cash when you start a career ($)", g: "Round 1 extras" },
+    { k: "lowIncomeLimit", l: "Career launch fund applies to careers with typical pay up to ($ per year)", g: "Round 1 extras" },
+    { k: "missionPenaltyPct", l: "Mission: pay cut in round 1 (%)", g: "Round 1 extras" },
+    { k: "missionBoostPct", l: "Mission: pay boost each round after (%)", g: "Round 1 extras" },
+    { k: "missionCost", l: "Mission: cost ($)", g: "Round 1 extras" },
+    { k: "missionValue", l: "Mission: life value ($)", g: "Round 1 extras" },
+    { k: "collegePenaltyPct", l: "College: pay cut in round 1 (%)", g: "Rounds 1 to 3" },
+    { k: "collegeBoostPct", l: "College: pay boost each round after (%)", g: "Rounds 1 to 3" },
+    { k: "collegeCost", l: "College tuition, one time, BYU-style ~$6k/yr x4 ($)", g: "Rounds 1 to 3" },
+    { k: "marriageBoostPct", l: "Marriage: pay boost (%)", g: "Rounds 1 to 3" },
+    { k: "marriageDelayRounds", l: "Marriage: boost starts after (rounds)", g: "Rounds 1 to 3" },
+    { k: "marriageMode", l: "Marriage boost", g: "Rounds 1 to 3", opts: [["compound", "Compounds every round"], ["once", "One step that stays"]] },
+    { k: "weddingCost", l: "Wedding cost ($)", g: "Rounds 1 to 3" },
+    { k: "marriedExtraCostPerYear", l: "Married: extra costs per year ($)", g: "Rounds 1 to 3" },
+    { k: "kidsPenaltyPct", l: "Kids: pay cut in that round (%)", g: "Rounds 1 to 3" },
+    { k: "kidsBoostPct", l: "Kids: pay boost each round after (%)", g: "Rounds 1 to 3" },
+    { k: "kidsCostPerYear", l: "Kids: costs per year ($)", g: "Rounds 1 to 3" },
+    { k: "starterUpfront", l: "Starter home: upfront cost ($)", g: "Home buying" },
+    { k: "starterExtraPerYear", l: "Starter home: extra costs per year ($)", g: "Home buying" },
+    { k: "starterEquityPerRound", l: "Starter home: equity gained per round ($)", g: "Home buying" },
+    { k: "starterUpgradeAfter", l: "Starter home: forced to a bigger home after (rounds)", g: "Home buying" },
+    { k: "starterUpgradeCost", l: "Forced move to a bigger home: cost ($)", g: "Home buying" },
+    { k: "foreverUpfront", l: "Forever home: upfront cost ($)", g: "Home buying" },
+    { k: "foreverExtraPerYear", l: "Forever home: extra costs per year ($)", g: "Home buying" },
+    { k: "foreverEquityPerRound", l: "Forever home: equity gained per round ($)", g: "Home buying" },
+    { k: "entrepreneurWindfall", l: "Entrepreneur: windfall in the 4th round of the career ($)", g: "Basics" },
+    { k: "wheelRound", l: "Wheel of life spins at the start of round (0 = never)", g: "Wheel of life" },
+    { k: "wheelCount", l: "Players eliminated by the wheel", g: "Wheel of life" },
+    { k: "investPct", l: "Invest: share of take-home saved (%)", g: "Round 4" },
+    { k: "investReturnPct", l: "Invest: return per year (%)", g: "Round 4" },
+    { k: "tripCost", l: "Kazakhstan trip: cost ($)", g: "Round 4" },
+    { k: "tripValue", l: "Kazakhstan trip: life value ($)", g: "Round 4" },
+    { k: "tripBoostPct", l: "Kazakhstan trip: small pay boost each round after (%)", g: "Round 4" },
+    { k: "screeningCost", l: "Full health screening: cost ($)", g: "Round 5" },
+    { k: "screeningValue", l: "Full health screening: life value ($)", g: "Round 5" },
+    { k: "screeningLateValue", l: "Screening done late (round 6): life value ($)", g: "Round 5" },
+    { k: "healthTripCost", l: "Second trip instead of screening: cost ($)", g: "Round 5" },
+    { k: "healthTripValue", l: "Second trip instead of screening: life value ($)", g: "Round 5" },
+    { k: "healthSkipBill", l: "No screening: health bill the next round ($)", g: "Round 5" },
+    { k: "workHoursBonusPct", l: "Extra work hours: small bonus that round (%)", g: "Round 5" },
+    { k: "workHoursBoostPct", l: "Extra work hours: small pay boost each round after (%)", g: "Round 5" },
+    { k: "serveCostPerYear", l: "Volunteer service: cost per year ($)", g: "Round 5" },
+    { k: "serveValuePerRound", l: "Volunteer service: life value per round ($)", g: "Round 5" },
+    { k: "serveBoostPct", l: "Volunteer service: pay boost each round after (%)", g: "Round 5" },
+    { k: "businessCost", l: "Side business: startup cost ($)", g: "Round 5" },
+    { k: "businessFirstPct", l: "Side business: pay cut that round (%)", g: "Round 5" },
+    { k: "businessBoostPct", l: "Side business: pay boost each round after (%)", g: "Round 5" },
+    { k: "helpFamCost", l: "Help with school: cost ($)", g: "Round 6" },
+    { k: "helpFamValue", l: "Help with school: life value ($)", g: "Round 6" },
+    { k: "promoPct", l: "Big promotion: pay boost this round (%)", g: "Round 6" },
+    { k: "familyPct", l: "Cut back for family: pay cut this round (%)", g: "Round 6" },
+    { k: "familyValue", l: "Cut back for family: life value ($)", g: "Round 6" },
+    { k: "dogCostPerYear", l: "Adopt a dog: cost per year ($)", g: "Round 6" },
+    { k: "dogValuePerRound", l: "Adopt a dog: life value ($)", g: "Round 6" }
+  ];
+
+  var SUMMER = [
+    { id: "Mongolia", name: "Mongolia adventure", icon: "🐎", chip: "Mongolia", cost: 6500, value: 18000 },
+    { id: "Nicaragua", name: "Surf trip to Nicaragua", icon: "🏄", chip: "Nicaragua surf trip", cost: 3000, value: 12000 },
+    { id: "Pch", name: "Road trip along the PCH", icon: "🚗", chip: "PCH road trip", cost: 1500, value: 9000 },
+    { id: "Camping", name: "Camping trip with friends", icon: "⛺", chip: "Friends camping trip", cost: 500, value: 6000 },
+    { id: "Hawaii", name: "Hawaii", icon: "🌺", chip: "Hawaii", cost: 4000, value: 10000 },
+    { id: "Hefy", name: "HEFY", icon: "🎒", chip: "HEFY", cost: 2000, value: 8000 }
+  ];
+  SUMMER.forEach(function (t) {
+    DEFAULTS["summer" + t.id + "Cost"] = t.cost; DEFAULTS["summer" + t.id + "Value"] = t.value;
+    LIMITS["summer" + t.id + "Cost"] = [0, 200000]; LIMITS["summer" + t.id + "Value"] = [0, 1000000];
+    SETTING_FIELDS.push({ k: "summer" + t.id + "Cost", l: "Summer trip, " + t.chip + ": cost ($)", g: "Round 1 summer trips" });
+    SETTING_FIELDS.push({ k: "summer" + t.id + "Value", l: "Summer trip, " + t.chip + ": life value ($)", g: "Round 1 summer trips" });
+  });
+  [
+    { k: "firstJobPay", l: "Round 1 first jobs: pay per year ($)", g: "Basics" },
+    { k: "round1LivingPct", l: "Round 1 living costs (% of normal)", g: "Basics" },
+    { k: "carCost", l: "Buy a car: cost ($)", g: "Round 1 extras" },
+    { k: "carValuePerYear", l: "Buy a car: benefit per year ($)", g: "Round 1 extras" },
+    { k: "summerJobPay", l: "Stay home and work all summer: earnings ($)", g: "Round 1 extras" },
+    { k: "insBasicPerYear", l: "Cheap health plan: cost per year ($)", g: "Round 2 health insurance" },
+    { k: "insPremiumPerYear", l: "Premium health plan: cost per year ($)", g: "Round 2 health insurance" },
+    { k: "accidentRound", l: "Accident happens in round", g: "Round 2 health insurance" },
+    { k: "accidentBasic", l: "Accident bill with the cheap plan ($)", g: "Round 2 health insurance" },
+    { k: "accidentPremium", l: "Accident bill with the premium plan ($)", g: "Round 2 health insurance" },
+    { k: "insWaiting", l: "A new plan covers the accident", g: "Round 2 health insurance", opts: [["next", "Starting next round"], ["now", "Immediately"]] },
+    { k: "_end", l: "", g: "" }
+  ].filter(function (f) { return f.k !== "_end"; }).forEach(function (f) { SETTING_FIELDS.push(f); });
+
+  /* ---------- decisions (edit here to add or move decisions) ----------
+     from / to: the rounds where the question appears. once: true hides it after a player says yes.
+     yesno decisions can have yesEff / noEff; choice decisions have options with eff.
+     Effect fields: cash (one time), perYear (each round from now, times 5), perRound (each round from now),
+     incomePct (pay change in that round only), boostPct (pay boost each later round, compounding),
+     value (life value, one time), valuePerRound, invest (true). */
+  var ROUND_TITLES = ["College, mission, and summer", "Career, marriage, and insurance", "Family and big ideas", "Home and money", "Health and giving back", "Family and legacy"];
+  var DECISIONS = [
+    { id: "college", type: "yesno", from: 1, to: 1, label: "College", icon: "🎓", prompt: "Will you go to college?", yes: "Yes, go to college", no: "No, start working", yesChip: "Going to college", noChip: "Going straight to work" },
+    { id: "location", type: "yesno", from: 1, to: 1, label: "Location", icon: "🏔️", prompt: "Where will you live?", yes: "Move out to rural Alaska", no: "Stay near the city", yesChip: "Living in rural Alaska", noChip: "Living near the city",
+      yesEff: function (s) { return { perYear: s.alaskaSavingsPerYear, yearNote: "Lower cost of living out in rural Alaska", note: "Moving out to rural Alaska" }; } },
+    { id: "mission", type: "yesno", from: 1, to: 1, label: "Mission", icon: "🌍", prompt: "Will you serve a full-time church mission?", yes: "Yes, serve a mission", no: "No, not now", yesChip: "Serving a mission", noChip: "Not serving a mission",
+      yesEff: function (s) { return { incomePct: -s.missionPenaltyPct, boostPct: s.missionBoostPct, cash: -s.missionCost, value: s.missionValue, payNote: "Mission", note: "Mission costs", valueNote: "Mission experience" }; } },
+    { id: "summer", type: "choice", from: 1, to: 1, label: "Summer", prompt: "What will you do with your big summer?", options: SUMMER.map(function (t) {
+      return { id: t.id.toLowerCase(), name: t.name, icon: t.icon, chip: t.chip, eff: function (s) { return { cash: -s["summer" + t.id + "Cost"], value: s["summer" + t.id + "Value"], note: "Summer trip (" + t.chip + ")", valueNote: "Summer adventure: " + t.chip }; } };
+    }).concat([{ id: "work", name: "Stay home and work", icon: "💼", chip: "Working all summer", eff: function (s) { return { cash: s.summerJobPay, note: "Summer job earnings" }; } }]) },
+    { id: "car", type: "yesno", from: 1, to: 1, label: "Car", icon: "🚙", prompt: "Will you buy a car?", yes: "Yes, buy a car", no: "No, I will get around without one", yesChip: "Buying a car", noChip: "No car",
+      yesEff: function (s) { return { cash: -s.carCost, perYear: s.carValuePerYear, note: "Car purchase", yearNote: "Car convenience" }; } },
+    { id: "career", type: "career", from: 2, to: 2, prompt: "What career will you choose?" },
+    { id: "marry", type: "yesno", from: 2, to: 4, once: true, label: "Marriage", icon: "💍", prompt: "Do you want to get married now?", yes: "Yes, get married", no: "No, not now", yesChip: "Getting married", noChip: "Waiting" },
+    { id: "insurance", type: "choice", sticky: true, from: 2, to: 6, label: "Insurance", prompt: "You are off your parents' health insurance. Which plan will you have? You can switch any time.", options: [
+      { id: "basic", name: "Cheap plan: low cost, big bills if something goes wrong", icon: "🩹", chip: "Cheap health plan" },
+      { id: "premium", name: "Premium plan: costs more, covers almost everything", icon: "🛡️", chip: "Premium health plan" }
+    ] },
+    { id: "kids", type: "yesno", from: 3, to: 4, once: true, label: "Kids", icon: "👶", prompt: "Will you have kids now?", yes: "Yes, have kids", no: "No, not yet", yesChip: "Having kids", noChip: "Not yet" },
+    { id: "business", type: "yesno", from: 3, to: 5, once: true, label: "Side business", icon: "💡", prompt: "Will you start a side business?", yes: "Yes, start a business", no: "No, keep my day job", yesChip: "Starting a business", noChip: "Day job only",
+      yesEff: function (s) { return { cash: -s.businessCost, incomePct: -s.businessFirstPct, boostPct: s.businessBoostPct, payNote: "Side business", note: "Business startup" }; } },
+    { id: "home", type: "choice", from: 3, to: 5, once: true, skipId: "rent", label: "Home", prompt: "Will you buy a home, and what kind?", options: [
+      { id: "rent", name: "Keep renting", icon: "🏢", chip: "Renting" },
+      { id: "starter", name: "Buy a small starter home", icon: "🏡", chip: "Small starter home", eff: function (s) {
+        return { cash: -s.starterUpfront, perYear: -s.starterExtraPerYear, perRound: s.starterEquityPerRound, note: "Starter home costs", gainNote: "Starter home equity",
+          later: [{ after: Math.round(s.starterUpgradeAfter), eff: { cash: -s.starterUpgradeCost, perYear: -(s.foreverExtraPerYear - s.starterExtraPerYear), perRound: s.foreverEquityPerRound - s.starterEquityPerRound, note: "Forced move to a bigger home", yearNote: "Bigger home costs", gainNote: "Bigger home equity" } }] };
+      } },
+      { id: "forever", name: "Buy your forever home", icon: "🏠", chip: "Forever home", eff: function (s) {
+        return { cash: -s.foreverUpfront, perYear: -s.foreverExtraPerYear, perRound: s.foreverEquityPerRound, note: "Forever home costs", gainNote: "Forever home equity" };
+      } }
+    ] },
+    { id: "moneytrip", type: "choice", from: 4, to: 4, label: "Invest or trip", prompt: "Your big move this round. You can only pick one: invest part of every paycheck, or take the big adventure trip to Kazakhstan.", options: [
+      { id: "invest", name: "Save and invest part of every paycheck (pays off over time)", icon: "📈", chip: "Investing", eff: function () { return { invest: true }; } },
+      { id: "kazakhstan", name: "Take the big trip to Kazakhstan (costs money now, small boost)", icon: "🏔️", chip: "Trip to Kazakhstan", eff: function (s) {
+        return { cash: -s.tripCost, value: s.tripValue, boostPct: s.tripBoostPct, note: "Trip to Kazakhstan", valueNote: "Adventure and perspective", payNote: "Trip contacts and confidence" };
+      } }
+    ] },
+    { id: "invest", type: "yesno", from: 5, to: 6, once: true, hideIf: function (life) { return life.investing; }, hideText: "Already investing", label: "Invest later", icon: "📈", prompt: "Will you start saving and investing part of every paycheck?", yes: "Yes, invest", no: "No, spend it", yesChip: "Started investing", noChip: "Not investing",
+      yesEff: function () { return { invest: true }; } },
+    { id: "dog", type: "yesno", from: 4, to: 6, once: true, label: "Dog", icon: "🐶", prompt: "Will you adopt a dog?", yes: "Yes, adopt a dog", no: "No pets", yesChip: "Adopted a dog", noChip: "No pets",
+      yesEff: function (s) { return { perYear: -s.dogCostPerYear, valuePerRound: s.dogValuePerRound, note: "Dog costs", valueNote: "Companionship" }; } },
+    { id: "health", type: "choice", from: 5, to: 5, label: "Health", prompt: "Time to look after yourself. You can only pick one: a full health screening, or another big trip.", options: [
+      { id: "screening", name: "Do a full health screening", icon: "🩺", chip: "Full health screening", eff: function (s) {
+        return { cash: -s.screeningCost, value: s.screeningValue, screened: true, note: "Full health screening", valueNote: "Being super healthy" };
+      } },
+      { id: "trip2", name: "Go on another big trip", icon: "✈️", chip: "Another big trip", eff: function (s) {
+        return { cash: -s.healthTripCost, value: s.healthTripValue, note: "Second big trip", valueNote: "Another adventure",
+          later: [{ after: 1, eff: { cash: -s.healthSkipBill, note: "Health problem caught too late (no screening)" } }] };
+      } }
+    ] },
+    { id: "workserve", type: "choice", from: 5, to: 5, label: "Work or service", prompt: "You have a little extra time and energy. You can only pick one: put a few more hours into work, or take on regular volunteer service for your church.", options: [
+      { id: "work", name: "Put in a few more hours at work, hoping for a promotion", icon: "💼", chip: "Extra hours at work", eff: function (s) { return { incomePct: s.workHoursBonusPct, boostPct: s.workHoursBoostPct, payNote: "Extra hours and promotion" }; } },
+      { id: "serve", name: "Take on regular volunteer service for my church", icon: "🤝", chip: "Volunteering for church", eff: function (s) {
+        return { perYear: -s.serveCostPerYear, valuePerRound: s.serveValuePerRound, boostPct: s.serveBoostPct, served: true, note: "Service costs", valueNote: "Service, friendships, and purpose", payNote: "Church network and friendships" };
+      } }
+    ] },
+    { id: "healthLate", type: "yesno", from: 6, to: 6, once: true, hideIf: function (life) { return life.screened; }, hideText: "Already screened", label: "Late screening", icon: "🩺", prompt: "Will you finally do a full health screening?", yes: "Yes, do the screening", no: "No, skip it", yesChip: "Late health screening", noChip: "Still skipping it",
+      yesEff: function (s) { return { cash: -s.screeningCost, value: s.screeningLateValue, screened: true, note: "Late health screening", valueNote: "Peace of mind (smaller benefit, done late)" }; } },
+    { id: "serve", type: "yesno", from: 6, to: 6, once: true, hideIf: function (life) { return life.served; }, hideText: "Already serving", label: "Service later", icon: "🤝", prompt: "Will you take on regular volunteer service for your church?", yes: "Yes, serve regularly", no: "No, not right now", yesChip: "Started serving", noChip: "Not serving",
+      yesEff: function (s) { return { perYear: -s.serveCostPerYear, valuePerRound: s.serveValuePerRound, served: true, note: "Service costs", valueNote: "Service and friendships (started late)" }; } },
+    { id: "helpfam", type: "yesno", from: 6, to: 6, label: "Family help", icon: "💝", prompt: "Will you help a loved one pay for school?", yes: "Yes, help pay for school", no: "No, not this time", yesChip: "Helping with school", noChip: "Not this time",
+      yesEff: function (s) { return { cash: -s.helpFamCost, value: s.helpFamValue, note: "Helping with school", valueNote: "Helping someone you love" }; } },
+    { id: "balance", type: "choice", from: 6, to: 6, label: "Work balance", prompt: "How will you balance work and family?", options: [
+      { id: "promo", name: "Chase a big promotion", icon: "🚀", chip: "Chasing a promotion", eff: function (s) { return { incomePct: s.promoPct }; } },
+      { id: "steady", name: "Keep a steady pace", icon: "⚖️", chip: "Steady pace", eff: function () { return {}; } },
+      { id: "family", name: "Cut back for family time", icon: "👨‍👩‍👧", chip: "Cutting back for family", eff: function (s) { return { incomePct: -s.familyPct, value: s.familyValue, valueNote: "Time with family" }; } }
+    ] }
+  ];
+  var ROUNDS = ROUND_TITLES.map(function (t, i) {
+    return { title: t, decisions: DECISIONS.filter(function (d) { return d.from <= i + 1 && i + 1 <= d.to; }) };
+  });
+
+  /* ---------- taxes (rough 2025 estimate, single filer) ---------- */
+  var FED = [[11925,.10],[48475,.12],[103350,.22],[197300,.24],[250525,.32],[626350,.35],[Infinity,.37]];
+  var CA  = [[10756,.01],[25499,.02],[40245,.04],[55866,.06],[70606,.08],[360659,.093],[432787,.103],[721314,.113],[Infinity,.123]];
+  function bracketTax(inc, br) {
+    var t = 0, prev = 0;
+    for (var i = 0; i < br.length; i++) {
+      if (inc > prev) { t += (Math.min(inc, br[i][0]) - prev) * br[i][1]; prev = br[i][0]; } else break;
+    }
+    return t;
+  }
+  function annualTax(g) {
+    if (g <= 0) return 0;
+    var fica = Math.min(g, 176100) * 0.062 + g * 0.0145;
+    var fed = bracketTax(Math.max(0, g - 15000), FED);
+    var ca = Math.max(0, bracketTax(Math.max(0, g - 5540), CA) - 149);
+    return fica + fed + ca + g * 0.012;
+  }
+
+  function usd(n) { var v = Math.round(Math.abs(n)); return (n < 0 && v > 0 ? "-" : "") + "$" + v.toLocaleString("en-US"); }
+  function sgn(n) { var v = Math.round(Math.abs(n)); return (n < 0 ? "-" : "+") + "$" + v.toLocaleString("en-US"); }
+  function clean(s, max) { return String(s == null ? "" : s).replace(/[<>]/g, "").replace(/\s+/g, " ").trim().slice(0, max); }
+  function rid() { return Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-3); }
+  function careerById(id) { for (var i = 0; i < CAREERS.length; i++) if (CAREERS[i].id === id) return CAREERS[i]; return null; }
+  function optionById(d, id) { var o = d.options || []; for (var i = 0; i < o.length; i++) if (o[i].id === id) return o[i]; return null; }
+
+  var BOT_NAMES = ["Ava","Ben","Cora","Dev","Eli","Fay","Gus","Hana","Ivan","Jade","Kai","Lena","Milo","Nia","Omar","Pia","Quin","Remy","Sol","Tess","Uri","Vera","Wes","Xena","Yara","Zane"];
+
+  function newPlayer(id, name, bot) {
+    return { id: id, name: name, bot: !!bot, picks: {}, submitted: {}, auto: {}, ledger: [], history: [], scoreHistory: [], netWorth: 0, lifeValue: 0, otherPay: null, rank: 0, eliminated: null };
+  }
+
+  function createGame() {
+    var S = { v: 1, phase: "lobby", round: 0, players: [], settings: JSON.parse(JSON.stringify(DEFAULTS)) };
+    function bump() { S.v++; }
+    function find(pid) { for (var i = 0; i < S.players.length; i++) if (S.players[i].id === pid) return S.players[i]; return null; }
+    function roundDef(r) { return ROUNDS[r - 1] || { title: "", decisions: [] }; }
+
+    /* ----- life state built from picks ----- */
+    function lifeAt(p, upTo) {
+      var life = { careerId: null, careerName: "Undecided", careerRound: null, college: false, marriedRound: null, kidsRound: null, plan: null, investing: false, screened: false, served: false, did: {}, effects: [] }, noSeen = {};
+      for (var r = 1; r <= upTo; r++) {
+        var k = p.picks[r];
+        if (!k) continue;
+        if (k.career) {
+          life.careerId = k.career; life.careerRound = r;
+          life.careerName = k.career === "other" ? (k.careerOther || "Other") : (careerById(k.career) || { name: "Other" }).name;
+        }
+        if (k.college === true) life.college = true;
+        if (k.marry === true && !life.marriedRound) life.marriedRound = r;
+        if (k.kids === true && !life.kidsRound) life.kidsRound = r;
+        if (k.insurance) life.plan = k.insurance;
+        roundDef(r).decisions.forEach(function (d) {
+          var fn = null;
+          if (d.type === "yesno" && k[d.id] !== undefined) {
+            if (k[d.id]) { fn = d.yesEff; life.did[d.id] = true; }
+            else if (!(d.noOnce && noSeen[d.id])) { fn = d.noEff; noSeen[d.id] = true; }
+          } else if (d.type === "choice" && k[d.id]) { var o = optionById(d, k[d.id]); fn = o && o.eff; }
+          if (fn) {
+            var ef = fn(S.settings, life);
+            life.effects.push({ round: r, e: ef });
+            if (ef.invest) life.investing = true;
+            if (ef.screened) life.screened = true;
+            if (ef.served) life.served = true;
+            if (ef.later) ef.later.forEach(function (x) { life.effects.push({ round: r + x.after, e: x.eff }); });
+          }
+        });
+      }
+      return life;
+    }
+    function basePay(p, life) {
+      if (!life.careerId) return S.settings.firstJobPay;
+      if (life.careerId && life.careerId !== "other") return (careerById(life.careerId) || { pay: S.settings.otherCareerPay }).pay;
+      return p.otherPay != null ? p.otherPay : S.settings.otherCareerPay;
+    }
+    function eligible(p, d, round) {
+      if (d.hideIf && d.hideIf(lifeAt(p, round - 1))) return false;
+      if (d.once) {
+        for (var r2 = 1; r2 < round; r2++) {
+          var k = p.picks[r2], v = k && k[d.id];
+          if (d.type === "yesno" ? v === true : (v && v !== d.skipId)) return false;
+        }
+      }
+      return true;
+    }
+    function decisionsFor(p, round) {
+      if (p.eliminated) return [];
+      return roundDef(round).decisions.filter(function (d) { return eligible(p, d, round); });
+    }
+
+    /* ----- one round of math ----- */
+    function computeRound(p, r) {
+      var s = S.settings, life = lifeAt(p, r), B = basePay(p, life);
+      var cr = life.careerId && life.careerId !== "other" ? careerById(life.careerId) : null;
+      var mr = 1, mc = 1, mm = 1, mk = 1, start = null;
+      if ((s.useRamp || (cr && cr.alwaysRamp)) && cr && cr.ramp && life.careerRound && cr.ramp[r - life.careerRound] !== undefined) mr = cr.ramp[r - life.careerRound];
+      if (life.college) mc = r === 1 ? 1 - s.collegePenaltyPct / 100 : Math.pow(1 + s.collegeBoostPct / 100, r - 1);
+      if (life.marriedRound) {
+        start = life.marriedRound + s.marriageDelayRounds;
+        if (r >= start) mm = s.marriageMode === "once" ? 1 + s.marriageBoostPct / 100 : Math.pow(1 + s.marriageBoostPct / 100, r - start + 1);
+      }
+      if (life.kidsRound) {
+        if (r === life.kidsRound) mk = 1 - s.kidsPenaltyPct / 100;
+        else if (r > life.kidsRound) mk = Math.pow(1 + s.kidsBoostPct / 100, r - life.kidsRound);
+      }
+      var base5 = B * YEARS, a0 = base5 * mr, a = a0 * mc, b = a * mm, c = b * mk;
+
+      /* pay effects from later choices: a first-round change and a boost that compounds each round after */
+      var g = c, payLines = [];
+      life.effects.forEach(function (x) {
+        var e = x.e, m = 1;
+        if (r === x.round && e.incomePct) m *= 1 + e.incomePct / 100;
+        if (r > x.round && e.boostPct) m *= Math.pow(1 + e.boostPct / 100, r - x.round);
+        if (m !== 1) { payLines.push({ label: e.payNote || "Work choice", delta: g * (m - 1), m: m }); g *= m; }
+      });
+      var gross = g;
+      var perYear = gross / YEARS;
+      var tax = s.useTaxes ? annualTax(perYear) * YEARS : 0;
+      var take = gross - tax;
+
+      var live = s.livingCostPerYear * (r === 1 ? s.round1LivingPct / 100 : 1) * YEARS;
+      var marrExtra = life.marriedRound && r >= life.marriedRound ? s.marriedExtraCostPerYear * YEARS : 0;
+      var wedding = life.marriedRound === r ? s.weddingCost : 0;
+      var kidsCost = life.kidsRound && r >= life.kidsRound ? s.kidsCostPerYear * YEARS : 0;
+      var collegeCost = life.college && r === 1 ? s.collegeCost : 0;
+
+      /* money and life value from later choices */
+      var otherCost = 0, otherGain = 0, value = 0, investing = false, extraNotes = [];
+      function money(n) { if (n >= 0) otherGain += n; else otherCost += -n; }
+      if (r === 1 && !life.college && s.noCollegeBoost > 0) { money(s.noCollegeBoost); extraNotes.push("Head start without college: " + sgn(s.noCollegeBoost)); }
+      if (cr && cr.id === "entrepreneur" && life.careerRound && r === life.careerRound + 3 && s.entrepreneurWindfall > 0) { money(s.entrepreneurWindfall); extraNotes.push("Business sale windfall: " + sgn(s.entrepreneurWindfall)); }
+      if (life.careerRound === r && B <= s.lowIncomeLimit && s.lowIncomeBoost > 0) { money(s.lowIncomeBoost); extraNotes.push("Career launch fund: " + sgn(s.lowIncomeBoost)); }
+      extraNotes.push("Living costs: " + usd(-(live / YEARS)) + " per year");
+      if (marrExtra) extraNotes.push("Married household costs: " + usd(-s.marriedExtraCostPerYear) + " per year");
+      if (kidsCost) extraNotes.push("Costs of raising kids: " + usd(-s.kidsCostPerYear) + " per year");
+      /* health insurance and the accident */
+      var insCost = 0, accident = 0;
+      if (r >= 2) {
+        var plan = life.plan || "basic";
+        insCost = (plan === "premium" ? s.insPremiumPerYear : s.insBasicPerYear) * YEARS;
+        extraNotes.push("Health insurance (" + (plan === "premium" ? "premium" : "cheap") + " plan): " + usd(-(insCost / YEARS)) + " per year");
+        if (r === Math.round(s.accidentRound)) {
+          var covered = s.insWaiting === "now" ? plan : (lifeAt(p, r - 1).plan || "basic");
+          accident = covered === "premium" ? s.accidentPremium : s.accidentBasic;
+          extraNotes.push("Accident in round " + r + ": " + usd(-accident) + (covered === "premium" ? " (premium plan covered most of it)" : " (cheap plan: a big out-of-pocket bill)"));
+        }
+      }
+      life.effects.forEach(function (x) {
+        var e = x.e, now = r === x.round;
+        if (r < x.round) return;
+        if (e.invest) investing = true;
+        if (e.cash && now) { money(e.cash); extraNotes.push((e.note || "Choice") + ": " + usd(e.cash)); }
+        if (e.perYear) { money(e.perYear * YEARS); extraNotes.push((e.yearNote || e.note || "Choice") + ": " + sgn(e.perYear) + " per year"); }
+        if (e.perRound) { money(e.perRound); extraNotes.push((e.gainNote || e.note || "Choice") + ": " + sgn(e.perRound)); }
+        if (e.value && now) { value += e.value; extraNotes.push((e.valueNote || "Life value") + ": " + sgn(e.value) + " life value"); }
+        if (e.valuePerRound) { value += e.valuePerRound; extraNotes.push((e.valueNote || "Life value") + ": " + sgn(e.valuePerRound) + " life value"); }
+      });
+
+      var expenses = live + marrExtra + wedding + kidsCost + collegeCost + otherCost + insCost + accident;
+
+      /* investing: part of what you saved grows at a yearly return */
+      var prevBal = r > 1 && p.ledger[r - 2] ? (p.ledger[r - 2].investBalance || 0) : 0;
+      var contrib = 0, investGain = 0, bal = prevBal;
+      if (investing) {
+        var f = Math.pow(1 + s.investReturnPct / 100, YEARS), half = Math.sqrt(f);
+        contrib = Math.max(0, s.investPct / 100 * take);
+        investGain = prevBal * (f - 1) + contrib * (half - 1);
+        bal = prevBal * f + contrib * half;
+      }
+
+      var L = {
+        round: r, careerName: life.careerId ? life.careerName : "First jobs", basePerYear: B, grossPerYear: perYear, gross: gross, tax: tax, takeHome: take,
+        expenses: expenses, otherGain: otherGain, investGain: investGain, investBalance: bal, value: value,
+        net: take + otherGain + investGain - expenses,
+        mult: { ramp: mr, college: mc, marriage: mm, kids: mk },
+        impact: { ramp: a0 - base5, college: a - a0, marriage: b - a, kids: c - b },
+        payLines: payLines, base5: base5,
+        exp: { college: collegeCost, wedding: wedding },
+        marriageStart: start, rampNote: (cr && cr.rampNote) || "Training years"
+      };
+      L.notes = impactNotes(L, life, extraNotes, investing, contrib, investGain);
+      return L;
+    }
+    function times(m) { return " (pay x" + (Math.round(m * 100) / 100) + ")"; }
+    function impactNotes(L, life, extra, investing, contrib, investGain) {
+      var out = [(life.careerId ? "Career pay: " : "First jobs and part-time work: ") + usd(L.basePerYear) + " per year"];
+      var tot = L.gross - L.base5;
+      if (L.base5 > 0 && Math.abs(tot) >= 1) out.push("All pay effects together: " + sgn(tot / YEARS) + " per year (" + (tot >= 0 ? "+" : "-") + Math.abs(Math.round(tot / L.base5 * 100)) + "% versus base pay)");
+      if (L.impact.ramp) out.push(L.rampNote + ": " + sgn(L.impact.ramp / YEARS) + " per year" + times(L.mult.ramp));
+      if (L.impact.college) out.push("College: " + sgn(L.impact.college / YEARS) + " per year" + times(L.mult.college) + (L.round === 1 ? " while studying" : ""));
+      if (L.impact.marriage) out.push("Marriage boost: " + sgn(L.impact.marriage / YEARS) + " per year" + times(L.mult.marriage));
+      else if (life.marriedRound && L.marriageStart && L.round < L.marriageStart) out.push("Marriage boost starts in round " + L.marriageStart);
+      if (L.impact.kids) out.push("Kids: " + sgn(L.impact.kids / YEARS) + " per year" + times(L.mult.kids));
+      L.payLines.forEach(function (x) { out.push(x.label + ": " + sgn(x.delta / YEARS) + " per year" + times(x.m)); });
+      if (L.exp.college) out.push("College cost: " + usd(-L.exp.college));
+      if (L.exp.wedding) out.push("Wedding: " + usd(-L.exp.wedding));
+      extra.forEach(function (n) { out.push(n); });
+      if (investing) out.push("Invested " + usd(contrib) + " this round and earned " + sgn(investGain) + "; investment balance " + usd(L.investBalance));
+      return out;
+    }
+
+    /* ----- picks ----- */
+    function validate(p, picks) {
+      var out = {}, ds = decisionsFor(p, S.round);
+      for (var i = 0; i < ds.length; i++) {
+        var d = ds[i], v = picks ? picks[d.id] : undefined;
+        if (d.type === "career") {
+          if (v === "other") {
+            var t = clean(picks.careerOther, 30);
+            if (!t) return { error: "Type your career" };
+            out.career = "other"; out.careerOther = t;
+          } else if (careerById(v)) out.career = v;
+          else return { error: "Pick a career" };
+        } else if (d.type === "yesno") {
+          if (v !== true && v !== false) return { error: "Answer every question" };
+          out[d.id] = v;
+        } else if (d.type === "choice") {
+          if (!optionById(d, v)) return { error: "Answer every question" };
+          out[d.id] = v;
+        }
+      }
+      return { picks: out };
+    }
+    function applyPicks(p, picks, auto) {
+      p.picks[S.round] = picks;
+      p.submitted[S.round] = true;
+      p.auto[S.round] = !!auto;
+    }
+    function botPicks(p) {
+      var ds = decisionsFor(p, S.round), o = {};
+      ds.forEach(function (d) {
+        if (d.type === "career") o.career = CAREERS[Math.floor(Math.random() * CAREERS.length)].id;
+        else if (d.type === "choice") o[d.id] = d.options[Math.floor(Math.random() * d.options.length)].id;
+        else o[d.id] = Math.random() < (d.id === "kids" ? 0.45 : 0.55);
+      });
+      return o;
+    }
+    function autoSkip() {
+      if (!roundDef(S.round).decisions.length) return;
+      S.players.forEach(function (p) {
+        if (!p.bot && !p.submitted[S.round] && decisionsFor(p, S.round).length === 0) applyPicks(p, {}, false);
+      });
+    }
+    function autoBots() { S.players.forEach(function (p) { if (p.bot) applyPicks(p, botPicks(p), false); }); }
+    function fillDefaults() {
+      S.players.forEach(function (p) {
+        if (p.submitted[S.round]) return;
+        var o = {};
+        decisionsFor(p, S.round).forEach(function (d) {
+          if (d.type === "career") { o.career = "other"; o.careerOther = "Undecided"; }
+          else if (d.type === "choice") o[d.id] = d.sticky ? (lifeAt(p, S.round - 1).plan || d.options[0].id) : d.options[Math.min(1, d.options.length - 1)].id;
+          else o[d.id] = false;
+        });
+        applyPicks(p, o, true);
+      });
+    }
+    function frozenLedger(p, r) {
+      var prev = r > 1 && p.ledger[r - 2] ? p.ledger[r - 2] : null;
+      return { round: r, careerName: prev ? prev.careerName : "", basePerYear: 0, grossPerYear: 0, gross: 0, tax: 0, takeHome: 0, expenses: 0, otherGain: 0, investGain: 0,
+        investBalance: prev ? (prev.investBalance || 0) : 0, value: 0, net: 0, payLines: [], impact: {}, mult: {}, base5: 0, exp: {},
+        notes: ["🎡 Eliminated by the wheel in round " + p.eliminated + ". Score stays frozen."] };
+    }
+    function computeResults() {
+      S.players.forEach(function (p) {
+        var L = p.eliminated && S.round >= p.eliminated ? frozenLedger(p, S.round) : computeRound(p, S.round);
+        p.ledger[S.round - 1] = L;
+        var prev = S.round > 1 ? p.history[S.round - 2] : 0;
+        var floor = S.settings.netWorthFloor, raw = prev + L.net;
+        if (raw < floor) {
+          L.support = floor - raw; L.net += L.support; raw = floor;
+          L.notes = L.notes.concat(["Family and community support: " + sgn(L.support) + " (covers the shortfall so net worth never goes below " + usd(floor) + ")"]);
+        }
+        p.history[S.round - 1] = raw;
+        p.netWorth = raw;
+        p.lifeValue = (S.round > 1 ? p.lifeValue : 0) + L.value;
+        p.scoreHistory = p.scoreHistory || [];
+        p.scoreHistory[S.round - 1] = p.netWorth + p.lifeValue;
+      });
+    }
+    function score(p) { return p.netWorth + p.lifeValue; }
+    function ranked() {
+      var rows = S.players.slice().sort(function (a, b) { return score(b) - score(a) || a.name.localeCompare(b.name); });
+      rows.forEach(function (p, i) { p.rank = i + 1; });
+      return rows;
+    }
+    function choiceText(p, r) {
+      var k = p.picks[r] || {}, out = [];
+      roundDef(r).decisions.forEach(function (d) {
+        if (d.type === "career" && k.career) {
+          var c = careerById(k.career);
+          out.push({ k: "Career", v: k.career === "other" ? k.careerOther : c.name, icon: c ? c.icon : "✏️" });
+        } else if (d.type === "yesno" && k[d.id] !== undefined) {
+          out.push({ k: d.label, v: k[d.id] ? d.yesChip : d.noChip, icon: d.icon, yes: k[d.id] });
+        } else if (d.type === "choice" && k[d.id]) {
+          var o = optionById(d, k[d.id]);
+          if (o) out.push({ k: d.label, v: o.chip || o.name, icon: o.icon });
+        }
+      });
+      if (roundDef(r).decisions.some(function (d) { return d.id === "marry"; }) && k.marry === undefined && lifeAt(p, r - 1).marriedRound)
+        out.push({ k: "Marriage", v: "Already married", icon: "💍", yes: true });
+      return out;
+    }
+
+    /* ----- public API ----- */
+    function addPlayer(id, nm, bot) { var p = newPlayer(id, nm, bot); S.players.push(p); bump(); return p; }
+    function joinAs(hint, name) {
+      var ex = hint ? find(hint) : null;
+      if (ex) return { pid: ex.id, name: ex.name };
+      var nm = clean(name, 20);
+      if (!nm) return { error: "Please type a name" };
+      var same = null;
+      S.players.forEach(function (p) { if (p.name.toLowerCase() === nm.toLowerCase()) same = p; });
+      if (same) {
+        if (S.phase === "lobby") return { error: "That name is taken. Add an initial or number." };
+        return { pid: same.id, name: same.name };
+      }
+      if (S.phase !== "lobby") return { error: "The game already started. Ask your teacher." };
+      var id = /^[A-Za-z0-9]{6,24}$/.test(hint || "") ? hint : rid();
+      var p = addPlayer(id, nm, false);
+      return { pid: p.id, name: p.name };
+    }
+    function join(name, pid) { return joinAs(pid, name); }
+    function submit(pid, picks) {
+      var p = find(pid);
+      if (!p) return { error: "unknown" };
+      if (S.phase !== "choosing") return { error: "Choices are closed for now" };
+      var v = validate(p, picks);
+      if (v.error) return v;
+      applyPicks(p, v.picks, false); bump();
+      return { ok: true };
+    }
+    function hostAct(action, a) {
+      a = a || {};
+      var i;
+      if (action === "bots") {
+        if (S.phase !== "lobby") return { error: "Add practice players before the game starts" };
+        var n = Math.max(1, Math.min(30, +a.n || 5)), added = 0;
+        for (i = 0; i < BOT_NAMES.length && added < n; i++) {
+          var nm = BOT_NAMES[i];
+          if (S.players.some(function (p) { return p.name === nm; })) continue;
+          addPlayer(rid(), nm, true); added++;
+        }
+      } else if (action === "kick") {
+        S.players = S.players.filter(function (p) { return p.id !== a.pid; });
+      } else if (action === "settings") {
+        if (S.phase !== "lobby") return { error: "Settings can only change in the lobby" };
+        Object.keys(a).forEach(function (k) {
+          if (k === "marriageMode") S.settings.marriageMode = a[k] === "once" ? "once" : "compound";
+          else if (k === "useTaxes") S.settings.useTaxes = a[k] === true || a[k] === "true";
+          else if (k === "insWaiting") S.settings.insWaiting = a[k] === "now" ? "now" : "next";
+          else if (LIMITS[k]) { var x = +a[k]; if (isFinite(x)) S.settings[k] = Math.min(LIMITS[k][1], Math.max(LIMITS[k][0], x)); }
+        });
+      } else if (action === "defaults") {
+        if (S.phase !== "lobby") return { error: "Settings can only change in the lobby" };
+        S.settings = JSON.parse(JSON.stringify(DEFAULTS));
+      } else if (action === "start") {
+        if (S.phase !== "lobby") return { error: "Already started" };
+        if (!S.players.length) return { error: "Wait for at least one player" };
+        S.phase = "choosing"; S.round = 1; autoBots(); autoSkip();
+      } else if (action === "reveal") {
+        if (S.phase !== "choosing") return { error: "Not in a choosing step" };
+        if (!roundDef(S.round).decisions.length) { computeResults(); S.phase = "results"; }
+        else { fillDefaults(); S.phase = "reveal"; }
+      } else if (action === "results") {
+        if (S.phase !== "reveal") return { error: "Reveal choices first" };
+        computeResults(); S.phase = "results";
+      } else if (action === "setpay") {
+        if (S.phase !== "reveal" && S.phase !== "choosing") return { error: "Pay can be set before results" };
+        var p = find(a.pid);
+        if (p) { var x = +a.pay; if (isFinite(x)) p.otherPay = Math.min(1000000, Math.max(0, x)); }
+      } else if (action === "next") {
+        if (S.phase !== "results") return { error: "Show results first" };
+        if (S.round >= TOTAL) S.phase = "final";
+        else {
+          S.round++;
+          var alive = S.players.filter(function (q) { return !q.eliminated; }).length;
+          if (S.settings.wheelRound && Math.round(S.settings.wheelRound) === S.round && S.settings.wheelCount > 0 && alive > 1) {
+            S.phase = "wheel"; S.wheel = { left: Math.min(Math.round(S.settings.wheelCount), alive - 1), spinId: 0, last: null, out: [] };
+          } else { S.phase = "choosing"; autoBots(); autoSkip(); }
+        }
+      } else if (action === "spin") {
+        if (S.phase !== "wheel" || !S.wheel || S.wheel.left <= 0) return { error: "No spin available" };
+        if (S.wheel.last && !S.wheel.last.done) return { error: "Wait for the wheel to stop" };
+        var cands = S.players.filter(function (q) { return !q.eliminated; });
+        if (cands.length < 2) return { error: "Not enough players" };
+        var w = cands[Math.floor(Math.random() * cands.length)];
+        S.wheel.spinId++; S.wheel.last = { pid: w.id, name: w.name, done: false };
+      } else if (action === "wheelConfirm") {
+        var lw = S.wheel && S.wheel.last;
+        if (S.phase !== "wheel" || !lw || lw.done) return { error: "Nothing to confirm" };
+        var wp = find(lw.pid); if (wp) wp.eliminated = S.round;
+        lw.done = true; S.wheel.left--; S.wheel.out.push(lw.name);
+      } else if (action === "wheelDone") {
+        if (S.phase !== "wheel") return { error: "Not at the wheel" };
+        if (S.wheel && S.wheel.left > 0) return { error: "Spin the wheel first" };
+        S.phase = "choosing"; S.wheel = null; autoBots(); autoSkip();
+      } else if (action === "reset") {
+        S.phase = "lobby"; S.round = 0;
+        S.players.forEach(function (p) { var q = newPlayer(p.id, p.name, p.bot); p.picks = q.picks; p.submitted = q.submitted; p.auto = q.auto; p.ledger = q.ledger; p.history = q.history; p.scoreHistory = []; p.netWorth = 0; p.lifeValue = 0; p.otherPay = null; p.eliminated = null; });
+        S.wheel = null;
+      } else return { error: "Unknown action" };
+      bump();
+      return { ok: true };
+    }
+
+    function ageRange(r) { var a = START_AGE + (r - 1) * YEARS; return "Ages " + a + " to " + (a + YEARS - 1); }
+    function baseView() {
+      var d = roundDef(S.round);
+      return {
+        v: S.v, phase: S.phase, round: S.round, totalRounds: TOTAL,
+        roundTitle: S.round ? d.title : "", ageRange: S.round ? ageRange(S.round) : "",
+        hasDecisions: !!d.decisions.length
+      };
+    }
+    function hostView() {
+      var v = baseView(), showChoices = S.phase === "reveal" || S.phase === "results" || S.phase === "final";
+      v.settings = S.settings; v.settingsFields = SETTING_FIELDS;
+      v.prompts = roundDef(S.round).decisions.map(function (d) { return d.prompt; });
+      v.promptNote = roundDef(S.round).decisions.some(function (d) { return d.once; }) ? "Each player only sees questions they have not already said yes to. Doing things earlier pays off more." : "";
+      v.nextTitle = S.round && S.round < TOTAL ? roundDef(S.round + 1).title : "";
+      v.players = S.players.map(function (p) {
+        return {
+          id: p.id, name: p.name, bot: p.bot, submitted: !!p.submitted[S.round] || (S.phase !== "choosing" && S.phase !== "lobby"),
+          auto: !!p.auto[S.round], eliminated: p.eliminated,
+          choices: showChoices && S.round ? choiceText(p, S.round) : null,
+          needsPay: S.phase === "reveal" && lifeAt(p, S.round).careerId === "other",
+          otherPay: p.otherPay != null ? p.otherPay : S.settings.otherCareerPay
+        };
+      });
+      v.joined = S.players.length;
+      v.submittedCount = S.players.filter(function (p) { return p.submitted[S.round]; }).length;
+      v.wheel = S.phase === "wheel" && S.wheel ? {
+        left: S.wheel.left, spinId: S.wheel.spinId, last: S.wheel.last, out: S.wheel.out,
+        candidates: S.players.filter(function (q) { return !q.eliminated; }).map(function (q) { return { id: q.id, name: q.name }; })
+      } : null;
+      if (S.phase === "results" || S.phase === "final") {
+        v.leaderboard = ranked().map(function (p) {
+          var L = p.ledger[S.round - 1];
+          return {
+            id: p.id, name: p.name, eliminated: p.eliminated, rank: p.rank, netWorth: p.netWorth, lifeValue: p.lifeValue, score: score(p), net: L.net, delta: L.net + L.value, career: L.careerName,
+            grossPerYear: L.grossPerYear, takeHome: L.takeHome, expenses: L.expenses, notes: L.notes, history: (p.scoreHistory || []).slice(), recap: S.phase === "final" ? recapCells(p) : null, what: S.phase === "final" ? whatIfFor(p) : null
+          };
+        });
+      }
+      return v;
+    }
+
+    /* Short labels that tell players what each choice does, so they can plan. Surprises that come later stay hidden. */
+    function fxOn() { var v = S.settings.showEffects; return !(v === false || v === "false"); }
+    function m$(n) { return usd(Math.abs(Math.round(n))); }
+    function fxFromEff(e) {
+      var s = S.settings, out = [];
+      if (!e) return out;
+      if (e.cash) out.push(e.cash < 0 ? "Costs " + m$(e.cash) + " now" : "+" + m$(e.cash) + " now");
+      if (e.perYear) out.push(e.perYear < 0 ? "Costs " + m$(e.perYear) + " a year" : "+" + m$(e.perYear) + " a year" + (e.yearNote ? " (" + e.yearNote.charAt(0).toLowerCase() + e.yearNote.slice(1) + ")" : ""));
+      if (e.perRound) out.push("+" + m$(e.perRound) + " home value each round");
+      if (e.incomePct) out.push(e.incomePct < 0 ? Math.abs(e.incomePct) + "% less pay this round" : "+" + e.incomePct + "% pay this round");
+      if (e.boostPct) out.push("+" + e.boostPct + "% pay every round after");
+      if (e.value) out.push("+" + m$(e.value) + " life value");
+      if (e.valuePerRound) out.push("+" + m$(e.valuePerRound) + " life value each round");
+      if (e.invest) out.push("Saves " + s.investPct + "% of take-home pay, growing about " + s.investReturnPct + "% a year");
+      if (e.later && e.later.length) out.push("Watch out: may cost more later");
+      return out;
+    }
+    function careerFx(c) {
+      var s = S.settings, out = [m$(c.pay) + " a year at full pay"];
+      if ((s.useRamp === true || s.useRamp === "true" || c.alwaysRamp) && c.ramp) {
+        var full = c.ramp.filter(function (x) { return x < 1; });
+        if (full.length) out.push((c.rampNote || "Training years") + ": " + full.map(function (x) { return Math.round(x * 100) + "%"; }).join(", then ") + " of full pay at first");
+        var big = c.ramp.filter(function (x) { return x > 1; });
+        if (big.length) out.push("Then " + Math.round(big[0] * 100) + "% of pay if the business takes off");
+      }
+      if (c.id === "entrepreneur" && s.entrepreneurWindfall > 0) out.push("Chance at a " + m$(s.entrepreneurWindfall) + " business sale later");
+      if (c.pay <= s.lowIncomeLimit && s.lowIncomeBoost > 0) out.push("+" + m$(s.lowIncomeBoost) + " career launch fund");
+      return out;
+    }
+    function decisionFx(d, which) {
+      var s = S.settings;
+      if (d.id === "college") return which ? ["Tuition: " + m$(s.collegeCost), s.collegePenaltyPct + "% less pay this round", "Then +" + s.collegeBoostPct + "% pay every round after, and it keeps growing"]
+                                           : (s.noCollegeBoost > 0 ? ["+" + m$(s.noCollegeBoost) + " head start now"] : ["No change"]);
+      if (d.id === "marry") return which ? ["Wedding: " + m$(s.weddingCost), "Household costs: " + m$(s.marriedExtraCostPerYear) + " a year",
+                                            (s.marriageMode === "once" ? "+" + s.marriageBoostPct + "% household pay" : "Household pay grows " + s.marriageBoostPct + "% each round") + " starting " + s.marriageDelayRounds + " rounds later"] : ["No change for now"];
+      if (d.id === "location") return which ? ["+" + m$(s.alaskaSavingsPerYear) + " a year saved on living costs"] : ["No change"];
+      if (d.id === "kids") return which ? [s.kidsPenaltyPct + "% less pay the round they arrive", "Then +" + s.kidsBoostPct + "% pay every round after", "Costs " + m$(s.kidsCostPerYear) + " a year"] : ["No change for now"];
+      var fn = which ? d.yesEff : d.noEff, out = fn ? fxFromEff(fn(s)) : [];
+      return out.length ? out : ["No change"];
+    }
+    function optionFx(d, o) {
+      var s = S.settings;
+      if (d.id === "insurance") return o.id === "premium" ? ["Costs " + m$(s.insPremiumPerYear) + " a year", "Covers almost everything if you get hurt"] : ["Costs " + m$(s.insBasicPerYear) + " a year", "Big bills if you get hurt"];
+      if (d.id === "home" && o.id === "rent") return ["No upfront cost", "No home value building up"];
+      var out = o.eff ? fxFromEff(o.eff(s)) : [];
+      return out.length ? out : ["No change"];
+    }
+    function playerView(pid) {
+      var p = find(pid);
+      if (!p) return { error: "unknown" };
+      var v = baseView();
+      v.name = p.name;
+      v.joined = S.players.length;
+      v.eliminated = p.eliminated || null;
+      if (p.eliminated) v.frozenScore = score(p);
+      v.decisions = [];
+      if (S.phase === "choosing") {
+        v.decisions = decisionsFor(p, S.round).map(function (d) {
+          var o = { id: d.id, type: d.type, prompt: d.prompt, yes: d.yes, no: d.no }, fx = fxOn();
+          if (d.type === "career") o.options = CAREERS.map(function (c) { return { id: c.id, name: c.name, icon: c.icon, fx: fx ? careerFx(c) : null }; });
+          if (d.type === "career" && fx) o.otherFx = careerFx({ id: "other", pay: S.settings.otherCareerPay });
+          if (d.type === "choice") o.options = d.options.map(function (c) { return { id: c.id, name: c.name, icon: c.icon, fx: fx ? optionFx(d, c) : null }; });
+          if (d.type === "yesno" && fx) { o.yesFx = decisionFx(d, true); o.noFx = decisionFx(d, false); }
+          if (d.sticky) o.current = lifeAt(p, S.round - 1).plan || null;
+          return o;
+        });
+      }
+      v.submitted = !!p.submitted[S.round];
+      v.picks = p.picks[S.round] || null;
+      if (S.phase === "results" || S.phase === "final") {
+        ranked();
+        v.rank = p.rank; v.netWorth = p.netWorth; v.lifeValue = p.lifeValue; v.score = score(p);
+        var L = p.ledger[S.round - 1]; v.net = L ? L.net : 0;
+        v.notes = L ? L.notes : [];
+      }
+      return v;
+    }
+    function recapCells(p) {
+      var life = lifeAt(p, TOTAL);
+      return DECISIONS.map(function (d) {
+        if (d.type === "career") return { k: "Career", v: life.careerName };
+        if (d.type === "yesno") {
+          var yr = null;
+          for (var r = 1; r <= TOTAL; r++) { if (p.picks[r] && p.picks[r][d.id] === true) { yr = r; break; } }
+          if (!yr && d.hideIf && d.hideIf(life)) return { k: d.label, v: d.hideText || "Already done", yes: true };
+          return { k: d.label, v: yr ? "Round " + yr : "No", yes: !!yr };
+        }
+        if (d.sticky) {
+          var segs = [];
+          for (var r2 = 1; r2 <= TOTAL; r2++) {
+            var pk = p.picks[r2] && p.picks[r2][d.id]; if (!pk) continue;
+            var last = segs[segs.length - 1];
+            if (last && last.id === pk) last.to = r2; else segs.push({ id: pk, name: (optionById(d, pk) || { chip: pk }).chip, from: r2, to: r2 });
+          }
+          return { k: d.label, v: segs.map(function (g) { return g.name + " (round " + g.from + (g.to > g.from ? " to " + g.to : "") + ")"; }).join(", ") || "None" };
+        }
+        var opt = null;
+        for (var r3 = 1; r3 <= TOTAL; r3++) { var q = p.picks[r3] && p.picks[r3][d.id]; if (q) opt = optionById(d, q); }
+        return { k: d.label, v: opt ? opt.chip : "None" };
+      });
+    }
+    /* what-if: the final score if one big choice had gone the other way, everything else the same */
+    function simScore(p, round, id, val) {
+      var q = JSON.parse(JSON.stringify({ id: p.id, name: p.name, picks: p.picks, otherPay: p.otherPay, eliminated: p.eliminated }));
+      q.ledger = [];
+      q.picks[round] = q.picks[round] || {};
+      q.picks[round][id] = val;
+      var nw = 0, lv = 0;
+      for (var r = 1; r <= S.round; r++) {
+        var L = q.eliminated && r >= q.eliminated ? frozenLedger(q, r) : computeRound(q, r);
+        q.ledger[r - 1] = L; nw += L.net; if (nw < S.settings.netWorthFloor) nw = S.settings.netWorthFloor; lv += L.value;
+      }
+      return nw + lv;
+    }
+    function whatIfFor(p) {
+      var defs = [["moneytrip", 4, { invest: "kazakhstan", kazakhstan: "invest" }], ["workserve", 5, { work: "serve", serve: "work" }], ["health", 5, { screening: "trip2", trip2: "screening" }]], out = {};
+      defs.forEach(function (d) {
+        var pk = p.picks[d[1]] && p.picks[d[1]][d[0]];
+        if (pk && d[2][pk]) out[d[0]] = { pick: pk, diff: simScore(p, d[1], d[0], d[2][pk]) - score(p) };
+      });
+      return out;
+    }
+    function snapshot() { return JSON.parse(JSON.stringify(S)); }
+    function restore(snap) {
+      if (!snap || !snap.players) return false;
+      snap.settings = Object.assign({}, JSON.parse(JSON.stringify(DEFAULTS)), snap.settings || {});
+      snap.players.forEach(function (p) { if (p.lifeValue === undefined) p.lifeValue = 0; if (!p.scoreHistory) p.scoreHistory = []; });
+      S = snap; bump();
+      return true;
+    }
+
+    return { join: join, joinAs: joinAs, submit: submit, hostAct: hostAct, hostView: hostView, playerView: playerView, snapshot: snapshot, restore: restore, version: function () { return S.v; } };
+  }
+
+  return { createGame: createGame, CAREERS: CAREERS, DEFAULTS: DEFAULTS, ROUNDS: ROUNDS, annualTax: annualTax, usd: usd };
+});
+
+</script>
+<script>
+/* Life Choices: host screen (TV). mountHost(rootEl, api, opts) */
+(function (root) {
+  "use strict";
+
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function usd(n) { var v = Math.round(Math.abs(n)); return (n < 0 && v > 0 ? "-" : "") + "$" + v.toLocaleString("en-US"); }
+  function money(n) {
+    var a = Math.abs(n);
+    if (a >= 1e6) return (n < 0 ? "-" : "") + "$" + (a / 1e6).toFixed(a >= 1e7 ? 1 : 2).replace(/\.?0+$/, "") + "M";
+    return usd(n);
+  }
+  function sgnMoney(n) { return (n < 0 ? "-" : "+") + money(Math.abs(n)).replace("-", ""); }
+
+  function mountHost(rootEl, api, opts) {
+    opts = opts || {};
+    rootEl.innerHTML = '<div class="hs-wrap' + (opts.modalInside ? ' inside' : '') + '"><div class="hs"></div></div>';
+    var hs = rootEl.querySelector(".hs");
+    var view = null, since = 0, lastJson = "", lastKey = "", lastPhase = "", offline = false, authFail = false;
+    var ui = { settings: false, lb: "board", focus: null, animated: null, wheelAt: 0 };
+
+    function toast(msg) {
+      var t = document.createElement("div");
+      t.className = "hs-toast"; t.textContent = msg;
+      hs.appendChild(t);
+      setTimeout(function () { if (t.parentNode) t.parentNode.removeChild(t); }, 3000);
+    }
+
+    /* ---------- polling ---------- */
+    function fetchOnce() {
+      return Promise.resolve(api.host.state(since)).then(function (r) {
+        offline = false;
+        if (r && r.error === "auth") { authFail = true; render(); return; }
+        if (r && r.view) {
+          since = r.v;
+          var j = JSON.stringify(r.view);
+          if (j !== lastJson) { lastJson = j; view = r.view; render(); }
+        }
+        updateOffline();
+      }).catch(function () { offline = true; updateOffline(); });
+    }
+    function loop() { fetchOnce().then(function () { setTimeout(loop, opts.pollMs || 1000); }); }
+    function updateOffline() {
+      var el = hs.querySelector(".hs-offline");
+      if (el) el.hidden = !offline;
+    }
+    function act(name, payload) {
+      return Promise.resolve(api.host.act(name, payload || {})).then(function (r) {
+        if (r && r.error) toast(r.error);
+        since = 0; return fetchOnce();
+      }).catch(function () { toast("Could not reach the server"); });
+    }
+
+    /* ---------- helpers ---------- */
+    function pips(v) {
+      var h = "";
+      for (var i = 1; i <= v.totalRounds; i++) {
+        var done = v.phase === "final" || i < v.round || (i === v.round && v.phase === "results");
+        var now = i === v.round && !done && v.phase !== "lobby";
+        h += '<div class="pip' + (done ? " done" : "") + (now ? " now" : "") + '">' + i + '</div>';
+      }
+      return h;
+    }
+    function top(v) {
+      return '<div class="hs-top"><div class="hs-logo">Life <span>Choices</span></div>' +
+        '<div class="hs-pips">' + (v.phase === "lobby" ? "" : pips(v)) + '</div>' +
+        '<div><span class="hs-offline" hidden>Connection lost, retrying</span> <span class="hs-count">' + v.joined + ' player' + (v.joined === 1 ? "" : "s") + '</span></div></div>';
+    }
+    function trophy(rank) { return rank <= 3 ? "🏆 " : ""; }
+    function confetti() {
+      if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      var wrap = document.createElement("div"); wrap.className = "confetti";
+      var colors = ["#FFC933", "#34D3A0", "#FF6B8E", "#5CA9FF", "#9380FF", "#FF9F43"], i, el;
+      for (i = 0; i < 150; i++) {
+        el = document.createElement("i");
+        el.style.left = (Math.random() * 100) + "%";
+        el.style.background = colors[i % colors.length];
+        el.style.width = (6 + Math.random() * 8) + "px"; el.style.height = (10 + Math.random() * 10) + "px";
+        el.style.animationDelay = (Math.random() * 1.4) + "s"; el.style.animationDuration = (3.2 + Math.random() * 2.6) + "s";
+        el.style.setProperty("--dx", (Math.random() * 40 - 20) + "vw"); el.style.setProperty("--rot", (360 + Math.random() * 900) + "deg");
+        wrap.appendChild(el);
+      }
+      ["🏆", "🎉", "🥇", "✨", "🎊"].forEach(function (e, k) {
+        for (var j = 0; j < 4; j++) {
+          var sp = document.createElement("span");
+          sp.textContent = e; sp.style.left = (Math.random() * 95) + "%"; sp.style.fontSize = (22 + Math.random() * 22) + "px";
+          sp.style.animationDelay = (Math.random() * 1.6) + "s"; sp.style.animationDuration = (3.6 + Math.random() * 2.4) + "s";
+          sp.style.setProperty("--dx", (Math.random() * 30 - 15) + "vw"); sp.style.setProperty("--rot", (180 + Math.random() * 360) + "deg");
+          wrap.appendChild(sp);
+        }
+      });
+      document.body.appendChild(wrap);
+      setTimeout(function () { if (wrap.parentNode) wrap.parentNode.removeChild(wrap); }, 9000);
+    }
+    function icon(c) {
+      return c.icon || "";
+    }
+    function chips(list) {
+      return (list || []).map(function (c) {
+        var cls = c.yes === true ? " yes" : c.yes === false ? " no" : "";
+        return '<span class="chip' + cls + '">' + icon(c) + " " + esc(c.v) + '</span>';
+      }).join("");
+    }
+
+    /* ---------- screens ---------- */
+    function lobby(v) {
+      var url = typeof opts.joinUrl === "function" ? opts.joinUrl() : (opts.joinUrl || "");
+      var qr = opts.qr && url ? opts.qr(url) : "";
+      var names = v.players.map(function (p) {
+        return '<span class="tag">' + esc(p.name) + (p.bot ? " 🤖" : "") + ' <button type="button" data-act="kick" data-pid="' + esc(p.id) + '" aria-label="Remove ' + esc(p.name) + '" title="Remove">×</button></span>';
+      }).join("");
+      var s = v.settings, settings = "";
+      if (ui.settings) {
+        var groups = [], byGroup = {};
+        (v.settingsFields || []).forEach(function (f) { if (!byGroup[f.g]) { byGroup[f.g] = []; groups.push(f.g); } byGroup[f.g].push(f); });
+        settings = '<div class="hs-panel"><h3>Game settings</h3>' + groups.map(function (g) {
+          return '<h4 class="hs-gh">' + esc(g) + '</h4><div class="hs-set">' + byGroup[g].map(function (f) {
+            var val = s[f.k];
+            if (f.opts) {
+              return '<div><label>' + esc(f.l) + '</label><select data-k="' + f.k + '">' + f.opts.map(function (o) {
+                return '<option value="' + o[0] + '"' + (String(val) === o[0] ? " selected" : "") + '>' + o[1] + '</option>';
+              }).join("") + '</select></div>';
+            }
+            return '<div><label>' + esc(f.l) + '</label><input type="number" data-k="' + f.k + '" value="' + esc(val) + '"></div>';
+          }).join("") + '</div>';
+        }).join("") + '<p class="hs-note">Careers, pay, and costs are rough San Diego area estimates. Change anything here before you start.</p>' +
+          '<p style="margin:.6em 0 0"><button type="button" class="hs-btn ghost" data-act="defaults">Reset to defaults</button></p></div>';
+      }
+      var code = typeof opts.joinCode === "function" ? opts.joinCode() : "";
+      var site = typeof opts.siteText === "function" ? opts.siteText() : url.replace(/^https?:\/\//, "").split("/")[0];
+      var leftInfo = code
+        ? '<div class="hs-codebox"><span>Game code</span><b>' + esc(code) + '</b></div><div class="hs-url">or go to ' + esc(site) + ' and type the code</div>'
+        : '<div class="hs-url">' + esc(url.replace(/^https?:\/\//, "")) + '</div>';
+      return top(v) + '<div class="hs-main"><div class="hs-lobby"><div>' +
+        (qr ? '<div class="hs-qr">' + qr + '</div>' : '') +
+        leftInfo + '</div><div>' +
+        '<h1 class="hs-title">Join the game</h1>' +
+        '<p class="hs-sub">' + (opts.previewNote ? esc(opts.previewNote) : 'Scan the code with your phone camera, then type your name.') + '</p>' +
+        (v.players.length ? '<div class="hs-names">' + names + '</div>' : '<p class="hs-empty">Waiting for players to join…</p>') +
+        '<div style="margin-top:1.2em">' + settings + '</div></div></div></div>' +
+        '<div class="hs-foot"><div><button type="button" class="hs-btn ghost" data-act="bots">Add practice players</button> ' +
+        '<button type="button" class="hs-btn ghost" data-act="toggleSettings">' + (ui.settings ? "Hide settings" : "Game settings") + '</button> ' +
+        (opts.canNewGame ? '<button type="button" class="hs-btn ghost" data-act="newgame">New game code</button>' : '') + '</div>' +
+        '<button type="button" class="hs-btn gold" data-act="start"' + (v.players.length ? "" : " disabled") + '>Let’s go</button></div>';
+    }
+
+    function choosing(v) {
+      var pct = v.joined ? Math.round(v.submittedCount / v.joined * 100) : 0;
+      var all = v.joined > 0 && v.submittedCount >= v.joined;
+      var grid = v.players.map(function (p) {
+        return '<div class="pchip' + (p.submitted ? " done" : "") + '"><span>' + esc(p.name) + '</span><span class="st">' + (p.eliminated ? "🎡 Out" : p.submitted ? "✓ Ready" : "…") + '</span></div>';
+      }).join("");
+      var body;
+      if (v.hasDecisions) {
+        body = '<div class="hs-prompts">' + v.prompts.map(function (p) { return '<span class="hs-prompt">' + esc(p) + '</span>'; }).join("") + '</div>' +
+          (v.promptNote ? '<p class="hs-note">' + esc(v.promptNote) + '</p>' : '') +
+          '<div class="hs-meter"><i style="width:' + pct + '%"></i></div><div class="hs-grid">' + grid + '</div>';
+      } else {
+        body = '<p class="hs-sub">No decisions in this round yet. Life keeps moving: pay and costs keep adding up.</p>';
+      }
+      var btn = v.hasDecisions
+        ? '<button type="button" class="hs-btn gold" data-act="reveal">' + (all ? "Show everyone’s choices" : "Show choices anyway") + '</button>'
+        : '<button type="button" class="hs-btn gold" data-act="reveal">Show results</button>';
+      return top(v) + '<div class="hs-main"><div><h1 class="hs-title">Round ' + v.round + ': ' + esc(v.roundTitle) + '</h1>' +
+        '<p class="hs-sub">' + esc(v.ageRange) + ' of your life' + (v.hasDecisions ? ' · ' + v.submittedCount + ' of ' + v.joined + ' ready' : '') + '</p></div>' + body + '</div>' +
+        '<div class="hs-foot"><span></span>' + btn + '</div>';
+    }
+
+    function reveal(v) {
+      var cards = v.players.map(function (p) {
+        var pay = p.needsPay
+          ? '<div class="pay">Pay per year $ <input type="number" data-pay="' + esc(p.id) + '" value="' + esc(Math.round(p.otherPay)) + '"></div>' : "";
+        return '<div class="pcard"><h4>' + esc(p.name) + '</h4>' + chips(p.choices) +
+          (p.eliminated ? '<div class="miss">🎡 Eliminated in round ' + p.eliminated + '</div>' : p.auto ? '<div class="miss">Did not choose in time</div>' : "") + pay + '</div>';
+      }).join("");
+      return top(v) + '<div class="hs-main"><div><h1 class="hs-title">Here is what everyone chose</h1>' +
+        '<p class="hs-sub">Round ' + v.round + ': ' + esc(v.roundTitle) + ' · ' + esc(v.ageRange) + '</p></div>' +
+        '<div class="hs-cards">' + cards + '</div></div>' +
+        '<div class="hs-foot"><span class="hs-note">Write-in careers get a default pay. Change it above, then show results.</span>' +
+        '<button type="button" class="hs-btn gold" data-act="results">Show results</button></div>';
+    }
+
+    function board(lb, focusId) {
+      var vals = lb.map(function (r) { return r.score; });
+      var mx = Math.max.apply(null, vals.concat([0])), mn = Math.min.apply(null, vals.concat([0])), span = (mx - mn) || 1;
+      var zero = (0 - mn) / span * 100;
+      var rows = lb.map(function (r) {
+        var w = Math.abs(r.score) / span * 100;
+        var fill = r.score >= 0
+          ? '<div class="lb-fill pos" style="left:' + zero.toFixed(2) + '%;width:' + w.toFixed(2) + '%"></div>'
+          : '<div class="lb-fill neg" style="left:' + (zero - w).toFixed(2) + '%;width:' + w.toFixed(2) + '%"></div>';
+        return '<div class="lb-row' + (r.id === focusId ? ' sel' : '') + '" data-act="focus" data-pid="' + esc(r.id) + '"><div class="lb-rank">' + r.rank + '</div>' +
+          '<div class="lb-name"><b>' + trophy(r.rank) + esc(r.name) + '</b><small>' + (r.eliminated ? '🎡 Out in round ' + r.eliminated + ' · ' : '') + esc(r.career) + (r.lifeValue ? ' · money ' + money(r.netWorth) + ' + life ' + money(r.lifeValue) : '') + '</small></div>' +
+          '<div class="lb-bar"><div class="lb-zero" style="left:' + zero.toFixed(2) + '%"></div>' + fill + '</div>' +
+          '<div class="lb-val num' + (r.score < 0 ? " neg" : "") + '">' + money(r.score) + '</div>' +
+          '<div class="lb-delta num ' + (r.delta >= 0 ? "up" : "dn") + '">' + sgnMoney(r.delta) + '<br>this round</div></div>';
+      }).join("");
+      return '<div class="lb' + (lb.length > 14 ? " dense" : "") + '">' + rows + '</div>';
+    }
+    function boardPanel(v, extra) {
+      var lb = v.leaderboard, f = null;
+      lb.forEach(function (r) { if (r.id === ui.focus) f = r; });
+      if (!f) f = lb[0];
+      var notes = f.notes.map(function (n) { return '<li>' + esc(n) + '</li>'; }).join("");
+      var panel = '<div class="hs-panel hs-focus"><h3>How ' + esc(f.name) + ' got here</h3><p class="hs-note" style="margin:0 0 .5em">#' + f.rank + ' · money ' + money(f.netWorth) + (f.lifeValue ? ' · life value ' + money(f.lifeValue) : '') + '. Tap a name to see someone else.</p><ul class="hs-notes">' + notes + '</ul></div>';
+      return '<div class="hs-split"><div>' + (extra || "") + board(lb, f.id) + '</div>' + panel + '</div>';
+    }
+    function details(lb) {
+      var head = '<thead><tr><th>Rank</th><th>Player</th><th>Career</th><th>Pay per year</th><th>Earnings after taxes</th><th>Expenses</th><th>Money this round</th><th>Net worth</th><th>Life value</th><th>Total</th><th>What drove it</th></tr></thead>';
+      var body = lb.map(function (r) {
+        return '<tr><td>' + r.rank + '</td><td><b>' + trophy(r.rank) + esc(r.name) + '</b></td><td>' + esc(r.career) + '</td><td class="num">' + usd(r.grossPerYear) +
+          '</td><td class="num">' + usd(r.takeHome) + '</td><td class="num">' + usd(-r.expenses) + '</td><td class="num">' + usd(r.net) +
+          '</td><td class="num">' + usd(r.netWorth) + '</td><td class="num">' + usd(r.lifeValue) + '</td><td class="num"><b>' + usd(r.score) + '</b></td><td>' + esc(r.notes.join("; ")) + '</td></tr>';
+      }).join("");
+      return '<div class="hs-scroll"><table class="hs-table">' + head + '<tbody>' + body + '</tbody></table></div>';
+    }
+    function niceStep(raw) {
+      if (raw <= 0) return 1;
+      var pw = Math.pow(10, Math.floor(Math.log(raw) / Math.LN10)), f = raw / pw;
+      return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10) * pw;
+    }
+    function axisMoney(n) {
+      var a = Math.abs(n), sg = n < 0 ? "-" : "";
+      if (a >= 1e6) return sg + "$" + (a / 1e6).toFixed(a >= 1e7 ? 0 : 1).replace(/\.0$/, "") + "M";
+      if (a >= 1e3) return sg + "$" + Math.round(a / 1e3) + "k";
+      return sg + "$" + Math.round(a);
+    }
+    function progress(v) {
+      var lb = v.leaderboard, T = v.totalRounds, colorOf = {};
+      v.players.forEach(function (p, i) { colorOf[p.id] = "hsl(" + Math.round((i * 137.508) % 360) + ",68%,58%)"; });
+      var f = null;
+      lb.forEach(function (r) { if (r.id === ui.focus) f = r; });
+      if (!f) f = lb[0];
+      var W = 1000, H = 440, ml = 92, mr = 170, mt = 22, mb = 58, ph = H - mt - mb, pw = W - ml - mr;
+      var lo = 0, hi = 0;
+      lb.forEach(function (r) { r.history.forEach(function (x) { lo = Math.min(lo, x); hi = Math.max(hi, x); }); });
+      if (hi === 0 && lo === 0) hi = 1000;
+      var step = niceStep((hi - lo) / 5), tmin = Math.floor(lo / step) * step, tmax = Math.ceil(hi / step) * step;
+      if (tmax === tmin) tmax = tmin + step;
+      function X(t) { return ml + t / T * pw; }
+      function Y(val) { return mt + (tmax - val) / (tmax - tmin) * ph; }
+      var o = ['<svg viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="Line chart of every player\'s score round by round">'];
+      for (var t = tmin; t <= tmax + step / 1000; t += step) {
+        o.push('<line x1="' + ml + '" x2="' + (W - mr) + '" y1="' + Y(t).toFixed(1) + '" y2="' + Y(t).toFixed(1) + '" stroke="var(--line)" stroke-width="' + (Math.abs(t) < step / 1000 ? 2 : 1) + '"/>');
+        o.push('<text x="' + (ml - 10) + '" y="' + (Y(t) + 5).toFixed(1) + '" text-anchor="end" class="ch-axis">' + axisMoney(t) + '</text>');
+      }
+      for (var i = 0; i <= T; i++) {
+        var lab = i === 0 ? "Start" : "Round " + i, age = i === 0 ? "" : "ages " + (18 + (i - 1) * 5) + " to " + (22 + (i - 1) * 5);
+        o.push('<text x="' + X(i).toFixed(1) + '" y="' + (H - mb + 24) + '" text-anchor="middle" class="ch-axis">' + lab + '</text>');
+        if (age) o.push('<text x="' + X(i).toFixed(1) + '" y="' + (H - mb + 42) + '" text-anchor="middle" class="ch-axis" style="font-size:12px">' + age + '</text>');
+      }
+      function line(r, isFocus) {
+        var pts = [[0, 0]].concat(r.history.map(function (x, k) { return [k + 1, x]; }));
+        var d = pts.map(function (q, k) { return (k ? "L" : "M") + X(q[0]).toFixed(1) + " " + Y(q[1]).toFixed(1); }).join(" ");
+        var c = colorOf[r.id] || "var(--accent)";
+        var out = '<g data-act="focus" data-pid="' + esc(r.id) + '" style="cursor:pointer"><title>' + esc(r.name) + ": " + money(r.score) + '</title>' +
+          '<path d="' + d + '" fill="none" stroke="' + c + '" stroke-width="' + (isFocus ? 6 : 2.6) + '" stroke-linejoin="round" stroke-linecap="round" opacity="' + (isFocus ? 1 : 0.75) + '"/>';
+        pts.forEach(function (q) { if (q[0] > 0) out += '<circle cx="' + X(q[0]).toFixed(1) + '" cy="' + Y(q[1]).toFixed(1) + '" r="' + (isFocus ? 6 : 3.5) + '" fill="' + c + '"/>'; });
+        return out + '</g>';
+      }
+      lb.forEach(function (r) { if (r.id !== f.id) o.push(line(r, false)); });
+      o.push(line(f, true));
+      /* end labels for the leaders and the focused player, spaced so they do not overlap */
+      var labelRows = lb.slice(0, 5);
+      if (labelRows.indexOf(f) < 0) labelRows.push(f);
+      var ys = labelRows.map(function (r) { return { r: r, y: Y(r.history.length ? r.history[r.history.length - 1] : 0) }; }).sort(function (a, b) { return a.y - b.y; });
+      for (var k = 1; k < ys.length; k++) if (ys[k].y < ys[k - 1].y + 18) ys[k].y = ys[k - 1].y + 18;
+      ys.forEach(function (q) {
+        var nm = q.r.name.length > 12 ? q.r.name.slice(0, 11) + "…" : q.r.name;
+        o.push('<text x="' + (X(v.round) + 12).toFixed(1) + '" y="' + (q.y + 5).toFixed(1) + '" class="ch-label" fill="' + (colorOf[q.r.id] || "var(--ink)") + '">' + esc(nm) + '</text>');
+      });
+      o.push("</svg>");
+      var legend = lb.map(function (r) {
+        return '<button type="button" data-act="focus" data-pid="' + esc(r.id) + '"' + (r.id === f.id ? ' class="on"' : "") + '><i style="background:' + (colorOf[r.id] || "var(--accent)") + '"></i>' + esc(r.name) + '</button>';
+      }).join("");
+      return '<div class="hs-chart"><h3>Progress round by round: score for each player</h3>' + o.join("") + '<div class="hs-legend">' + legend + '</div><p class="hs-note">Tap a name or a line to highlight one player. Score is net worth plus life value.</p></div>';
+    }
+    function seg(withRecap) {
+      return '<div class="hs-seg"><button type="button" data-act="lb" data-v="board" aria-pressed="' + (ui.lb === "board") + '">Leaderboard</button>' +
+        '<button type="button" data-act="lb" data-v="details" aria-pressed="' + (ui.lb === "details") + '">Details</button>' +
+        (withRecap ? '<button type="button" data-act="lb" data-v="recap" aria-pressed="' + (ui.lb === "recap") + '">Choices recap</button>' : '') + '</div>';
+    }
+    function recapView(v) {
+      var lb = v.leaderboard, n = lb.length;
+      function tally(label) {
+        var c = {}, best = null;
+        lb.forEach(function (r) { r.recap.forEach(function (x) { if (x.k === label && x.v !== "None") c[x.v] = (c[x.v] || 0) + 1; }); });
+        Object.keys(c).forEach(function (k) { if (!best || c[k] > c[best]) best = k; });
+        return best ? best + " (" + c[best] + ")" : "none";
+      }
+      function yesCount(label) { var t = 0; lb.forEach(function (r) { r.recap.forEach(function (x) { if (x.k === label && x.yes) t++; }); }); return t; }
+      var stats = [["Most popular career", tally("Career")], ["Most popular summer", tally("Summer")]];
+      ["College", "Mission", "Car", "Marriage", "Kids", "Side business", "Home", "Dog", "Family help"].forEach(function (k) {
+        stats.push([k, yesCount(k) + " of " + n]);
+      });
+      stats.splice(2, 0, ["Round 5 health pick", tally("Health")], ["Round 5 work or service pick", tally("Work or service")]);
+      function avg(a) { var t = 0; a.forEach(function (z) { t += z; }); return a.length ? t / a.length : 0; }
+      function whatIf(key, aId, aName, bId, bName) {
+        var da = [], db = [];
+        lb.forEach(function (r) { var w = r.what && r.what[key]; if (!w) return; if (w.pick === aId) da.push(w.diff); else if (w.pick === bId) db.push(w.diff); });
+        if (!da.length && !db.length) return null;
+        return [aName + " or " + bName + ": score change if they had switched",
+          (da.length ? aName + " players " + sgnMoney(avg(da)) : "") + (da.length && db.length ? " · " : "") + (db.length ? bName + " players " + sgnMoney(avg(db)) : "")];
+      }
+      [whatIf("moneytrip", "invest", "Investing", "kazakhstan", "Kazakhstan"), whatIf("workserve", "work", "Extra hours", "serve", "Volunteering"), whatIf("health", "screening", "Screening", "trip2", "Second trip")]
+        .reverse().forEach(function (c) { if (c) stats.unshift(c); });
+      var chipsHtml = stats.map(function (x) { return '<span class="hs-stat"><small>' + esc(x[0]) + '</small><b>' + esc(x[1]) + '</b></span>'; }).join("");
+      var cols = lb.length ? lb[0].recap.map(function (x) { return x.k; }) : [];
+      var head = '<thead><tr><th>Rank</th><th>Player</th>' + cols.map(function (c) { return '<th>' + esc(c) + '</th>'; }).join("") + '</tr></thead>';
+      var body = lb.map(function (r) {
+        return '<tr><td>' + r.rank + '</td><td><b>' + trophy(r.rank) + esc(r.name) + (r.eliminated ? ' 🎡' : '') + '</b></td>' + r.recap.map(function (x) {
+          return '<td class="' + (x.yes ? "yes" : x.v === "No" ? "no" : "") + '">' + (x.yes ? "✓ " : "") + esc(x.v) + '</td>';
+        }).join("") + '</tr>';
+      }).join("");
+      return '<div class="hs-stats">' + chipsHtml + '</div><div class="hs-scroll"><table class="hs-table recap">' + head + '<tbody>' + body + '</tbody></table></div>';
+    }
+
+    function results(v) {
+      var last = v.round >= v.totalRounds;
+      return top(v) + '<div class="hs-main"><div style="display:flex;justify-content:space-between;align-items:flex-end;gap:1em"><div>' +
+        '<h1 class="hs-title">Round ' + v.round + ' results</h1><p class="hs-sub">Score after ' + esc(v.ageRange.toLowerCase()) + ': net worth (money earned minus spent) plus life value</p></div>' + seg(false) + '</div>' +
+        (ui.lb === "board" ? boardPanel(v) : details(v.leaderboard)) + progress(v) + '</div>' +
+        '<div class="hs-foot"><span class="hs-note">Tap Details to see how each choice changed the numbers.</span>' +
+        '<button type="button" class="hs-btn gold" data-act="next">' + (last ? "Final results" : "Next round: " + esc(v.nextTitle)) + '</button></div>';
+    }
+
+    function final(v) {
+      var lb = v.leaderboard, medals = ["🥇", "🥈", "🥉"], cls = ["p1", "p2", "p3"];
+      var order = [1, 0, 2].filter(function (i) { return lb[i]; });
+      var pod = order.map(function (i) {
+        return '<div class="pod ' + cls[i] + '"><div class="medal">' + medals[i] + '</div><div class="nm">' + esc(lb[i].name) + '</div><div class="am num">' + money(lb[i].score) + '</div><div class="cr">' + esc(lb[i].career) + '</div></div>';
+      }).join("");
+      return top(v) + '<div class="hs-main"><div style="display:flex;justify-content:space-between;align-items:flex-end;gap:1em"><div>' +
+        '<h1 class="hs-title">Final results</h1><p class="hs-sub">After 30 years of choices, here is who finished with the most</p></div>' + seg(true) + '</div>' +
+        (ui.lb === "recap" ? recapView(v) : (ui.lb === "board" ? boardPanel(v, '<div class="hs-podium">' + pod + '</div>') : details(lb)) + progress(v)) + '</div>' +
+        '<div class="hs-foot"><button type="button" class="hs-btn ghost" data-act="confetti">🎉 Confetti again</button><button type="button" class="hs-btn" data-act="reset">Play again</button></div>';
+    }
+
+    var WHEEL_MS = 6000;
+    function wheelScreen(v) {
+      var w = v.wheel, c = w.candidates, n = c.length, last = w.last, spinning = !!(last && !last.done);
+      var R = 200, sl = 360 / n, parts = [];
+      function pt(a) { var r = a * Math.PI / 180; return [(R * Math.sin(r)).toFixed(2), (-R * Math.cos(r)).toFixed(2)]; }
+      var fs = Math.max(9, Math.min(22, 2 * Math.PI * R * 0.55 / n * 0.8));
+      c.forEach(function (q, i) {
+        var a0 = i * sl, a1 = (i + 1) * sl, p0 = pt(a0), p1 = pt(a1), mid = (a0 + a1) / 2;
+        var nm = q.name.length > 11 ? q.name.slice(0, 10) + "…" : q.name;
+        parts.push('<path d="M0 0 L' + p0[0] + " " + p0[1] + " A" + R + " " + R + " 0 " + (sl > 180 ? 1 : 0) + " 1 " + p1[0] + " " + p1[1] + ' Z" fill="hsl(' + Math.round(i * 360 / n) + ',62%,52%)" stroke="#fff" stroke-width="2"/>');
+        parts.push('<text transform="rotate(' + (mid - 90).toFixed(2) + ') translate(' + (R * 0.2).toFixed(1) + ',0)" dominant-baseline="middle" fill="#fff" font-weight="800" font-size="' + fs.toFixed(1) + '" style="paint-order:stroke" stroke="rgba(0,0,0,.35)" stroke-width="2">' + esc(nm) + '</text>');
+      });
+      var svg = '<svg viewBox="-210 -210 420 420" role="img" aria-label="Wheel with every player\'s name">' + parts.join("") + '<circle r="22" fill="#fff" stroke="#333" stroke-width="3"/></svg>';
+      var banner = "";
+      if (last && last.done) banner = '<div class="wheel-out">🎡 ' + esc(last.name) + ' is eliminated</div><p class="hs-note">Life can change in an instant. ' + esc(last.name) + '’s score stays where it is for the rest of the game.</p>';
+      else if (spinning) banner = '<div class="wheel-out">Spinning…</div>';
+      else banner = '<p class="hs-sub" style="margin:0">Real life is unpredictable. The wheel picks one player to be eliminated.</p>';
+      var btn = spinning ? '<button type="button" class="hs-btn gold" disabled>Spinning…</button>'
+        : w.left > 0 ? '<button type="button" class="hs-btn gold" data-act="spin">🎡 ' + (last && last.done ? "Spin again" : "Spin the wheel") + '</button>'
+        : '<button type="button" class="hs-btn gold" data-act="wheelDone">Start round ' + v.round + '</button>';
+      return top(v) + '<div class="hs-main"><h1 class="hs-title">A twist before round ' + v.round + '</h1><p class="hs-sub">' + esc(v.ageRange) + '</p></div>' +
+        '<div class="hs-modal' + (opts.modalInside ? " inside" : "") + '"><div class="hs-modal-card"><h2>🎡 The wheel of life</h2>' +
+        '<div class="wheel-box"><div class="wheel-spin" style="transform:rotate(' + (ui.wheelAt || 0) + 'deg)">' + svg + '</div><div class="wheel-pointer">▼</div></div>' +
+        banner + '<div style="margin-top:.8em">' + btn + '</div></div></div>';
+    }
+    function startWheel() {
+      var w = view.wheel;
+      if (!w) { ui.animated = null; ui.wheelAt = 0; return; }
+      var el = hs.querySelector(".wheel-spin");
+      if (!el || !w.last) { if (!w.last) ui.wheelAt = 0; return; }
+      if (w.last.done) return;
+      if (ui.animated === w.spinId) { el.style.transform = "rotate(" + ui.wheelAt + "deg)"; return; }
+      ui.animated = w.spinId;
+      var idx = 0, i;
+      for (i = 0; i < w.candidates.length; i++) if (w.candidates[i].id === w.last.pid) idx = i;
+      var sl = 360 / w.candidates.length, off = (Math.random() - 0.5) * sl * 0.6;
+      ui.wheelAt = 360 * 6 - (idx + 0.5) * sl + off;
+      setTimeout(function () { el.style.transform = "rotate(" + ui.wheelAt + "deg)"; }, 80);
+      setTimeout(function () { act("wheelConfirm"); }, WHEEL_MS + 500);
+    }
+    function render() {
+      if (authFail) {
+        hs.innerHTML = '<div class="hs-main"><h1 class="hs-title">A host is already connected</h1><p class="hs-sub">Open this page on the computer that runs the game, or restart the server to take over.</p></div>';
+        return;
+      }
+      if (!view) { hs.innerHTML = '<div class="hs-main"><p class="hs-sub">Connecting…</p></div>'; return; }
+      if (view.phase !== "final" && ui.lb === "recap") ui.lb = "board";
+      var key = view.phase + ":" + view.round + ":" + ui.lb;
+      var changed = key !== lastKey; lastKey = key;
+      var html = view.phase === "lobby" ? lobby(view)
+        : view.phase === "choosing" ? choosing(view)
+        : view.phase === "wheel" ? wheelScreen(view)
+        : view.phase === "reveal" ? reveal(view)
+        : view.phase === "results" ? results(view) : final(view);
+      hs.className = "hs" + (changed ? " enter" : "");
+      hs.innerHTML = html;
+      if (view.phase === "wheel") startWheel(); else { ui.animated = null; ui.wheelAt = 0; }
+      if (view.phase === "final" && lastPhase !== "final") setTimeout(confetti, 300);
+      lastPhase = view.phase;
+      updateOffline();
+    }
+
+    /* ---------- events ---------- */
+    hs.addEventListener("click", function (e) {
+      var b = e.target.closest ? e.target.closest("[data-act]") : null;
+      if (!b || b.disabled) return;
+      var a = b.getAttribute("data-act");
+      if (a === "toggleSettings") { ui.settings = !ui.settings; render(); }
+      else if (a === "lb") { ui.lb = b.getAttribute("data-v"); render(); }
+      else if (a === "confetti") confetti();
+      else if (a === "focus") { ui.focus = b.getAttribute("data-pid"); render(); }
+      else if (a === "kick") act("kick", { pid: b.getAttribute("data-pid") });
+      else if (a === "bots") act("bots", { n: 8 });
+      else if (a === "newgame") { if (window.confirm("Start a new game with a new code? Current players will be removed.")) act("newgame"); }
+      else act(a);
+    });
+    hs.addEventListener("change", function (e) {
+      var t = e.target, k = t.getAttribute && t.getAttribute("data-k");
+      if (k) {
+        var o = {}; o[k] = t.tagName === "SELECT" && (t.value === "true" || t.value === "false") ? t.value === "true" : t.value;
+        act("settings", o);
+        return;
+      }
+      var pid = t.getAttribute && t.getAttribute("data-pay");
+      if (pid) act("setpay", { pid: pid, pay: t.value });
+    });
+
+    loop();
+    return { act: act };
+  }
+
+  root.LifeHost = { mount: mountHost };
+})(typeof self !== "undefined" ? self : this);
+
+</script>
+<script>
+/* Seminary game framework: Firebase Realtime Database bridge (REST, no SDK). The teacher's page runs the game;
+   phones send their name and picks to the database and read back their own private view. */
+(function (root) {
+  "use strict";
+
+  function rid() { return Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-3); }
+  function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+  function lsDel(k) { try { localStorage.removeItem(k); } catch (e) {} }
+  function newCode() {
+    var a = "ABCDEFGHJKLMNPQRSTUVWXYZ", c = "";
+    for (var i = 0; i < 4; i++) c += a.charAt(Math.floor(Math.random() * a.length));
+    return c;
+  }
+  function http(method, url, body) {
+    var o = { method: method, cache: "no-store" };
+    if (body !== undefined) { o.body = JSON.stringify(body); o.headers = { "Content-Type": "application/json" }; }
+    return fetch(url, o).then(function (r) {
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      return r.json();
+    });
+  }
+
+  /* ---------------- teacher side ---------------- */
+  function hostBridge(cfg) {
+    var db = cfg.dbUrl.replace(/\/$/, "");
+    var root0 = cfg.root || "lifeGames";
+    var PFX = "life." + root0.replace(/[^A-Za-z0-9]/g, "_") + ".";
+    var code = lsGet(PFX + "code") || newCode(); lsSet(PFX + "code", code);
+    var game = root.LifeEngine.createGame();
+    var meta = { aliases: {}, lastN: {}, handled: {} };
+    var written = {};
+    var stopped = false;
+
+    function u(path) { return db + "/" + root0 + "/" + code + path + ".json"; }
+
+    function load() {
+      try {
+        var snap = lsGet(PFX + "snap." + code);
+        if (snap) game.restore(JSON.parse(snap));
+        var m = lsGet(PFX + "meta." + code);
+        if (m) meta = Object.assign(meta, JSON.parse(m));
+      } catch (e) {}
+    }
+    function persist() {
+      lsSet(PFX + "snap." + code, JSON.stringify(game.snapshot()));
+      lsSet(PFX + "meta." + code, JSON.stringify(meta));
+    }
+
+    function writeError(pid, msg) {
+      return http("PUT", u("/views/" + pid), { error: msg }).catch(function () {});
+    }
+
+    function writeViews() {
+      var hv = game.hostView();
+      var jobs = [];
+      (hv.players || []).forEach(function (p) {
+        var view = game.playerView(p.id);
+        jobs.push(http("PUT", u("/views/" + p.id), view).catch(function () {}));
+        Object.keys(meta.aliases).forEach(function (a) {
+          if (meta.aliases[a] === p.id) jobs.push(http("PUT", u("/views/" + a), view).catch(function () {}));
+        });
+      });
+      return Promise.all(jobs);
+    }
+
+    function tick() {
+      if (stopped) return;
+      Promise.all([http("GET", u("/in/joins")), http("GET", u("/in/picks"))]).then(function (r) {
+        var joins = r[0] || {}, picks = r[1] || {}, pid;
+        for (pid in joins) {
+          if (meta.handled[pid]) continue;
+          var j = joins[pid] || {};
+          var name = String(j.name || "").trim().slice(0, 24) || "Player";
+          var existing = null;
+          var hv = game.hostView();
+          (hv.players || []).forEach(function (p) { if (!existing && p.name === name && !p.bot) existing = p.id; });
+          if (existing) {
+            meta.aliases[pid] = existing;
+          } else {
+            var res = game.join(name, pid);
+            if (res && res.error) { writeError(pid, res.error); meta.handled[pid] = true; continue; }
+          }
+          meta.handled[pid] = true;
+        }
+        for (pid in picks) {
+          var pk = picks[pid];
+          if (!pk || typeof pk.n !== "number") continue;
+          if (meta.lastN[pid] === pk.n) continue;
+          var realPid = meta.aliases[pid] || pid;
+          game.submit(realPid, pk.picks);
+          meta.lastN[pid] = pk.n;
+        }
+        persist();
+        return writeViews();
+      }).catch(function () {}).then(function () {
+        if (!stopped) setTimeout(tick, 800);
+      });
+    }
+
+    function beat() {
+      if (stopped) return;
+      http("PUT", u("/host"), { code: code, t: Date.now() }).catch(function () {}).then(function () {
+        if (!stopped) setTimeout(beat, 4000);
+      });
+    }
+
+    function newGame() {
+      var oldSettings = null;
+      try { oldSettings = game.hostView().settings; } catch (e) {}
+      lsDel(PFX + "snap." + code); lsDel(PFX + "meta." + code);
+      code = newCode(); lsSet(PFX + "code", code);
+      game = root.LifeEngine.createGame();
+      if (oldSettings) game.hostAct("settings", oldSettings);
+      meta = { aliases: {}, lastN: {}, handled: {} }; written = {};
+      persist();
+      http("PUT", u("/host"), { code: code, t: Date.now() }).catch(function () {});
+    }
+
+    var api = { host: {
+      state: function (since) {
+        var v = game.version();
+        if (since === v) return Promise.resolve({ v: v, same: true });
+        return Promise.resolve({ v: v, view: game.hostView() });
+      },
+      act: function (action, payload) {
+        if (action === "newgame") { newGame(); return Promise.resolve({ ok: true }); }
+        var pids = [];
+        if (action === "kick" && payload && payload.pid) {
+          pids.push(payload.pid);
+          Object.keys(meta.aliases).forEach(function (a) { if (meta.aliases[a] === payload.pid) pids.push(a); });
+        }
+        var r = game.hostAct(action, payload || {});
+        if (r && r.error) return Promise.resolve(r);
+        persist();
+        var jobs = pids.map(function (pid) { return writeError(pid, "unknown"); });
+        if (action === "reset") {
+          jobs.push(http("DELETE", u("/in")).catch(function () {}));
+          meta.lastN = {};
+        }
+        return Promise.all(jobs).then(writeViews).then(function () { return r; });
+      }
+    } };
+
+    load();
+    http("PUT", u("/host"), { code: code, t: Date.now() }).catch(function () {});
+    tick(); beat();
+    return {
+      api: api,
+      code: function () { return code; },
+      joinUrl: function () { return location.origin + location.pathname.replace(/teacher\.html$/, "play.html") + "?g=" + code; },
+      siteText: function () { return location.host; },
+      stop: function () { stopped = true; }
+    };
+  }
+
+  /* ---------------- phone side ---------------- */
+  function normalize(v) {
+    if (!v || v.error) return v;
+    v.decisions = (v.decisions || []).map(function (d) {
+      if (d.options) d.options = Array.isArray(d.options) ? d.options : Object.keys(d.options).map(function (k) { return d.options[k]; });
+      return d;
+    });
+    if (!Array.isArray(v.decisions)) v.decisions = [];
+    if (v.picks === undefined) v.picks = null;
+    return v;
+  }
+  function playerApi(cfg, code) {
+    var db = cfg.dbUrl.replace(/\/$/, ""), root0 = cfg.root || "lifeGames";
+    function u(path) { return db + "/" + root0 + "/" + code + path + ".json"; }
+    var lastRound = 0;
+    function waitView(pid, tries) {
+      return http("GET", u("/views/" + pid)).then(function (v) {
+        if (v) { if (v.error) return { error: v.error }; return { pid: pid, name: v.name }; }
+        if (tries <= 0) return { error: "The TV screen did not answer. Is it still open?" };
+        return new Promise(function (res) { setTimeout(res, 700); }).then(function () { return waitView(pid, tries - 1); });
+      });
+    }
+    return { player: {
+      join: function (name, hint) {
+        var pid = hint || rid();
+        return http("GET", u("/host")).then(function (h) {
+          if (!h) return { error: "Game not found. Check the code, and make sure the TV screen is open." };
+          return http("PUT", u("/in/joins/" + pid), { name: name, t: Date.now() }).then(function () { return waitView(pid, 20); });
+        });
+      },
+      state: function (pid) {
+        return http("GET", u("/views/" + pid)).then(function (v) {
+          if (!v) return { v: 0 };
+          if (v.error) return { error: "unknown" };
+          v = normalize(v); lastRound = v.round || 0;
+          return { v: Date.now(), view: v };
+        });
+      },
+      submit: function (pid, picks) {
+        return http("PUT", u("/in/picks/" + pid), { n: Date.now(), round: lastRound, picks: picks }).then(function () { return { ok: true }; });
+      }
+    } };
+  }
+
+  root.LifeFirebase = { hostBridge: hostBridge, playerApi: playerApi };
+})(typeof self !== "undefined" ? self : this);
+
+</script>
+<script>
+(function(){
+  var CFG = { dbUrl: "https://penny-project-fb5da-default-rtdb.firebaseio.com", root: "seminaryGames/lifechoices" };
+  var bridge = LifeFirebase.hostBridge(CFG);
+  LifeHost.mount(document.getElementById('tv'), bridge.api, {
+    joinUrl: bridge.joinUrl,
+    joinCode: bridge.code,
+    siteText: bridge.siteText,
+    qr: function(t){ var q=qrcode(0,'M'); q.addData(t); q.make(); return q.createSvgTag({cellSize:4,margin:2,scalable:true}); },
+    pollMs: 1000
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script>/* Practice mode: when this page runs inside the site's practice page, use its pretend database and give this screen its own storage. Does nothing otherwise. */
+(function(){try{var P=window.parent!==window&&window.parent.PRACTICE;if(!P)return;window.fetch=P.fetch;var s=P.storage(window.name||location.href);Object.defineProperty(window,'localStorage',{configurable:true,get:function(){return s.local;}});Object.defineProperty(window,'sessionStorage',{configurable:true,get:function(){return s.session;}});}catch(e){}})();</script><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Doctrinal Mastery Match: Teacher</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>:root{--bg-page:#0E1B2B;--bg-panel:#16273B;--bg-panel-raised:#1E3450;--ink:#F1F6FB;--muted:#9FB4C9;--line:rgba(241,246,251,0.14);--accent:#58B38A;--ok:#3FA66B;--bad:#C65B5B;color-scheme:dark;}
+*{box-sizing:border-box;}
+html,body{margin:0;min-height:100%;background:var(--bg-page);color:var(--ink);font-family:'Inter',-apple-system,Segoe UI,Roboto,sans-serif;}
+body{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);}
+.wrap{max-width:860px;margin:0 auto;padding:20px 16px 50px;}
+.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:6px;}
+h1{font-family:'Fraunces',Georgia,serif;font-size:1.9rem;margin:0 0 8px;}
+h2{font-family:'Fraunces',Georgia,serif;font-size:1.3rem;margin:0 0 10px;}
+.card{background:var(--bg-panel);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px;}
+.muted{color:var(--muted);font-size:0.95rem;}
+.btn{font:inherit;font-weight:700;padding:14px 20px;border-radius:10px;border:1px solid var(--line);background:var(--bg-panel-raised);color:var(--ink);cursor:pointer;}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#06121D;}
+.btn.big{font-size:1.1rem;width:100%;padding:18px;margin-top:6px;}
+.btn[disabled]{opacity:0.4;cursor:default;}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+input[type=text]{font:inherit;font-size:1.1rem;padding:14px;border-radius:10px;border:1px solid var(--line);background:var(--bg-panel-raised);color:var(--ink);width:100%;margin-bottom:10px;}
+.qr-box{display:flex;justify-content:center;padding:16px;background:#fff;border-radius:14px;margin:10px auto;width:max-content;max-width:100%;}
+.code{font-family:'IBM Plex Mono',monospace;font-size:2.4rem;letter-spacing:0.18em;text-align:center;color:var(--accent);margin:6px 0;}
+.tag{display:inline-block;background:var(--bg-panel-raised);border-radius:20px;padding:6px 14px;margin:4px;font-size:0.95rem;}
+.lb{width:100%;border-collapse:collapse;margin-top:6px;}
+.lb td,.lb th{padding:9px 6px;border-bottom:1px solid var(--line);text-align:left;font-size:1rem;}
+.lb th{color:var(--muted);font-weight:600;font-size:0.78rem;text-transform:uppercase;}
+.q{font-family:'Fraunces',Georgia,serif;font-size:1.6rem;line-height:1.35;margin:8px 0 16px;}
+.verse{font-family:'Fraunces',Georgia,serif;font-size:1.45rem;line-height:1.45;font-style:italic;margin:8px 0 16px;}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.opt{padding:16px;border-radius:12px;border:1px solid var(--line);background:var(--bg-panel-raised);font-size:1.1rem;}
+.opt.right{border-color:var(--ok);background:rgba(63,166,107,0.25);}
+.opt .n{font-family:'IBM Plex Mono',monospace;color:var(--muted);margin-right:8px;}
+.ans{display:block;width:100%;text-align:left;font:inherit;font-size:1.1rem;padding:18px 16px;margin-bottom:10px;border-radius:12px;border:1px solid var(--line);background:var(--bg-panel-raised);color:var(--ink);cursor:pointer;}
+.ans.t{background:rgba(63,166,107,0.2);border-color:var(--ok);text-align:center;font-size:1.4rem;font-weight:700;}
+.ans.f{background:rgba(198,91,91,0.2);border-color:var(--bad);text-align:center;font-size:1.4rem;font-weight:700;}
+.timerbar{height:8px;border-radius:4px;background:var(--bg-panel-raised);overflow:hidden;margin:6px 0 12px;}
+.timerbar i{display:block;height:100%;background:var(--accent);transition:width .25s linear;}
+.result-big{font-family:'Fraunces',Georgia,serif;font-size:2.2rem;font-weight:700;margin:6px 0;}
+.good{color:var(--ok);} .bad{color:var(--bad);}
+.reveal{background:var(--bg-panel-raised);border-radius:12px;padding:14px 16px;margin-top:6px;}
+.podium{display:flex;justify-content:center;align-items:flex-end;gap:14px;margin:20px 0;}
+.podium .spot{background:var(--bg-panel-raised);border-radius:10px 10px 0 0;padding:14px 16px;text-align:center;min-width:100px;}
+.podium .g1{min-height:130px;background:linear-gradient(180deg,#F0CB77,#C9A227);color:#2b2418;}
+.podium .g2{min-height:96px;} .podium .g3{min-height:72px;}
+.ph{max-width:480px;margin:0 auto;}
+.center{text-align:center;}
+@media (max-width:600px){ .opts{grid-template-columns:1fr;} .q{font-size:1.3rem;} .verse{font-size:1.2rem;} }
+.emoji{font-size:4rem;line-height:1.3;text-align:center;margin:10px 0 18px;letter-spacing:0.1em;}
+.order{margin:0 0 6px;padding-left:28px;font-size:1.15rem;line-height:1.7;}
+.order li::marker{color:var(--accent);font-weight:700;}
+.ans.picked{border-color:var(--accent);background:rgba(255,255,255,0.08);opacity:0.75;}
+.badge{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;border:1px solid var(--line);margin-right:10px;font-weight:700;font-family:'IBM Plex Mono',monospace;}
+.ans.picked .badge{background:var(--accent);color:#06121D;border-color:var(--accent);}
+.scene{font-size:1.15rem;line-height:1.5;margin:4px 0 10px;}
+.meters{display:grid;gap:10px;}
+.meter{font-size:0.95rem;}
+.mtrack{height:10px;border-radius:5px;background:var(--bg-panel-raised);overflow:hidden;margin-top:4px;}
+.mtrack i{display:block;height:100%;background:var(--accent);transition:width .4s ease;}
+.tally{display:grid;gap:8px;margin-top:8px;}
+.trow{padding:10px 12px;border-radius:10px;border:1px solid var(--line);}
+.trow.dec{border-color:var(--accent);background:rgba(255,255,255,0.05);}
+.trow .n,.opt .n{font-family:'IBM Plex Mono',monospace;color:var(--muted);margin-right:8px;}
+.did{border-color:var(--accent);}
+ul.plain{margin:0;padding-left:20px;line-height:1.6;}
+.pts{font-family:'IBM Plex Mono',monospace;font-size:0.8rem;color:var(--muted);margin-left:6px;white-space:nowrap;}
+.pts.top{color:var(--accent);font-weight:700;}
+.ctx{margin-top:14px;padding:14px 16px;border-left:4px solid var(--accent);background:rgba(227,176,75,0.10);border-radius:10px;text-align:left;}.ctx .ctx-h{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:4px;}.ctx b{display:block;font-size:1.05rem;margin-bottom:6px;color:var(--ink);}.ctx p{margin:0;line-height:1.55;color:var(--ink);font-size:0.98rem;}.wrap{max-width:1400px;padding-left:28px;padding-right:28px}.lobby{display:grid;grid-template-columns:minmax(260px,340px) 1fr;gap:22px;align-items:start}.lobby .qr-box{width:max-content;max-width:100%;margin:6px auto}.lobby .qr-box svg,.lobby .qr-box canvas,.lobby .qr-box img{width:240px!important;height:240px!important;display:block}@media (max-width:860px){.lobby{grid-template-columns:1fr}}</style></head><body><div class="wrap" id="app"></div>
+<script>var CFG={"title": "Doctrinal Mastery Match", "kind": "mc", "seconds": 25, "questions": [{"options": ["Malachi 4:5-6", "Psalm 24:3-4", "Malachi 3:8-10", "Isaiah 1:18"], "answer": 1, "ref": "Psalm 24:3-4", "expl": "Doctrinal mastery: Psalm 24:3-4", "verse": "Who shall ascend into the hill of the LORD? or who shall stand in his holy place? He that hath clean hands, and a pure heart; who hath not lifted up his soul unto vanity, nor sworn deceitfully.", "prompt": "Which doctrinal mastery passage is this?", "round": "Name the reference", "story": "Worthy to enter the temple (Psalm 24)", "ctx": "Psalm 24 may have been sung as worshippers went up to the temple in Jerusalem. It asks who is worthy to stand in the Lord’s holy place and answers: those with clean hands, meaning righteous actions, and a pure heart, meaning righteous desires."}, {"options": ["Isaiah 58:13-14", "Isaiah 5:20", "Ezekiel 3:16-17", "Malachi 4:5-6"], "answer": 1, "ref": "Isaiah 5:20", "expl": "Doctrinal mastery: Isaiah 5:20", "verse": "Woe unto them that call evil good, and good evil; that put darkness for light, and light for darkness; that put bitter for sweet, and sweet for bitter!", "prompt": "Which doctrinal mastery passage is this?", "round": "Name the reference", "story": "Calling evil good (Isaiah 5)", "ctx": "Isaiah compared Israel to a vineyard the Lord had carefully planted that produced only wild grapes. He then listed woes upon the people’s sins, including those who flip right and wrong, calling evil good and good evil. The warning fits any world that relabels sin as acceptable."}, {"options": ["Psalm 24:3-4", "Isaiah 29:13-14", "Isaiah 58:13-14", "Isaiah 5:20"], "answer": 1, "ref": "Isaiah 29:13-14", "expl": "Doctrinal mastery: Isaiah 29:13-14", "verse": "Therefore, behold, I will proceed to do a marvellous work among this people, even a marvellous work and a wonder: for the wisdom of their wise men shall perish, and the understanding of their prudent men shall be hid.", "prompt": "Which doctrinal mastery passage is this?", "round": "Name the reference", "story": "A marvellous work and a wonder (Isaiah 29)", "ctx": "Isaiah described people who honored God with their lips while their hearts were far from Him, and prophesied that the Lord would respond with “a marvellous work and a wonder.” The Savior quoted the first part to Joseph Smith in the First Vision (Joseph Smith, History 1:19). Latter-day Saints see the Restoration and the Book of Mormon as that marvellous work."}, {"options": ["Proverbs 3:5-6", "Isaiah 53:3-5", "Malachi 3:8-10", "Isaiah 58:6-7"], "answer": 1, "ref": "Isaiah 53:3-5", "expl": "Doctrinal mastery: Isaiah 53:3-5", "verse": "Surely he hath borne our griefs, and carried our sorrows: yet we did esteem him stricken, smitten of God, and afflicted.", "prompt": "Which doctrinal mastery passage is this?", "round": "Name the reference", "story": "The suffering servant (Isaiah 53)", "ctx": "Isaiah 53 describes a servant who would be despised and rejected, wounded for our transgressions and bruised for our iniquities. Written centuries before Christ, it is one of the clearest Old Testament prophecies of the Savior’s Atonement. Abinadi quoted it to King Noah’s priests (Mosiah 14)."}, {"options": ["Isaiah 29:13-14", "Ezekiel 3:16-17", "Isaiah 5:20", "Isaiah 58:6-7"], "answer": 1, "ref": "Ezekiel 3:16-17", "expl": "Doctrinal mastery: Ezekiel 3:16-17", "verse": "Son of man, I have made thee a watchman unto the house of Israel: therefore hear the word at my mouth, and give them warning from me.", "prompt": "Which doctrinal mastery passage is this?", "round": "Name the reference", "story": "Ezekiel the watchman (Ezekiel 3)", "ctx": "Ezekiel was called as a prophet to the Jews in exile in Babylon. The Lord compared him to a watchman on a city wall whose job is to warn of approaching danger. If he warned the people and they ignored him, he was free of blame; if he stayed silent, he would be accountable. Modern prophets serve as watchmen in the same way."}, {"options": ["Isaiah 5:20", "Isaiah 58:6-7", "Malachi 4:5-6", "Proverbs 3:5-6"], "answer": 2, "ref": "Malachi 4:5-6", "expl": "Doctrinal mastery: Malachi 4:5-6", "verse": "Behold, I will send you Elijah the prophet before the coming of the great and dreadful day of the LORD:", "prompt": "Which doctrinal mastery passage is this?", "round": "Name the reference", "story": "Elijah’s promised return (Malachi 4)", "ctx": "In the last verses of the Old Testament, Malachi promised the Lord would send Elijah before His Second Coming to turn the hearts of the fathers and children to each other. Moroni quoted these verses to Joseph Smith in 1823, and Elijah came to the Kirtland Temple in 1836 to restore the sealing power that binds families forever (D&C 110)."}, {"options": ["Isaiah 1:18", "Malachi 3:8-10", "Isaiah 29:13-14", "Ezekiel 37:15-17"], "answer": 3, "ref": "Ezekiel 37:15-17", "expl": "The stick of Judah and the stick of Joseph \"shall become one in thine hand\"", "text": "A friend asks why our Church needs the Book of Mormon when we already have the Bible.", "round": "Which passage helps?", "story": "The two sticks (Ezekiel 37)", "ctx": "Right after the vision of the dry bones, the Lord told Ezekiel to take one stick for Judah and one for Joseph and join them in his hand. Latter-day Saints understand the stick of Judah as the Bible and the stick of Joseph as the Book of Mormon, which now testify together of Jesus Christ."}, {"options": ["Isaiah 29:13-14", "Psalm 24:3-4", "Malachi 3:8-10", "Isaiah 1:18"], "answer": 3, "ref": "Isaiah 1:18", "expl": "\"Though your sins be as scarlet, they shall be as white as snow\"", "text": "Someone feels their sins are too big to ever be forgiven.", "round": "Which passage helps?", "story": "Sins as scarlet (Isaiah 1)", "ctx": "Isaiah opened his book by describing Judah as rebellious and spiritually sick, offering empty sacrifices. Yet in the middle of these warnings, the Lord invited them, “Come now, and let us reason together,” promising that even sins as deep red as scarlet could become white as snow through repentance."}, {"options": ["Isaiah 58:6-7", "Ezekiel 3:16-17", "Isaiah 29:13-14", "Ezekiel 37:15-17"], "answer": 0, "ref": "Isaiah 58:6-7", "expl": "A true fast looses the bands of wickedness and helps us deal bread to the hungry", "text": "You are wondering what the purpose of fast Sunday really is.", "round": "Which passage helps?", "story": "The true fast (Isaiah 58)", "ctx": "The people of Isaiah’s day fasted but wondered why God did not seem to notice. The Lord explained that a true fast is not just going without food, but loosing the bands of wickedness, freeing the oppressed, and feeding the hungry. Fast offerings put this teaching into practice today."}, {"options": ["Malachi 4:5-6", "Malachi 3:8-10", "Ezekiel 37:15-17", "Proverbs 3:5-6"], "answer": 1, "ref": "Malachi 3:8-10", "expl": "The Lord promises to open the windows of heaven", "text": "Your friend wonders whether paying tithing is worth it when money is tight.", "round": "Which passage helps?", "story": "Malachi on tithing (Malachi 3)", "ctx": "Malachi was the last prophet of the Old Testament. The Lord asked, “Will a man rob God?” and explained the people robbed Him in tithes and offerings. He promised that if they brought their tithes into the storehouse, He would open the windows of heaven. The Savior later taught these same words to the Nephites (3 Nephi 24)."}, {"options": ["Isaiah 58:13-14", "Isaiah 53:3-5", "Malachi 4:5-6", "Isaiah 29:13-14"], "answer": 0, "ref": "Isaiah 58:13-14", "expl": "\"Call the sabbath a delight\" and \"delight thyself in the Lord\"", "text": "You are deciding how to spend Sunday and want it to feel like a delight, not a list of rules.", "round": "Which passage helps?", "story": "Making the Sabbath a delight (Isaiah 58)", "ctx": "In the same chapter as his teachings on fasting, Isaiah taught how to keep the Sabbath. Turning away from “doing thy pleasure” on the Lord’s holy day and calling it a delight brings the promise, “Then shalt thou delight thyself in the LORD.”"}, {"options": ["Isaiah 58:13-14", "Ezekiel 3:16-17", "Isaiah 58:6-7", "Proverbs 3:5-6"], "answer": 3, "ref": "Proverbs 3:5-6", "expl": "\"Trust in the Lord with all thine heart\" and \"he shall direct thy paths\"", "text": "A big decision is ahead and you cannot see how it will work out.", "round": "Which passage helps?", "story": "Trusting the Lord (Proverbs 3)", "ctx": "Proverbs is a collection of wise sayings, many attributed to King Solomon, written like a father’s counsel to his son. This passage teaches that when we trust the Lord with all our heart instead of relying only on our own understanding, He will direct our paths."}, {"options": ["Isaiah 29:13-14", "Jeremiah 1:4-5", "Ezekiel 3:16-17", "Amos 3:7"], "answer": 1, "ref": "Jeremiah 1:4-5", "expl": "Doctrinal mastery: Jeremiah 1:4-5", "verse": "Before I formed thee in the belly I knew thee; and before thou camest forth out of the womb I sanctified thee.", "prompt": "Which doctrinal mastery passage is this?", "round": "Name the reference", "story": "The call of Jeremiah (Jeremiah 1)", "ctx": "The Lord told Jeremiah that He knew him and ordained him a prophet before he was born. Jeremiah protested that he was only a child and could not speak. The Lord touched his mouth, put His words there, and told him not to be afraid. Jeremiah prophesied for about forty years, in the same era as Lehi."}, {"options": ["Malachi 4:5-6", "Jeremiah 1:4-5", "Amos 3:7", "Ezekiel 3:16-17"], "answer": 2, "ref": "Amos 3:7", "expl": "Doctrinal mastery: Amos 3:7", "verse": "Surely the Lord GOD will do nothing, but he revealeth his secret unto his servants the prophets.", "prompt": "Which doctrinal mastery passage is this?", "round": "Name the reference", "story": "Amos the herdsman prophet (Amos 3)", "ctx": "Amos was a herdsman and fig farmer from Judah, not a trained prophet, whom the Lord sent to warn the northern kingdom of Israel. He taught that the Lord reveals His plans to His prophets before acting, a key reason we follow living prophets today."}, {"options": ["Isaiah 29:13-14", "Ezekiel 37:15-17", "Daniel 2:44-45", "Amos 3:7"], "answer": 2, "ref": "Daniel 2:44-45", "expl": "Doctrinal mastery: Daniel 2:44-45", "verse": "In the days of these kings shall the God of heaven set up a kingdom, which shall never be destroyed.", "prompt": "Which doctrinal mastery passage is this?", "round": "Name the reference", "story": "Nebuchadnezzar’s dream (Daniel 2)", "ctx": "King Nebuchadnezzar demanded that his wise men tell him both his dream and its meaning, or die. Daniel and his friends prayed, and God revealed it. The great image stood for kingdoms that would rise and fall, and the stone cut out without hands stood for God’s kingdom in the last days, which would fill the whole earth."}, {"options": ["Malachi 3:8-10", "Isaiah 58:13-14", "Isaiah 1:18", "Isaiah 58:6-7"], "answer": 3, "ref": "Isaiah 58:6-7", "expl": "Doctrinal mastery: Isaiah 58:6-7", "verse": "Is not this the fast that I have chosen? to loose the bands of wickedness... to let the oppressed go free.", "prompt": "Which doctrinal mastery passage is this?", "round": "Name the reference", "story": "The true fast (Isaiah 58)", "ctx": "The people of Isaiah’s day fasted but wondered why God did not seem to notice. The Lord explained that a true fast is not just going without food, but loosing the bands of wickedness, freeing the oppressed, and feeding the hungry. Fast offerings put this teaching into practice today."}, {"options": ["Psalm 24:3-4", "Isaiah 5:20", "Proverbs 3:5-6", "Jeremiah 1:4-5"], "answer": 2, "ref": "Proverbs 3:5-6", "expl": "Doctrinal mastery: Proverbs 3:5-6", "verse": "Trust in the LORD with all thine heart; and lean not unto thine own understanding.", "prompt": "Which doctrinal mastery passage is this?", "round": "Name the reference", "story": "Trusting the Lord (Proverbs 3)", "ctx": "Proverbs is a collection of wise sayings, many attributed to King Solomon, written like a father’s counsel to his son. This passage teaches that when we trust the Lord with all our heart instead of relying only on our own understanding, He will direct our paths."}, {"options": ["Daniel 2:44-45", "Malachi 3:8-10", "Isaiah 58:6-7", "Malachi 4:5-6"], "answer": 1, "ref": "Malachi 3:8-10", "expl": "Doctrinal mastery: Malachi 3:8-10", "verse": "Bring ye all the tithes into the storehouse... and prove me now herewith, saith the LORD of hosts.", "prompt": "Which doctrinal mastery passage is this?", "round": "Name the reference", "story": "Malachi on tithing (Malachi 3)", "ctx": "Malachi was the last prophet of the Old Testament. The Lord asked, “Will a man rob God?” and explained the people robbed Him in tithes and offerings. He promised that if they brought their tithes into the storehouse, He would open the windows of heaven. The Savior later taught these same words to the Nephites (3 Nephi 24)."}, {"text": "A friend says there is no real right and wrong anymore, only opinions.", "options": ["Isaiah 5:20", "Proverbs 3:5-6", "Isaiah 1:18", "Amos 3:7"], "answer": 0, "ref": "Isaiah 5:20", "expl": "Doctrinal mastery: Isaiah 5:20", "round": "Which passage helps?", "story": "Calling evil good (Isaiah 5)", "ctx": "Isaiah compared Israel to a vineyard the Lord had carefully planted that produced only wild grapes. He then listed woes upon the people’s sins, including those who flip right and wrong, calling evil good and good evil. The warning fits any world that relabels sin as acceptable."}, {"text": "Someone asks why we need living prophets today.", "options": ["Psalm 24:3-4", "Jeremiah 1:4-5", "Isaiah 58:6-7", "Amos 3:7"], "answer": 3, "ref": "Amos 3:7", "expl": "Doctrinal mastery: Amos 3:7", "round": "Which passage helps?", "story": "Amos the herdsman prophet (Amos 3)", "ctx": "Amos was a herdsman and fig farmer from Judah, not a trained prophet, whom the Lord sent to warn the northern kingdom of Israel. He taught that the Lord reveals His plans to His prophets before acting, a key reason we follow living prophets today."}, {"text": "You feel unimportant and wonder whether God has a plan for you.", "options": ["Jeremiah 1:4-5", "Daniel 2:44-45", "Isaiah 5:20", "Malachi 3:8-10"], "answer": 0, "ref": "Jeremiah 1:4-5", "expl": "Doctrinal mastery: Jeremiah 1:4-5", "round": "Which passage helps?", "story": "The call of Jeremiah (Jeremiah 1)", "ctx": "The Lord told Jeremiah that He knew him and ordained him a prophet before he was born. Jeremiah protested that he was only a child and could not speak. The Lord touched his mouth, put His words there, and told him not to be afraid. Jeremiah prophesied for about forty years, in the same era as Lehi."}, {"text": "You want to know how to be worthy to enter the temple.", "options": ["Psalm 24:3-4", "Amos 3:7", "Isaiah 58:13-14", "Ezekiel 37:15-17"], "answer": 0, "ref": "Psalm 24:3-4", "expl": "Doctrinal mastery: Psalm 24:3-4", "round": "Which passage helps?", "story": "Worthy to enter the temple (Psalm 24)", "ctx": "Psalm 24 may have been sung as worshippers went up to the temple in Jerusalem. It asks who is worthy to stand in the Lord’s holy place and answers: those with clean hands, meaning righteous actions, and a pure heart, meaning righteous desires."}, {"text": "A friend wonders why we do family history and temple work for ancestors.", "options": ["Isaiah 29:13-14", "Proverbs 3:5-6", "Malachi 4:5-6", "Malachi 3:8-10"], "answer": 2, "ref": "Malachi 4:5-6", "expl": "Doctrinal mastery: Malachi 4:5-6", "round": "Which passage helps?", "story": "Elijah’s promised return (Malachi 4)", "ctx": "In the last verses of the Old Testament, Malachi promised the Lord would send Elijah before His Second Coming to turn the hearts of the fathers and children to each other. Moroni quoted these verses to Joseph Smith in 1823, and Elijah came to the Kirtland Temple in 1836 to restore the sealing power that binds families forever (D&C 110)."}, {"text": "Someone asks whether the Church will last or eventually fade away.", "options": ["Ezekiel 3:16-17", "Isaiah 58:6-7", "Daniel 2:44-45", "Isaiah 1:18"], "answer": 2, "ref": "Daniel 2:44-45", "expl": "Doctrinal mastery: Daniel 2:44-45", "round": "Which passage helps?", "story": "Nebuchadnezzar’s dream (Daniel 2)", "ctx": "King Nebuchadnezzar demanded that his wise men tell him both his dream and its meaning, or die. Daniel and his friends prayed, and God revealed it. The great image stood for kingdoms that would rise and fall, and the stone cut out without hands stood for God’s kingdom in the last days, which would fill the whole earth."}, {"text": "You feel like no one understands the pain you are going through.", "options": ["Isaiah 53:3-5", "Isaiah 5:20", "Amos 3:7", "Malachi 4:5-6"], "answer": 0, "ref": "Isaiah 53:3-5", "expl": "Doctrinal mastery: Isaiah 53:3-5", "round": "Which passage helps?", "story": "The suffering servant (Isaiah 53)", "ctx": "Isaiah 53 describes a servant who would be despised and rejected, wounded for our transgressions and bruised for our iniquities. Written centuries before Christ, it is one of the clearest Old Testament prophecies of the Savior’s Atonement. Abinadi quoted it to King Noah’s priests (Mosiah 14)."}], "root": "seminaryGames/dmmatch2", "intro": "Name the reference for a passage, or pick the passage that helps in a real-life situation", "round": 10, "banked": true};
+var DBURL = "https://penny-project-fb5da-default-rtdb.firebaseio.com";
+var FAKE = null; try{ if (window.parent && window.parent !== window && window.parent.FAKE) FAKE = window.parent.FAKE; }catch(e){}
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function dbPath(code, path){ return CFG.root + '/' + code + (path ? '/' + path : ''); }
+function req(method, code, path, v){
+  var p = dbPath(code, path);
+  if (FAKE) return FAKE.req(method, p, v);
+  var o = {method: method, cache: 'no-store'}; if (v !== undefined) o.body = JSON.stringify(v);
+  return fetch(DBURL + '/' + p + '.json', o).then(function(r){ return r.json(); }).catch(function(){ return null; });
+}
+function jget(c,p){ return req('GET',c,p); }
+function jput(c,p,v){ return req('PUT',c,p,v); }
+function jpatch(c,p,v){ return req('PATCH',c,p,v); }
+function jpost(c,p,v){ return req('POST',c,p,v); }
+var TS = {".sv":"timestamp"};
+function ranked(players){ var a=[]; for (var k in (players||{})) a.push({id:k, name:players[k].name, score:players[k].score||0}); a.sort(function(x,y){ return y.score-x.score || String(x.name).localeCompare(String(y.name)); }); return a; }
+var MEM={};
+function store(k, v){ if (FAKE){ if (v===undefined) return MEM[k]||null; MEM[k]=v; return; } try{ if (v===undefined) return sessionStorage.getItem(k); sessionStorage.setItem(k, v); }catch(e){ return null; } }
+function optsOf(q){ return CFG.kind==='tf' ? ['True','False'] : q.options; }
+function correctIdx(q){ return CFG.kind==='tf' ? (q.answer?0:1) : q.answer; }
+function QA(m){ var ids=m&&m.qids; return CFG.questions[ids?ids[m.q]:m.q]; }
+function QN(m){ return (m&&m.qids)?m.qids.length:CFG.questions.length; }
+
+var BANKKEY='bank_'+(CFG.root||CFG.title), PICK=(function(){ try{ var v=localStorage.getItem(BANKKEY+'_n'); return v?(v==='all'?'all':parseInt(v,10)):(CFG.round||10); }catch(e){ return CFG.round||10; } })();
+function pickIds(){
+  var N=CFG.questions.length, n=PICK==='all'?N:Math.min(PICK,N), used=[], all=[], i;
+  try{ used=JSON.parse(localStorage.getItem(BANKKEY+'_used')||'[]'); }catch(e){ used=[]; }
+  for (i=0;i<N;i++) all.push(i);
+  function shuf(a){ for (var k=a.length-1;k>0;k--){ var j=Math.floor(Math.random()*(k+1)), t=a[k]; a[k]=a[j]; a[j]=t; } return a; }
+  var fresh=shuf(all.filter(function(x){ return used.indexOf(x)<0; })), out=fresh.slice(0,n);
+  if (out.length<n){ used=[]; out=out.concat(shuf(all.filter(function(x){ return out.indexOf(x)<0; })).slice(0,n-out.length)); }
+  try{ localStorage.setItem(BANKKEY+'_used', JSON.stringify(used.concat(out))); }catch(e){}
+  return out;
+}
+function countCard(){
+  var N=CFG.questions.length, opts=[5,10,15].filter(function(x){ return x<N; }); opts.push('all');
+  return '<div class="card"><h2>How many questions?</h2><div class="row">'+opts.map(function(o){ var sel=(o===PICK)||(o==='all'&&(PICK==='all'||PICK>=N));
+    return '<button class="btn'+(sel?' primary':'')+'" data-a="count" data-n="'+o+'">'+(o==='all'?'All '+N:o)+'</button>'; }).join(' ')+
+    '</div><div class="muted" style="margin-top:8px">Drawn at random from a bank of '+N+'. Questions used in recent games are saved for later, so the next game starts with fresh ones.</div></div>';
+}
+
+function ctxHtml(q){ if(!q||(!q.story&&!q.ctx)) return ''; return '<div class="ctx"><div class="ctx-h">The story</div>'+(q.story?'<b>'+esc(q.story)+'</b>':'')+(q.ctx?'<p>'+esc(q.ctx)+'</p>':'')+'</div>'; }
+
+</script>
+<script>(function(){
+var app=document.getElementById('app'), Q=CFG.questions, code='', room=null, busy=false, deadline=0, revealing=false, lastKey='';
+var L='ABCDEFG';
+function joinUrl(){ try{ return new URL('play.html?g='+code, location.href).href; }catch(e){ return 'play.html?g='+code; } }
+function mkCode(){ var A='ABCDEFGHJKLMNPQRSTUVWXYZ', c=''; for (var i=0;i<4;i++) c+=A[Math.floor(Math.random()*A.length)]; return c; }
+function newGame(){ code=mkCode(); room=null; lastKey=''; return jput(code,'',{meta:{phase:'lobby', q:0, t0:0, created:TS, title:CFG.title}}); }
+function lb(players, n){ var r=ranked(players).slice(0, n), h='<table class="lb"><tr><th>#</th><th>Name</th><th>Score</th></tr>'; r.forEach(function(p,i){ h+='<tr><td>'+(i+1)+'</td><td>'+esc(p.name)+'</td><td>'+p.score.toLocaleString()+'</td></tr>'; }); return h+'</table>'; }
+function answered(){ var a=(room.ans||{})[room.meta.q]||{}; return Object.keys(a).length; }
+function qHtml(q, showRight){
+  var h='<div class="eyebrow">'+esc(q.round||CFG.title)+'</div>';
+  if (q.verse) h+='<div class="muted">'+esc(q.prompt||CFG.prompt||'')+'</div><div class="verse">&ldquo;'+esc(q.verse)+'&rdquo;</div>';
+  else if (q.emoji) h+='<div class="muted">'+esc(q.prompt||CFG.prompt||'')+'</div><div class="emoji">'+esc(q.emoji)+'</div>';
+  else h+='<div class="q">'+esc(q.text)+'</div>';
+  if (CFG.kind==='order'){
+    if (showRight) h+='<ol class="order">'+q.items.map(function(it){ return '<li>'+esc(it)+'</li>'; }).join('')+'</ol>';
+    else h+='<div class="opts">'+q.shown.map(function(k,i){ return '<div class="opt"><span class="n">'+L[i]+'</span>'+esc(q.items[k])+'</div>'; }).join('')+'</div>';
+  } else if (CFG.kind!=='tf'){
+    h+='<div class="opts">'+q.options.map(function(o,i){ return '<div class="opt'+(showRight&&i===q.answer?' right':'')+'"><span class="n">'+L[i]+'</span>'+esc(o)+'</div>'; }).join('')+'</div>';
+  }
+  return h;
+}
+function render(){
+  if (!room) return;
+  var m=room.meta, pl=room.players||{}, np=Object.keys(pl).length, h='';
+  if (m.phase==='lobby'){
+    h='<div class="eyebrow">'+esc(CFG.title)+'</div><h1>Scan to join on your phone</h1><div class="lobby"><div>'+
+      '<div class="card"><div class="qr-box" id="qr"></div><div class="code">'+code+'</div><div class="muted center">Or open the play page and type this code</div></div>'+'</div><div>'+
+      '<div class="card"><h2>Players ('+np+')</h2><div>'+(np?ranked(pl).map(function(p){ return '<span class="tag">'+esc(p.name)+'</span>'; }).join(''):'<span class="muted">Waiting for players to join</span>')+'</div></div>'+
+      '<div class="card"><div class="muted">'+esc(CFG.intro||'')+'</div></div>'+
+      countCard()+
+      '<button class="btn primary big" data-a="start"'+(np?'':' disabled')+'>Start game</button></div></div>';
+  } else if (m.phase==='question'){
+    var q=QA(m), left=Math.max(0, Math.ceil((deadline-Date.now())/1000)), pct=Math.max(0,Math.min(100,(deadline-Date.now())/(CFG.seconds*10)));
+    h='<div class="muted">Question '+(m.q+1)+' of '+QN(m)+'</div><div class="card">'+qHtml(q,false)+
+      '<div class="timerbar"><i style="width:'+pct+'%"></i></div><div class="row" style="justify-content:space-between"><span class="muted">'+answered()+' of '+np+' answered</span><span class="muted">'+left+' seconds</span></div></div>'+
+      '<button class="btn big" data-a="reveal">Reveal now</button>';
+  } else if (m.phase==='reveal'){
+    var q=QA(m), label=CFG.kind==='order'?'see the correct order above':optsOf(q)[correctIdx(q)];
+    h='<div class="muted">Question '+(m.q+1)+' of '+QN(m)+'</div><div class="card">'+qHtml(q,true)+
+      '<div class="reveal"><b>Answer: '+esc(label)+'</b> &nbsp;<span class="muted">'+esc(q.ref)+'</span><div class="muted" style="margin-top:6px">'+esc(q.expl)+'</div>'+ctxHtml(q)+'</div></div>'+
+      '<div class="card"><h2>Leaderboard</h2>'+lb(pl, 5)+'</div>'+
+      '<button class="btn primary big" data-a="next">'+(m.q+1>=QN(m)?'Show final results':'Next question')+'</button>';
+  } else if (m.phase==='final'){
+    var r=ranked(pl);
+    h='<div class="eyebrow">'+esc(CFG.title)+'</div><h1>Final results</h1><div class="podium">'+
+      (r[1]?'<div class="spot g2"><b>'+esc(r[1].name)+'</b><br>'+r[1].score.toLocaleString()+'</div>':'')+
+      (r[0]?'<div class="spot g1"><b>'+esc(r[0].name)+'</b><br>'+r[0].score.toLocaleString()+'</div>':'<div class="muted">No players</div>')+
+      (r[2]?'<div class="spot g3"><b>'+esc(r[2].name)+'</b><br>'+r[2].score.toLocaleString()+'</div>':'')+
+      '</div><div class="card"><h2>Full leaderboard</h2>'+lb(pl, 60)+'</div>'+
+      '<button class="btn big" data-a="again">Play again with a new code</button>';
+  }
+  app.innerHTML=h;
+  if (m.phase==='lobby'){ var el=document.getElementById('qr'); if (el && typeof QRCode!=='undefined') new QRCode(el,{text:joinUrl(),width:230,height:230}); }
+}
+function keyOf(){ var m=room.meta, pl=room.players||{}; return [m.phase,m.q,Object.keys(pl).length,JSON.stringify(ranked(pl)),m.phase==='question'?answered()+'|'+Math.ceil((deadline-Date.now())/1000):''].join('~'); }
+function poll(){
+  if (busy || !code) return; busy=true;
+  jget(code,'').then(function(d){ busy=false; if (!d || !d.meta) return; room=d;
+    var m=room.meta, np=Object.keys(room.players||{}).length;
+    if (m.phase==='question' && !revealing && np && (Date.now()>deadline || answered()>=np)) reveal();
+    var k=keyOf(); if (k!==lastKey){ lastKey=k; render(); }
+  });
+}
+function reveal(){
+  revealing=true;
+  var m=room.meta, q=QA(m), ans=(room.ans||{})[m.q]||{}, pl=room.players||{}, upd={}, ci=correctIdx(q);
+  for (var pid in ans){
+    var a=ans[pid]; if (!pl[pid]) continue;
+    var frac=Math.max(0,Math.min(1,((a.t||0)-(m.t0||0))/(CFG.seconds*1000)));
+    if (CFG.kind==='order'){
+      var seq=a.seq||[], hits=0; for (var j=0;j<q.items.length;j++) if (q.shown[seq[j]]===j) hits++;
+      var perfect=hits===q.items.length, g=perfect?Math.round(1000-frac*400):hits*100;
+      upd['players/'+pid+'/last']=perfect?1:0; upd['players/'+pid+'/hits']=hits; upd['players/'+pid+'/gain']=g; upd['players/'+pid+'/score']=(pl[pid].score||0)+g; continue;
+    }
+    var ok=a.i===ci; upd['players/'+pid+'/last']=ok?1:0;
+    if (ok){ var pts=Math.round(1000-frac*400); upd['players/'+pid+'/score']=(pl[pid].score||0)+pts; upd['players/'+pid+'/gain']=pts; }
+    else upd['players/'+pid+'/gain']=0;
+  }
+  for (var p in pl) if (!ans[p]){ upd['players/'+p+'/last']=0; upd['players/'+p+'/gain']=0; upd['players/'+p+'/hits']=0; }
+  upd['meta/phase']='reveal';
+  jpatch(code,'',upd).then(function(){ revealing=false; poll(); });
+}
+function goQ(i){ deadline=Date.now()+CFG.seconds*1000+800; return jpatch(code,'meta',{phase:'question', q:i, t0:TS}).then(poll); }
+app.addEventListener('click', function(e){
+  var b=e.target.closest('[data-a]'); if (!b || b.disabled) return; var a=b.getAttribute('data-a'); b.disabled=true;
+  if (a==='start') { jpatch(code,'meta',{qids:pickIds()}).then(function(){ goQ(0); }); }
+  else if (a==='count') { var v=b.getAttribute('data-n'); PICK=v==='all'?'all':parseInt(v,10); try{ localStorage.setItem(BANKKEY+'_n', String(PICK)); }catch(e){} lastKey=''; render(); }
+  else if (a==='reveal'){ if (!revealing) reveal(); }
+  else if (a==='next'){ var m=room.meta; if (m.q+1>=QN(m)) jpatch(code,'meta',{phase:'final'}).then(poll); else goQ(m.q+1); }
+  else if (a==='again') newGame().then(poll);
+});
+newGame().then(function(){ poll(); setInterval(poll, 1200); });
+})();
+</script><script>
+/* No-phone team mode: runs the quiz on one screen for teams. The teacher marks which teams got it right, then reveals the answer and its story. Uses this page's question bank (CFG). */
+(function () {
+  if (typeof CFG === 'undefined' || !CFG.questions) return;
+  var Q = CFG.questions, KIND = CFG.kind, COLORS = ['#F0545C', '#3E8EF7', '#1FB5A8', '#F4B740', '#8B7CF6', '#E57AC2'];
+  var S = { teams: [], scores: [], ids: [], i: 0, got: {}, revealed: false, timer: null, left: 0, paused: false, secs: 30 };
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } }
+  function shuf(a) { for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  function draw(n) {
+    var key = 'tm_used_' + CFG.title, used = [], all = Q.map(function (_, i) { return i; });
+    try { used = JSON.parse(store(key) || '[]'); } catch (e) {}
+    n = n === 'all' ? Q.length : Math.min(n, Q.length);
+    var out = shuf(all.filter(function (x) { return used.indexOf(x) < 0; })).slice(0, n);
+    if (out.length < n) { used = []; out = out.concat(shuf(all.filter(function (x) { return out.indexOf(x) < 0; })).slice(0, n - out.length)); }
+    store(key, JSON.stringify(used.concat(out))); return out;
+  }
+  function opts(q) { if (KIND === 'tf') return ['True', 'False']; if (KIND === 'order') return q.shown.map(function (i) { return q.items[i]; }); return q.options || []; }
+  function right(q) { return KIND === 'tf' ? (q.answer ? 0 : 1) : q.answer; }
+
+  var css = document.createElement('style');
+  css.textContent = [
+    '#tmToggle{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));right:12px;z-index:60;display:flex;gap:4px;background:rgba(13,21,40,.92);border:1px solid rgba(160,185,230,.25);border-radius:999px;padding:4px;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;box-shadow:0 6px 18px rgba(0,0,0,.3)}',
+    '#tmToggle button{all:unset;cursor:pointer;color:#A3B2CE;font-weight:800;font-size:13px;padding:7px 12px;border-radius:999px}',
+    '#tmToggle button[aria-pressed="true"]{background:#EEF3FB;color:#0D1528}#tmToggle button:focus-visible{outline:3px solid #fff}',
+    'body.tm-on>*:not(#tmRoot):not(#tmToggle){display:none!important}body.tm-on{background:#0D1528}',
+    '#tmRoot{display:none;min-height:100vh;background:#0D1528;color:#EEF3FB;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;line-height:1.5;padding:calc(64px + env(safe-area-inset-top,0px)) 20px 40px}',
+    'body.tm-on #tmRoot{display:block}#tmRoot *{box-sizing:border-box}',
+    '#tmRoot .w{max-width:1400px;margin:0 auto}#tmRoot h1{font-family:Fraunces,Georgia,serif;font-size:2rem;margin:0 0 6px}#tmRoot h2{font-size:1.15rem;margin:0 0 10px}',
+    '#tmRoot .sub{color:#A3B2CE;margin:0 0 18px}#tmRoot .card{background:#152039;border:1px solid rgba(160,185,230,.16);border-radius:16px;padding:18px;margin-bottom:14px}',
+    '#tmRoot .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}#tmRoot label{font-weight:700;color:#A3B2CE;font-size:.9rem;display:block;margin:10px 0 6px}',
+    '#tmRoot input[type=text]{font:inherit;background:#1B2846;color:#EEF3FB;border:1px solid rgba(160,185,230,.25);border-radius:10px;padding:9px 12px;min-width:150px;flex:1}',
+    '#tmRoot .b{font:inherit;font-weight:800;cursor:pointer;border-radius:999px;padding:10px 16px;border:1px solid rgba(160,185,230,.25);background:#1B2846;color:#EEF3FB}',
+    '#tmRoot .b.on{background:#EEF3FB;color:#0D1528}#tmRoot .b.go{background:#1FB5A8;border-color:#1FB5A8;color:#062a27}#tmRoot .b.big{font-size:1.1rem;padding:14px 22px}',
+    '#tmRoot .b:focus-visible{outline:3px solid #fff;outline-offset:2px}',
+    '#tmRoot .score{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}#tmRoot .chip{flex:1 1 140px;background:#152039;border-radius:12px;padding:8px 12px;border-top:5px solid var(--c)}',
+    '#tmRoot .chip .n{font-size:.85rem;color:#A3B2CE}#tmRoot .chip .s{font-size:1.7rem;font-weight:800}',
+    '#tmRoot .meta{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;color:#A3B2CE;margin-bottom:8px}',
+    '#tmRoot .clock{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:1.6rem;font-weight:700;color:#F4B740}#tmRoot .clock.out{color:#F0545C}',
+    '#tmRoot .eyebrow{color:#1FB5A8;font-weight:800;font-size:.85rem;letter-spacing:.06em;text-transform:uppercase}',
+    '#tmRoot .q{font-size:1.7rem;line-height:1.35;margin:8px 0 16px}#tmRoot .verse{font-family:Fraunces,Georgia,serif;font-style:italic;font-size:1.7rem;line-height:1.4;margin:8px 0 16px}',
+    '#tmRoot .emoji{font-size:4rem;letter-spacing:.12em;margin:8px 0 16px}',
+    '#tmRoot .opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}',
+    '#tmRoot .opt{display:flex;gap:12px;align-items:center;background:#1B2846;border:2px solid rgba(160,185,230,.18);border-radius:14px;padding:14px 16px;font-size:1.2rem;font-weight:600}',
+    '#tmRoot .opt i{font-style:normal;font-weight:800;color:#F4B740;min-width:1.4em}#tmRoot .opt.ok{border-color:#3FA66B;background:rgba(63,166,107,.18)}#tmRoot .opt.dim{opacity:.45}',
+    '#tmRoot .who{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0}#tmRoot .who .b{border-left:6px solid var(--c)}#tmRoot .who .b.got{background:#3FA66B;border-color:#3FA66B;color:#fff}',
+    '#tmRoot .ans{border-left:4px solid #F4B740;padding:10px 14px;background:rgba(244,183,64,.08);border-radius:10px;margin:14px 0}',
+    '#tmRoot .ctx{border-left:4px solid #1FB5A8;padding:12px 14px;background:rgba(31,181,168,.10);border-radius:10px;margin:12px 0}#tmRoot .ctx b{display:block;margin-bottom:4px}#tmRoot .ctx p{margin:0}',
+    '#tmRoot .order li{margin:4px 0}#tmRoot .when{margin-left:8px;color:#F4B740;font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.85rem}',
+    '#tmRoot .eras{width:100%;height:auto;margin-top:8px}#tmRoot .stand{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(160,185,230,.16);font-size:1.2rem}',
+    '#tmRoot .keys{color:#A3B2CE;font-size:.85rem;margin-top:10px}'
+  ].join('\n');
+  document.head.appendChild(css);
+
+  var root = document.createElement('div'); root.id = 'tmRoot'; root.setAttribute('aria-live', 'polite'); document.body.appendChild(root);
+  var tg = document.createElement('div'); tg.id = 'tmToggle'; tg.setAttribute('role', 'group'); tg.setAttribute('aria-label', 'How students play');
+  tg.innerHTML = '<button type="button" data-m="phones" aria-pressed="true">📱 Phones</button><button type="button" data-m="teams" aria-pressed="false">👥 Teams, no phones</button>';
+  document.body.appendChild(tg);
+  tg.addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) mode(b.getAttribute('data-m')); });
+  function mode(m) {
+    [].forEach.call(tg.querySelectorAll('button'), function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-m') === m)); });
+    document.body.classList.toggle('tm-on', m === 'teams'); stopClock();
+    if (m === 'teams' && !S.started) setup(); window.scrollTo(0, 0);
+  }
+
+  function setup() {
+    var n = parseInt(store('tm_n') || '3', 10), qn = store('tm_q') || '10', secs = store('tm_s') || String(CFG.seconds || 30);
+    var names = []; try { names = JSON.parse(store('tm_names') || '[]'); } catch (e) {}
+    var counts = [5, 10, 15].filter(function (x) { return x < Q.length; }).concat(['all']);
+    root.innerHTML = '<div class="w"><h1>' + esc(CFG.title) + '</h1><p class="sub">Team mode: no phones needed. Teams answer out loud or on paper, you mark who got it right, then reveal the answer and the story behind it.</p>' +
+      '<div class="card"><h2>Teams</h2><div class="row" id="tmN">' + [2, 3, 4, 5, 6].map(function (k) { return '<button class="b' + (k === n ? ' on' : '') + '" data-n="' + k + '">' + k + ' teams</button>'; }).join('') + '</div>' +
+      '<div class="row" id="tmNames" style="margin-top:12px"></div></div>' +
+      '<div class="card"><h2>Game</h2><label>Questions (drawn at random from ' + Q.length + ')</label><div class="row" id="tmQ">' + counts.map(function (c) { return '<button class="b' + (String(c) === qn ? ' on' : '') + '" data-q="' + c + '">' + (c === 'all' ? 'All ' + Q.length : c) + '</button>'; }).join('') + '</div>' +
+      '<label>Timer per question</label><div class="row" id="tmS">' + ['0', '20', '30', '45', '60'].map(function (c) { return '<button class="b' + (c === secs ? ' on' : '') + '" data-s="' + c + '">' + (c === '0' ? 'Off' : c + ' sec') + '</button>'; }).join('') + '</div></div>' +
+      '<button class="b go big" id="tmStart">Start team game</button></div>';
+    function names_() { var box = root.querySelector('#tmNames'), old = [].map.call(box.querySelectorAll('input'), function (i) { return i.value; });
+      box.innerHTML = ''; for (var i = 0; i < n; i++) { var v = old[i] || names[i] || ('Team ' + (i + 1)); box.insertAdjacentHTML('beforeend', '<input type="text" maxlength="24" aria-label="Name for team ' + (i + 1) + '" style="border-left:6px solid ' + COLORS[i] + '" value="' + esc(v) + '">'); } }
+    names_();
+    root.querySelector('#tmN').onclick = function (e) { var b = e.target.closest('[data-n]'); if (!b) return; n = +b.getAttribute('data-n'); [].forEach.call(this.children, function (x) { x.classList.toggle('on', x === b); }); names_(); };
+    root.querySelector('#tmQ').onclick = function (e) { var b = e.target.closest('[data-q]'); if (!b) return; qn = b.getAttribute('data-q'); [].forEach.call(this.children, function (x) { x.classList.toggle('on', x === b); }); };
+    root.querySelector('#tmS').onclick = function (e) { var b = e.target.closest('[data-s]'); if (!b) return; secs = b.getAttribute('data-s'); [].forEach.call(this.children, function (x) { x.classList.toggle('on', x === b); }); };
+    root.querySelector('#tmStart').onclick = function () {
+      S.teams = [].map.call(root.querySelectorAll('#tmNames input'), function (x, i) { return x.value.trim() || ('Team ' + (i + 1)); });
+      store('tm_n', String(n)); store('tm_q', qn); store('tm_s', secs); store('tm_names', JSON.stringify(S.teams));
+      S.scores = S.teams.map(function () { return 0; }); S.ids = draw(qn === 'all' ? 'all' : parseInt(qn, 10)); S.i = 0; S.secs = parseInt(secs, 10); S.started = true; question();
+    };
+  }
+  function scoreBar() { return '<div class="score">' + S.teams.map(function (t, i) { return '<div class="chip" style="--c:' + COLORS[i] + '"><div class="n">' + esc(t) + '</div><div class="s">' + S.scores[i] + '</div></div>'; }).join('') + '</div>'; }
+  function question() {
+    S.got = {}; S.revealed = false; S.left = S.secs; S.paused = false; render();
+    stopClock(); if (S.secs > 0) S.timer = setInterval(function () { if (S.paused || S.revealed) return; S.left--; paintClock(); if (S.left <= 0) stopClock(); }, 1000);
+  }
+  function stopClock() { if (S.timer) { clearInterval(S.timer); S.timer = null; } }
+  function paintClock() { var c = root.querySelector('.clock'); if (!c) return; c.textContent = S.left > 0 ? (S.paused ? 'Paused ' : '') + S.left + 's' : 'Time!'; c.classList.toggle('out', S.left <= 0); }
+  function render() {
+    var q = Q[S.ids[S.i]], o = opts(q), r = right(q), rv = S.revealed, h = '<div class="w">' + scoreBar();
+    h += '<div class="meta"><span>Question ' + (S.i + 1) + ' of ' + S.ids.length + '</span>' + (S.secs > 0 ? '<span class="row"><span class="clock"></span><button class="b" id="tmPause">' + (S.paused ? 'Resume' : 'Pause') + '</button><button class="b" id="tmMore">+10 sec</button></span>' : '') + '</div>';
+    h += '<div class="card"><div class="eyebrow">' + esc(q.round || q.prompt || (KIND === 'tf' ? 'True or false' : KIND === 'order' ? 'Put these in order' : (KIND === 'match' ? 'Who said or wrote this?' : 'Question'))) + '</div>';
+    if (q.emoji) h += '<div class="emoji">' + esc(q.emoji) + '</div>';
+    if (q.verse) h += '<div class="verse">“' + esc(q.verse) + '”</div>';
+    if (q.text) h += '<div class="' + (KIND === 'match' ? 'verse' : 'q') + '">' + (KIND === 'match' ? '“' + esc(q.text) + '”' : esc(q.text)) + '</div>';
+    h += '<div class="opts">' + o.map(function (t, k) { var cls = 'opt' + (rv && KIND !== 'order' ? (k === r ? ' ok' : ' dim') : ''); return '<div class="' + cls + '"><i>' + 'ABCDEF'[k] + '</i>' + esc(t) + '</div>'; }).join('') + '</div>';
+    if (rv) {
+      var label = KIND === 'order' ? '' : '<b>Answer: ' + esc(o[r]) + '</b>';
+      h += '<div class="ans">' + label + (q.ref ? (label ? ' &nbsp;' : '') + '<span style="color:#A3B2CE">' + esc(q.ref) + '</span>' : '') + (q.expl ? '<div style="margin-top:4px">' + esc(q.expl) + '</div>' : '') + '</div>';
+      if (KIND === 'order') h += '<ol class="order">' + q.items.map(function (it, k) { return '<li>' + esc(it) + (q.dates ? '<span class="when">' + esc(q.dates[k]) + '</span>' : '') + '</li>'; }).join('') + '</ol>' + (typeof eraSvg === 'function' && q.years ? eraSvg(q, false) : '');
+      if (q.story || q.ctx) h += '<div class="ctx"><b>' + esc(q.story || '') + '</b><p>' + esc(q.ctx || '') + '</p></div>';
+    }
+    h += '<h2 style="margin-top:16px">Who got it right? <span class="sub" style="font-weight:400;font-size:.9rem">tap to give a point, tap again to take it back</span></h2><div class="who">' +
+      S.teams.map(function (t, i) { return '<button class="b' + (S.got[i] ? ' got' : '') + '" style="--c:' + COLORS[i] + '" data-t="' + i + '">' + (S.got[i] ? '✓ ' : '') + esc(t) + '</button>'; }).join('') + '</div>';
+    h += '<div class="row" style="margin-top:14px">' + (rv ? '' : '<button class="b go big" id="tmReveal">Reveal answer</button>') + '<button class="b' + (rv ? ' go' : '') + ' big" id="tmNext">' + (S.i + 1 >= S.ids.length ? 'Final standings' : 'Next question') + '</button></div>';
+    h += '<p class="keys">Keyboard: Space pauses the timer, R reveals, N goes to the next question.</p></div></div>';
+    root.innerHTML = h; paintClock(); bind();
+  }
+  function bind() {
+    var x;
+    if ((x = root.querySelector('#tmPause'))) x.onclick = togglePause;
+    if ((x = root.querySelector('#tmMore'))) x.onclick = function () { S.left = Math.max(S.left, 0) + 10; if (!S.timer && S.secs > 0) S.timer = setInterval(function () { if (S.paused || S.revealed) return; S.left--; paintClock(); if (S.left <= 0) stopClock(); }, 1000); paintClock(); };
+    if ((x = root.querySelector('#tmReveal'))) x.onclick = reveal;
+    root.querySelector('#tmNext').onclick = next;
+    root.querySelector('.who').onclick = function (e) { var b = e.target.closest('[data-t]'); if (!b) return; var t = +b.getAttribute('data-t');
+      S.got[t] = !S.got[t]; S.scores[t] += S.got[t] ? 1 : -1; var keep = S.paused; render(); S.paused = keep; };
+  }
+  function togglePause() { S.paused = !S.paused; var b = root.querySelector('#tmPause'); if (b) b.textContent = S.paused ? 'Resume' : 'Pause'; paintClock(); }
+  function reveal() { if (S.revealed) return; S.revealed = true; stopClock(); render(); }
+  function next() { stopClock(); if (S.i + 1 >= S.ids.length) return final(); S.i++; question(); }
+  function final() {
+    var order = S.teams.map(function (t, i) { return i; }).sort(function (a, b) { return S.scores[b] - S.scores[a]; });
+    root.innerHTML = '<div class="w"><h1>Final standings</h1><div class="card">' + order.map(function (i, k) { return '<div class="stand"><span>' + (k + 1) + '. ' + esc(S.teams[i]) + '</span><b>' + S.scores[i] + '</b></div>'; }).join('') + '</div>' +
+      '<div class="row"><button class="b go big" id="tmAgain">Play again</button><button class="b big" id="tmSetup">Change teams</button></div></div>';
+    root.querySelector('#tmAgain').onclick = function () { S.scores = S.teams.map(function () { return 0; }); S.ids = draw(S.ids.length); S.i = 0; question(); };
+    root.querySelector('#tmSetup').onclick = function () { S.started = false; setup(); };
+  }
+  document.addEventListener('keydown', function (e) {
+    if (!document.body.classList.contains('tm-on') || !S.started || /input|textarea/i.test((e.target && e.target.tagName) || '') || !root.querySelector('#tmNext')) return;
+    if (e.key === ' ') { e.preventDefault(); if (S.secs > 0 && !S.revealed) togglePause(); }
+    else if (e.key === 'r' || e.key === 'R') reveal(); else if (e.key === 'n' || e.key === 'N' || e.key === 'ArrowRight') next();
+  });
+  if (/[?&]mode=teams/.test(location.search)) mode('teams');
+})();
+
+</script>
+</body></html>

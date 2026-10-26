@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script>/* Practice mode: when this page runs inside the site's practice page, use its pretend database and give this screen its own storage. Does nothing otherwise. */
+(function(){try{var P=window.parent!==window&&window.parent.PRACTICE;if(!P)return;window.fetch=P.fetch;var s=P.storage(window.name||location.href);Object.defineProperty(window,'localStorage',{configurable:true,get:function(){return s.local;}});Object.defineProperty(window,'sessionStorage',{configurable:true,get:function(){return s.session;}});}catch(e){}})();</script><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Daniel in Babylon: Host</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>:root{--bg-page:#0E1B2B;--bg-panel:#16273B;--bg-panel-raised:#1E3450;--ink:#F1F6FB;--muted:#9FB4C9;--line:rgba(241,246,251,0.14);--accent:#9C7BD6;--ok:#3FA66B;--bad:#C65B5B;color-scheme:dark;}
+*{box-sizing:border-box;}
+html,body{margin:0;min-height:100%;background:var(--bg-page);color:var(--ink);font-family:'Inter',-apple-system,Segoe UI,Roboto,sans-serif;}
+body{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);}
+.wrap{max-width:860px;margin:0 auto;padding:20px 16px 50px;}
+.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:6px;}
+h1{font-family:'Fraunces',Georgia,serif;font-size:1.9rem;margin:0 0 8px;}
+h2{font-family:'Fraunces',Georgia,serif;font-size:1.3rem;margin:0 0 10px;}
+.card{background:var(--bg-panel);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px;}
+.muted{color:var(--muted);font-size:0.95rem;}
+.btn{font:inherit;font-weight:700;padding:14px 20px;border-radius:10px;border:1px solid var(--line);background:var(--bg-panel-raised);color:var(--ink);cursor:pointer;}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#06121D;}
+.btn.big{font-size:1.1rem;width:100%;padding:18px;margin-top:6px;}
+.btn[disabled]{opacity:0.4;cursor:default;}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+input[type=text]{font:inherit;font-size:1.1rem;padding:14px;border-radius:10px;border:1px solid var(--line);background:var(--bg-panel-raised);color:var(--ink);width:100%;margin-bottom:10px;}
+.qr-box{display:flex;justify-content:center;padding:16px;background:#fff;border-radius:14px;margin:10px auto;width:max-content;max-width:100%;}
+.code{font-family:'IBM Plex Mono',monospace;font-size:2.4rem;letter-spacing:0.18em;text-align:center;color:var(--accent);margin:6px 0;}
+.tag{display:inline-block;background:var(--bg-panel-raised);border-radius:20px;padding:6px 14px;margin:4px;font-size:0.95rem;}
+.lb{width:100%;border-collapse:collapse;margin-top:6px;}
+.lb td,.lb th{padding:9px 6px;border-bottom:1px solid var(--line);text-align:left;font-size:1rem;}
+.lb th{color:var(--muted);font-weight:600;font-size:0.78rem;text-transform:uppercase;}
+.q{font-family:'Fraunces',Georgia,serif;font-size:1.6rem;line-height:1.35;margin:8px 0 16px;}
+.verse{font-family:'Fraunces',Georgia,serif;font-size:1.45rem;line-height:1.45;font-style:italic;margin:8px 0 16px;}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.opt{padding:16px;border-radius:12px;border:1px solid var(--line);background:var(--bg-panel-raised);font-size:1.1rem;}
+.opt.right{border-color:var(--ok);background:rgba(63,166,107,0.25);}
+.opt .n{font-family:'IBM Plex Mono',monospace;color:var(--muted);margin-right:8px;}
+.ans{display:block;width:100%;text-align:left;font:inherit;font-size:1.1rem;padding:18px 16px;margin-bottom:10px;border-radius:12px;border:1px solid var(--line);background:var(--bg-panel-raised);color:var(--ink);cursor:pointer;}
+.ans.t{background:rgba(63,166,107,0.2);border-color:var(--ok);text-align:center;font-size:1.4rem;font-weight:700;}
+.ans.f{background:rgba(198,91,91,0.2);border-color:var(--bad);text-align:center;font-size:1.4rem;font-weight:700;}
+.timerbar{height:8px;border-radius:4px;background:var(--bg-panel-raised);overflow:hidden;margin:6px 0 12px;}
+.timerbar i{display:block;height:100%;background:var(--accent);transition:width .25s linear;}
+.result-big{font-family:'Fraunces',Georgia,serif;font-size:2.2rem;font-weight:700;margin:6px 0;}
+.good{color:var(--ok);} .bad{color:var(--bad);}
+.reveal{background:var(--bg-panel-raised);border-radius:12px;padding:14px 16px;margin-top:6px;}
+.podium{display:flex;justify-content:center;align-items:flex-end;gap:14px;margin:20px 0;}
+.podium .spot{background:var(--bg-panel-raised);border-radius:10px 10px 0 0;padding:14px 16px;text-align:center;min-width:100px;}
+.podium .g1{min-height:130px;background:linear-gradient(180deg,#F0CB77,#C9A227);color:#2b2418;}
+.podium .g2{min-height:96px;} .podium .g3{min-height:72px;}
+.ph{max-width:480px;margin:0 auto;}
+.center{text-align:center;}
+@media (max-width:600px){ .opts{grid-template-columns:1fr;} .q{font-size:1.3rem;} .verse{font-size:1.2rem;} }
+.emoji{font-size:4rem;line-height:1.3;text-align:center;margin:10px 0 18px;letter-spacing:0.1em;}
+.order{margin:0 0 6px;padding-left:28px;font-size:1.15rem;line-height:1.7;}
+.order li::marker{color:var(--accent);font-weight:700;}
+.ans.picked{border-color:var(--accent);background:rgba(255,255,255,0.08);opacity:0.75;}
+.badge{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;border:1px solid var(--line);margin-right:10px;font-weight:700;font-family:'IBM Plex Mono',monospace;}
+.ans.picked .badge{background:var(--accent);color:#06121D;border-color:var(--accent);}
+.scene{font-size:1.15rem;line-height:1.5;margin:4px 0 10px;}
+.meters{display:grid;gap:10px;}
+.meter{font-size:0.95rem;}
+.mtrack{height:10px;border-radius:5px;background:var(--bg-panel-raised);overflow:hidden;margin-top:4px;}
+.mtrack i{display:block;height:100%;background:var(--accent);transition:width .4s ease;}
+.tally{display:grid;gap:8px;margin-top:8px;}
+.trow{padding:10px 12px;border-radius:10px;border:1px solid var(--line);}
+.trow.dec{border-color:var(--accent);background:rgba(255,255,255,0.05);}
+.trow .n,.opt .n{font-family:'IBM Plex Mono',monospace;color:var(--muted);margin-right:8px;}
+.did{border-color:var(--accent);}
+ul.plain{margin:0;padding-left:20px;line-height:1.6;}
+.pts{font-family:'IBM Plex Mono',monospace;font-size:0.8rem;color:var(--muted);margin-left:6px;white-space:nowrap;}
+.pts.top{color:var(--accent);font-weight:700;}
+</style></head><body><div class="wrap" id="app"></div>
+<script>var CFG={"title": "Daniel in Babylon", "mode": "personal", "seconds": 35, "accent": "#9C7BD6", "meters": [{"k": "faith", "label": "Faithfulness", "start": 50, "color": "#E3B04B"}, {"k": "favor", "label": "Influence in Babylon", "start": 50, "color": "#9C7BD6"}, {"k": "safety", "label": "Safety", "start": 50, "color": "#4FA3D1"}], "prompt": "What do you do?", "didLabel": "What Daniel and his friends did", "how": "Each student is a young captive in Babylon facing the same choices as Daniel and his friends (Daniel 1 to 6). Choices are private and change your own three meters: Faithfulness, Influence in Babylon, and Safety. You earn 1,000 points for matching what Daniel or his friends did, and partial credit for other faithful or wise choices. Most rounds have two good-sounding answers, so knowing the story matters.", "waitText": "Watch the screen. You have just arrived in Babylon", "endText": "Daniel served faithfully from Nebuchadnezzar to Cyrus, and the Lord blessed him, though Daniel and his friends were willing to obey \"but if not\" (Daniel 1:21; 3:18).", "discuss": ["Which round had two answers that felt almost the same? What was the real difference?", "Faithful choices sometimes lowered Safety at first. How did the Lord bless Daniel anyway?", "Daniel often found a wise way to be faithful, like proposing a ten-day test. What is a wise, faithful way to handle something you face?"], "rounds": [{"title": "The king's table", "ref": "Daniel 1:5-16", "scene": "You have been chosen to train in the king's palace. Every day you are served the king's rich food and wine, which goes against the law of the Lord. The official in charge is afraid of the king.", "options": [{"t": "Ask the official in charge for permission not to eat it", "pts": 700, "fx": {"faith": 10}, "out": "He is sympathetic, but afraid the king will have his head"}, {"t": "Propose a ten-day test of vegetables and water to the steward", "pts": 1000, "fx": {"faith": 15, "favor": 10}, "out": "After ten days you look healthier than the others, and the steward agrees"}, {"t": "Eat the bread, but quietly skip the meat and wine", "pts": 400, "fx": {"faith": 5}, "out": "You avoid some of it, but the issue is still there"}, {"t": "Eat it for now and keep the law once you are home", "pts": 0, "fx": {"faith": -15, "safety": 5}, "out": "You blend in, but home may be many years away"}], "did": "Daniel first asked the prince of the eunuchs, who was afraid (Daniel 1:8-10). Then he proposed a ten-day test of pulse and water to the steward, and God gave the four young men \"knowledge and skill in all learning and wisdom\" (Daniel 1:11-17)."}, {"title": "The decree to kill the wise men", "ref": "Daniel 2:12-18", "scene": "The king has ordered every wise man in Babylon killed because no one could tell his dream. Arioch, captain of the guard, arrives to carry out the order, and you are on the list.", "options": [{"t": "Gather your friends and pray first, before talking to anyone", "pts": 700, "fx": {"faith": 15}, "out": "You feel peace, but Arioch is waiting"}, {"t": "Ask Arioch why the decree is so hasty, then ask the king for time", "pts": 1000, "fx": {"faith": 10, "favor": 10, "safety": 10}, "out": "Arioch explains, and the king gives you time"}, {"t": "Offer to interpret the dream if the king will just tell it to you", "pts": 300, "fx": {"safety": -5}, "out": "That is exactly what the other wise men already tried"}, {"t": "Slip out of the city until it blows over", "pts": 0, "fx": {"favor": -15}, "out": "You are safe for now, but the others are not"}], "did": "Daniel \"answered with counsel and wisdom to Arioch,\" asked the king for time, and then went home and asked his friends to \"desire mercies of the God of heaven\" (Daniel 2:14-18)."}, {"title": "Promoted", "ref": "Daniel 2:46-49", "scene": "You interpreted the dream and told the king it came from God. The king falls on his face before you, gives you great gifts, and makes you ruler over the province of Babylon.", "options": [{"t": "Thank the king, accept the gifts, and keep serving faithfully", "pts": 700, "fx": {"favor": 10}, "out": "You are now in a position to do much good"}, {"t": "Turn down the gifts so no one thinks you can be bought", "pts": 500, "fx": {"faith": 5, "favor": -5}, "out": "Some admire you; the king is a little offended"}, {"t": "Ask the king to promote your three friends too", "pts": 1000, "fx": {"faith": 10, "favor": 10}, "out": "Your friends rise with you"}, {"t": "Ask the king to let the captives of Judah go home", "pts": 300, "fx": {"favor": -10}, "out": "The king is not ready for that"}], "did": "Daniel accepted the king's gifts and position, then \"requested of the king, and he set Shadrach, Meshach, and Abed-nego, over the affairs of the province of Babylon\" (Daniel 2:48-49)."}, {"title": "The golden image", "ref": "Daniel 3:1-18", "scene": "The king sets up a golden image and commands everyone to bow when the music plays. Your friends refused, and now the angry king gives you one more chance before the fiery furnace.", "options": [{"t": "Tell the king your God will surely deliver you, so his furnace does not scare you", "pts": 600, "fx": {"faith": 10, "safety": -10}, "out": "Bold faith, but are you sure what God will do?"}, {"t": "Respectfully ask the king to excuse you because of your religion", "pts": 500, "fx": {"faith": 5}, "out": "The king refuses; he wants an answer"}, {"t": "Tell the king God is able to deliver you, but if not, you still will not bow", "pts": 1000, "fx": {"faith": 20, "safety": -10, "favor": 10}, "out": "You are thrown in the furnace, and a fourth figure walks with you in the fire"}, {"t": "Stay out of sight and hope no one reports you", "pts": 300, "fx": {"safety": 5}, "out": "It might work once, but the command still stands"}], "did": "They said God \"is able to deliver us... But if not... we will not serve thy gods\" (Daniel 3:17-18). They were cast into the furnace, and the king saw four men walking in the fire, unhurt (Daniel 3:25-27)."}, {"title": "The writing on the wall", "ref": "Daniel 5:13-29", "scene": "At King Belshazzar's feast, a hand writes on the wall. The king offers you scarlet clothing, a gold chain, and the third highest place in the kingdom to read it. The message is very bad news for the king.", "options": [{"t": "Accept the gifts, then read the message honestly", "pts": 600, "fx": {"faith": 10, "favor": 10}, "out": "You told the truth, and you are richer for it"}, {"t": "Refuse the gifts, then read and explain the message honestly", "pts": 1000, "fx": {"faith": 15, "favor": 10}, "out": "You told the truth with no strings attached"}, {"t": "Read it, but encourage the king that there is still time to change", "pts": 400, "fx": {"favor": 5}, "out": "Kind, but it softens what the Lord said"}, {"t": "Ask to speak with the king privately first", "pts": 300, "fx": {"safety": 5}, "out": "The whole court is waiting to hear"}], "did": "Daniel said, \"Let thy gifts be to thyself, and give thy rewards to another; yet I will read the writing.\" Belshazzar honored him anyway, and that night Belshazzar was slain (Daniel 5:17, 29-30)."}, {"title": "The decree against prayer", "ref": "Daniel 6:4-23", "scene": "Jealous leaders trick King Darius into signing a law: for thirty days, anyone who prays to any god except the king will be thrown into the den of lions. You are one of the king's favorite leaders.", "options": [{"t": "Keep praying, but close the windows so you do not provoke anyone", "pts": 500, "fx": {"faith": 10, "safety": 5}, "out": "You kept praying, but in hiding"}, {"t": "Ask King Darius to cancel the decree", "pts": 400, "fx": {"favor": 5}, "out": "He wants to, but a law of the Medes and Persians cannot be changed"}, {"t": "Pray in your heart only, just for thirty days", "pts": 300, "fx": {"faith": 5, "safety": 10}, "out": "Quiet prayer still counts, but your enemies are watching"}, {"t": "Keep praying as always, windows open toward Jerusalem", "pts": 1000, "fx": {"faith": 20, "safety": -10, "favor": 15}, "out": "You are cast into the den, but God sends His angel to shut the lions' mouths"}], "did": "Daniel \"kneeled upon his knees three times a day, and prayed, and gave thanks before his God, as he did aforetime.\" Darius could not change the law, but the Lord shut the lions' mouths (Daniel 6:10, 15, 22)."}], "root": "seminaryGames/daniel-babylon"};
+var DBURL = "https://penny-project-fb5da-default-rtdb.firebaseio.com";
+var FAKE = null; try{ if (window.parent && window.parent !== window && window.parent.FAKE) FAKE = window.parent.FAKE; }catch(e){}
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function dbPath(code, path){ return CFG.root + '/' + code + (path ? '/' + path : ''); }
+function req(method, code, path, v){
+  var p = dbPath(code, path);
+  if (FAKE) return FAKE.req(method, p, v);
+  var o = {method: method, cache: 'no-store'}; if (v !== undefined) o.body = JSON.stringify(v);
+  return fetch(DBURL + '/' + p + '.json', o).then(function(r){ return r.json(); }).catch(function(){ return null; });
+}
+function jget(c,p){ return req('GET',c,p); }
+function jput(c,p,v){ return req('PUT',c,p,v); }
+function jpatch(c,p,v){ return req('PATCH',c,p,v); }
+function jpost(c,p,v){ return req('POST',c,p,v); }
+var TS = {".sv":"timestamp"};
+function ranked(players){ var a=[]; for (var k in (players||{})) a.push({id:k, name:players[k].name, score:players[k].score||0}); a.sort(function(x,y){ return y.score-x.score || String(x.name).localeCompare(String(y.name)); }); return a; }
+var MEM={};
+function store(k, v){ if (FAKE){ if (v===undefined) return MEM[k]||null; MEM[k]=v; return; } try{ if (v===undefined) return sessionStorage.getItem(k); sessionStorage.setItem(k, v); }catch(e){ return null; } }
+function optsOf(q){ return CFG.kind==='tf' ? ['True','False'] : q.options; }
+function correctIdx(q){ return CFG.kind==='tf' ? (q.answer?0:1) : q.answer; }
+</script>
+<script>(function(){
+var app=document.getElementById('app'), R=CFG.rounds, code='', room=null, busy=false, deadline=0, revealing=false, lastKey='';
+var L='ABCDE';
+function joinUrl(){ try{ return new URL('play.html?g='+code, location.href).href; }catch(e){ return 'play.html?g='+code; } }
+function mkCode(){ var A='ABCDEFGHJKLMNPQRSTUVWXYZ', c=''; for (var i=0;i<4;i++) c+=A[Math.floor(Math.random()*A.length)]; return c; }
+function startMeters(){ var m={}; (CFG.meters||[]).forEach(function(x){ m[x.k]=x.start; }); return m; }
+function newGame(){ code=mkCode(); room=null; lastKey=''; return jput(code,'',{meta:{phase:'lobby', r:0, t0:0, created:TS, meters:startMeters()}}); }
+function lb(players, n){ var r=ranked(players).slice(0,n), h='<table class="lb"><tr><th>#</th><th>Name</th>'+(CFG.mode==='wall'?'<th>Gate</th>':'')+'<th>Score</th></tr>'; r.forEach(function(p,i){ var t=(room.players[p.id]||{}).team; h+='<tr><td>'+(i+1)+'</td><td>'+esc(p.name)+'</td>'+(CFG.mode==='wall'?'<td>'+esc(t!=null?CFG.teams[t]:'')+'</td>':'')+'<td>'+p.score.toLocaleString()+'</td></tr>'; }); return h+'</table>'; }
+function picks(){ return (room.ans||{})[room.meta.r]||{}; }
+function answered(){ return Object.keys(picks()).length; }
+function optsFor(rd){ return CFG.mode==='wall' ? CFG.actions.concat(rd.extra?[rd.extra]:[]) : rd.options; }
+function meterBars(meters){ if (!CFG.meters) return ''; return '<div class="meters">'+CFG.meters.map(function(x){ var v=Math.max(0,Math.min(100,meters[x.k]||0)); return '<div class="meter"><div class="row" style="justify-content:space-between"><span>'+esc(x.label)+'</span><span>'+Math.round(v)+'</span></div><div class="mtrack"><i style="width:'+v+'%;background:'+x.color+'"></i></div></div>'; }).join('')+'</div>'; }
+function teamSizes(){ var s=CFG.teams.map(function(){ return 0; }); var pl=room.players||{}; for (var k in pl) if (pl[k].team!=null) s[pl[k].team]++; return s; }
+function target(n){ return Math.max(3, Math.round(n*CFG.perMember)); }
+function wallBars(){ var T=room.meta.teams||[], s=teamSizes(); return '<div class="meters">'+CFG.teams.map(function(t,i){ if (!s[i]) return ''; var u=(T[i]||{}).prog||0, pct=s[i]?Math.min(100,Math.round(100*u/target(s[i]))):0; return '<div class="meter"><div class="row" style="justify-content:space-between"><span>'+esc(t)+' ('+s[i]+')</span><span>'+pct+'% built, '+((T[i]||{}).sup||0)+' supplies</span></div><div class="mtrack"><i style="width:'+pct+'%;background:var(--accent)"></i></div></div>'; }).join('')+'</div>'; }
+function scene(rd){ return '<div class="eyebrow">Round '+(room.meta.r+1)+' of '+R.length+' &middot; '+esc(rd.ref)+'</div><h2>'+esc(rd.title)+'</h2><p class="scene">'+esc(rd.scene)+'</p><p class="muted"><b>'+esc(rd.prompt||CFG.prompt)+'</b></p>'; }
+function tallyHtml(rd, tally, dec){ var o=optsFor(rd), tot=0; o.forEach(function(_,i){ tot+=tally[i]||0; });
+  return '<div class="tally">'+o.map(function(op,i){ var c=tally[i]||0, p=tot?Math.round(100*c/tot):0; return '<div class="trow'+(i===dec?' dec':'')+'"><div class="row" style="justify-content:space-between"><span><span class="n">'+L[i]+'</span>'+esc(op.t)+(CFG.mode!=='wall'?' <span class="pts'+(op.pts>=1000?' top':'')+'">'+(op.pts||0).toLocaleString()+' pts</span>':'')+'</span><span>'+c+' chose</span></div><div class="mtrack"><i style="width:'+p+'%"></i></div></div>'; }).join('')+'</div>'; }
+function render(){
+  if (!room) return;
+  var m=room.meta, pl=room.players||{}, np=Object.keys(pl).length, h='';
+  if (m.phase==='lobby'){
+    h='<div class="eyebrow">'+esc(CFG.title)+'</div><h1>Scan to join on your phone</h1>'+
+      '<div class="card"><div class="qr-box" id="qr"></div><div class="code">'+code+'</div><div class="muted center">Or open the play page and type this code</div></div>'+
+      '<div class="card"><h2>Players ('+np+')</h2><div>'+(np?ranked(pl).map(function(p){ return '<span class="tag">'+esc(p.name)+'</span>'; }).join(''):'<span class="muted">Waiting for players to join</span>')+'</div></div>'+
+      '<div class="card"><h2>How it works</h2><div class="muted">'+CFG.how+'</div></div>'+
+      '<button class="btn primary big" data-a="start"'+(np?'':' disabled')+'>Start game</button>';
+  } else if (m.phase==='round'){
+    var rd=R[m.r], left=Math.max(0,Math.ceil((deadline-Date.now())/1000)), pct=Math.max(0,Math.min(100,(deadline-Date.now())/(CFG.seconds*10)));
+    h='<div class="card">'+scene(rd)+(CFG.mode==='wall'?'':'<div class="opts">'+rd.options.map(function(o,i){ return '<div class="opt"><span class="n">'+L[i]+'</span>'+esc(o.t)+'</div>'; }).join('')+'</div>')+
+      '<div class="timerbar"><i style="width:'+pct+'%"></i></div><div class="row" style="justify-content:space-between"><span class="muted">'+answered()+' of '+np+' have chosen</span><span class="muted">'+left+' seconds</span></div></div>'+
+      (CFG.mode==='wall'?'<div class="card"><h2>The wall so far</h2>'+wallBars()+'</div>':CFG.mode==='class'?'<div class="card"><h2>The kingdom</h2>'+meterBars(m.meters)+'</div>':'')+
+      '<button class="btn big" data-a="reveal">Reveal now</button>';
+  } else if (m.phase==='reveal'){
+    var rd=R[m.r], res=m.res||{};
+    h='<div class="card">'+scene(rd)+tallyHtml(rd,res.tally||{},CFG.mode==='class'?res.dec:-1)+'</div>';
+    if (CFG.mode==='class') h+='<div class="card"><h2>The council chose '+L[res.dec]+'</h2><p>'+esc(rd.options[res.dec].out)+'</p>'+meterBars(m.meters)+'</div>';
+    if (CFG.mode==='wall') h+='<div class="card"><h2>What happened at each gate</h2><ul class="plain">'+(res.lines||[]).map(function(x){ return '<li>'+esc(x)+'</li>'; }).join('')+'</ul>'+wallBars()+'</div>';
+    h+='<div class="card did"><div class="eyebrow">'+esc(CFG.didLabel)+' &middot; '+esc(rd.didRef||rd.ref)+'</div><p>'+esc(rd.did)+'</p></div>';
+    h+='<div class="card"><h2>Leaderboard</h2>'+lb(pl,5)+'</div><button class="btn primary big" data-a="next">'+(m.r+1>=R.length?'Show final results':'Next round')+'</button>';
+  } else if (m.phase==='final'){
+    var r=ranked(pl), end='';
+    if (CFG.mode==='class') end='<div class="card"><h2>'+esc(ending(m.meters).title)+'</h2><p>'+esc(ending(m.meters).text)+'</p>'+meterBars(m.meters)+'</div>';
+    if (CFG.mode==='wall') end='<div class="card"><h2>'+(m.done?'The wall is finished':'The wall is still unfinished')+'</h2><p>'+esc(CFG.endText)+'</p>'+wallBars()+'</div>';
+    if (CFG.mode==='personal') end='<div class="card"><h2>Class averages</h2>'+meterBars(avgMeters())+'<p class="muted">'+esc(CFG.endText)+'</p></div>';
+    h='<div class="eyebrow">'+esc(CFG.title)+'</div><h1>Final results</h1>'+end+'<div class="podium">'+
+      (r[1]?'<div class="spot g2"><b>'+esc(r[1].name)+'</b><br>'+r[1].score.toLocaleString()+'</div>':'')+
+      (r[0]?'<div class="spot g1"><b>'+esc(r[0].name)+'</b><br>'+r[0].score.toLocaleString()+'</div>':'')+
+      (r[2]?'<div class="spot g3"><b>'+esc(r[2].name)+'</b><br>'+r[2].score.toLocaleString()+'</div>':'')+
+      '</div><div class="card"><h2>Full leaderboard</h2>'+lb(pl,60)+'</div><div class="card"><h2>Discuss</h2><ul class="plain">'+CFG.discuss.map(function(d){ return '<li>'+esc(d)+'</li>'; }).join('')+'</ul></div>'+
+      '<button class="btn big" data-a="again">Play again with a new code</button>';
+  }
+  app.innerHTML=h;
+  if (m.phase==='lobby'){ var el=document.getElementById('qr'); if (el && typeof QRCode!=='undefined') new QRCode(el,{text:joinUrl(),width:230,height:230}); }
+}
+function ending(me){ for (var i=0;i<CFG.endings.length;i++){ var e=CFG.endings[i]; if (!e.min || Object.keys(e.min).every(function(k){ return (me[k]||0)>=e.min[k]; })) return e; } return CFG.endings[CFG.endings.length-1]; }
+function avgMeters(){ var pl=room.players||{}, s={}, n=0; CFG.meters.forEach(function(x){ s[x.k]=0; }); for (var k in pl){ n++; CFG.meters.forEach(function(x){ s[x.k]+=((pl[k].m||{})[x.k]!=null?pl[k].m[x.k]:x.start); }); } CFG.meters.forEach(function(x){ s[x.k]=n?s[x.k]/n:x.start; }); return s; }
+function keyOf(){ var m=room.meta, pl=room.players||{}; return [m.phase,m.r,JSON.stringify(ranked(pl)),m.phase==='round'?answered()+'|'+Math.ceil((deadline-Date.now())/1000):''].join('~'); }
+function poll(){
+  if (busy||!code) return; busy=true;
+  jget(code,'').then(function(d){ busy=false; if (!d||!d.meta) return; room=d;
+    var m=d.meta, np=Object.keys(d.players||{}).length;
+    if (m.phase==='round' && !revealing && np && (Date.now()>deadline || answered()>=np)) reveal();
+    var k=keyOf(); if (k!==lastKey){ lastKey=k; render(); }
+  });
+}
+function clamp(v){ return Math.max(0,Math.min(100,v)); }
+function reveal(){
+  revealing=true;
+  var m=room.meta, rd=R[m.r], ans=picks(), pl=room.players||{}, upd={}, tally={}, res={};
+  for (var pid in ans){ if (!pl[pid]) continue; var i=ans[pid].i; tally[i]=(tally[i]||0)+1; }
+  res.tally=tally;
+  for (var p in pl){ upd['players/'+p+'/gain']=0; upd['players/'+p+'/pick']=ans[p]?ans[p].i:-1; }
+  if (CFG.mode==='class'){
+    var best=-1, dec=0; rd.options.forEach(function(_,i){ var c=tally[i]||0; if (c>best){ best=c; dec=i; } });
+    res.dec=dec; var me=JSON.parse(JSON.stringify(m.meters||startMeters())), fx=rd.options[dec].fx||{};
+    for (var k in fx) me[k]=clamp((me[k]||0)+fx[k]); upd['meta/meters']=me;
+    for (var pid in ans){ if (!pl[pid]) continue; var g=rd.options[ans[pid].i].pts||0; upd['players/'+pid+'/score']=(pl[pid].score||0)+g; upd['players/'+pid+'/gain']=g; }
+  } else if (CFG.mode==='personal'){
+    for (var pid in ans){ if (!pl[pid]) continue; var o=rd.options[ans[pid].i], me=JSON.parse(JSON.stringify(pl[pid].m||startMeters())), fx=o.fx||{};
+      for (var k in fx) me[k]=clamp((me[k]!=null?me[k]:50)+fx[k]);
+      upd['players/'+pid+'/m']=me; upd['players/'+pid+'/score']=(pl[pid].score||0)+(o.pts||0); upd['players/'+pid+'/gain']=o.pts||0; }
+  } else if (CFG.mode==='wall'){
+    var T=JSON.parse(JSON.stringify(m.teams||[])), sizes=teamSizes(), lines=[], gains={}, byTeam={};
+    CFG.teams.forEach(function(name,t){
+      var st=T[t]||{prog:0,sup:sizes[t]}; if (!sizes[t]){ T[t]=st; return; }
+      var c={}, mem=[]; for (var p in pl) if (pl[p].team===t){ mem.push(p); var a=ans[p]?ans[p].i:-1; c[a]=(c[a]||0)+1; gains[p]=0; }
+      var B=c[0]||0, G=c[1]||0, S=c[2]||0, P=c[3]||0, X=c[4]||0, n=sizes[t], need=Math.ceil(n/4), note=[];
+      if (rd.ev==='debt' && S<need){ var lost=Math.ceil(st.sup/2); st.sup-=lost; note.push('hunger cost '+lost+' supplies (too few gatherers)'); }
+      var rate=1; if (rd.ev==='mock' && P<Math.ceil(n/5)){ rate=0.5; note.push('mocking slowed the builders (too few praying)'); }
+      var built=Math.min(B, st.sup); st.sup-=built; var units=built*rate;
+      if (rd.ev==='onehand') units+=G*0.5;
+      if (B>built) note.push((B-built)+' builders had no supplies');
+      st.sup+=S*2;
+      if ((rd.ev==='attack'||rd.ev==='onehand') && G<need){ var loss=(need-G)*2; units-=loss; note.push('enemies tore down '+loss+' sections (too few guards)'); }
+      else if (rd.ev==='attack'||rd.ev==='onehand') note.push('the guards held');
+      if (X){ units-=X*2; note.push(X+' left the work to meet Sanballat at Ono'); }
+      st.prog=Math.max(0, Math.round((st.prog+units)*10)/10); T[t]=st;
+      mem.forEach(function(p){ var a=ans[p]?ans[p].i:-1, g=0;
+        if (a===0) g=B?Math.round(100*built*rate/B):0;
+        else if (a===1) g=(rd.ev==='attack'||rd.ev==='onehand')?150:50;
+        else if (a===2) g=rd.ev==='debt'?150:60;
+        else if (a===3) g=rd.ev==='mock'?150:60;
+        else if (a===4) g=300;
+        if (a===0 && rd.ev==='onehand') g+=0; if (a===1 && rd.ev==='onehand') g+=50;
+        gains[p]=g; });
+      var ln=(note.length?note.join('; '):'steady work'); byTeam[t]=ln; lines.push(name+': '+ln);
+    });
+    upd['meta/teams']=T; res.lines=lines; res.byTeam=byTeam;
+    for (var p in gains){ upd['players/'+p+'/score']=(pl[p].score||0)+gains[p]; upd['players/'+p+'/gain']=gains[p]; }
+  }
+  upd['meta/res']=res; upd['meta/phase']='reveal';
+  jpatch(code,'',upd).then(function(){ revealing=false; poll(); });
+}
+function goR(i){ deadline=Date.now()+CFG.seconds*1000+800; return jpatch(code,'meta',{phase:'round', r:i, t0:TS, res:null}).then(poll); }
+function finish(){
+  var upd={'meta/phase':'final'}, pl=room.players||{};
+  if (CFG.mode==='wall'){ var T=room.meta.teams||[], s=teamSizes(), all=true;
+    for (var p in pl){ var t=pl[p].team, done=t!=null && s[t] && (T[t]||{}).prog>=target(s[t]); if (done) upd['players/'+p+'/score']=(pl[p].score||0)+500; }
+    CFG.teams.forEach(function(_,t){ if (s[t] && !((T[t]||{}).prog>=target(s[t]))) all=false; }); upd['meta/done']=all; }
+  return jpatch(code,'',upd).then(poll);
+}
+app.addEventListener('click', function(e){
+  var b=e.target.closest('[data-a]'); if (!b||b.disabled) return; var a=b.getAttribute('data-a'); b.disabled=true;
+  if (a==='start'){
+    if (CFG.mode==='wall'){ var r=ranked(room.players), upd={}, T=[]; r.sort(function(x,y){ return x.id<y.id?-1:1; });
+      var nt=Math.max(1,Math.min(CFG.teams.length, Math.ceil(r.length/3)));
+      r.forEach(function(p,i){ upd['players/'+p.id+'/team']=i%nt; });
+      CFG.teams.forEach(function(_,t){ var n=r.filter(function(_,i){ return i%nt===t; }).length; T[t]={prog:0,sup:n}; });
+      upd['meta/teams']=T; jpatch(code,'',upd).then(function(){ goR(0); });
+    } else goR(0);
+  }
+  else if (a==='reveal'){ if (!revealing) reveal(); }
+  else if (a==='next'){ if (room.meta.r+1>=R.length) finish(); else goR(room.meta.r+1); }
+  else if (a==='again') newGame().then(poll);
+});
+newGame().then(function(){ poll(); setInterval(poll,1200); });
+})();
+</script></body></html>

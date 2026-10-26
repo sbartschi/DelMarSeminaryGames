@@ -1,0 +1,1534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>/* Practice mode: when this page runs inside the site's practice page, use its pretend database and give this screen its own storage. Does nothing otherwise. */
+(function(){try{var P=window.parent!==window&&window.parent.PRACTICE;if(!P)return;window.fetch=P.fetch;var s=P.storage(window.name||location.href);Object.defineProperty(window,'localStorage',{configurable:true,get:function(){return s.local;}});Object.defineProperty(window,'sessionStorage',{configurable:true,get:function(){return s.session;}});}catch(e){}})();</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Life Choices</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F3F1FF; --surface:#FFFFFF; --ink:#1A1744; --muted:#625F8F; --line:#D9D5F4; --soft:#ECE8FF;
+  --accent:#5B3DF5; --accent-ink:#FFFFFF; --gold:#F5B700; --gold-ink:#2A2100; --mint:#14A87E; --coral:#E8456B; --sky:#2E8BFF;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F0D2B; --surface:#1B1845; --ink:#F2F0FF; --muted:#ABA8D8; --line:#332F6D; --soft:#26225A;
+    --accent:#9380FF; --accent-ink:#0F0D2B; --gold:#FFC933; --gold-ink:#2A2100; --mint:#34D3A0; --coral:#FF6B8E; --sky:#5CA9FF;
+    color-scheme:dark;
+  }
+}
+[data-theme="dark"]{
+  --bg:#0F0D2B; --surface:#1B1845; --ink:#F2F0FF; --muted:#ABA8D8; --line:#332F6D; --soft:#26225A;
+  --accent:#9380FF; --accent-ink:#0F0D2B; --gold:#FFC933; --gold-ink:#2A2100; --mint:#34D3A0; --coral:#FF6B8E; --sky:#5CA9FF;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none !important}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:"Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+button{font-family:inherit}
+.num{font-variant-numeric:tabular-nums}
+
+/* ================= HOST SCREEN ================= */
+.hs-wrap{container-type:inline-size; width:100%}
+.hs{
+  font-size:max(11px,1.25cqw); line-height:1.3;
+  background:var(--bg); color:var(--ink);
+  min-height:100%; display:flex; flex-direction:column; gap:1em; padding:1.1em 1.8em 1.4em;
+}
+.hs-top{display:flex; align-items:center; justify-content:space-between; gap:1em}
+.hs-logo{font-size:1.5em; font-weight:800; letter-spacing:-.02em}
+.hs-logo span{color:var(--accent)}
+.hs-pips{display:flex; align-items:center; gap:.45em}
+.pip{width:2em; height:2em; border-radius:50%; display:grid; place-items:center; font-weight:700; font-size:.95em; background:var(--soft); color:var(--muted); border:2px solid transparent}
+.pip.done{background:var(--mint); color:#fff}
+.pip.now{background:var(--gold); color:var(--gold-ink); border-color:var(--ink); transform:scale(1.15)}
+.hs-count{font-weight:600; color:var(--muted)}
+.hs-main{flex:1; display:flex; flex-direction:column; gap:1em; min-height:0}
+.hs-title{font-size:2.5em; font-weight:800; letter-spacing:-.02em; line-height:1.05; margin:0}
+.hs-sub{font-size:1.3em; color:var(--muted); margin:.15em 0 0}
+.hs-foot{display:flex; align-items:center; justify-content:space-between; gap:1em; flex-wrap:wrap}
+.hs-btn{font:inherit; font-size:1.4em; font-weight:800; border:0; border-radius:.7em; padding:.6em 1.3em; background:var(--accent); color:var(--accent-ink); cursor:pointer; box-shadow:0 .2em 0 rgba(0,0,0,.18)}
+.hs-btn:hover{filter:brightness(1.08)}
+.hs-btn:active{transform:translateY(.1em); box-shadow:0 .1em 0 rgba(0,0,0,.18)}
+.hs-btn.gold{background:var(--gold); color:var(--gold-ink)}
+.hs-btn.ghost{background:var(--surface); color:var(--ink); border:2px solid var(--line); box-shadow:none; font-size:1em; font-weight:600; padding:.55em 1em}
+.hs-btn[disabled]{opacity:.45; cursor:default}
+.hs-toast{position:fixed; left:50%; bottom:1.5em; transform:translateX(-50%); background:var(--coral); color:#fff; padding:.6em 1.2em; border-radius:.7em; font-weight:700; z-index:9; font-size:1.1em}
+.hs-offline{background:var(--coral); color:#fff; padding:.3em .8em; border-radius:.5em; font-weight:700; font-size:.9em}
+
+/* lobby */
+.hs-lobby{display:grid; grid-template-columns:minmax(14em,23em) minmax(0,1fr); gap:2em; align-items:start}
+.hs-qr{background:#fff; border-radius:1em; padding:1em; box-shadow:0 .3em 1.2em rgba(40,20,120,.18)}
+.hs-qr svg{display:block; width:100%; height:auto}
+.hs-url{margin-top:.8em; font-weight:700; font-size:1.1em; word-break:break-all}
+.hs-steps{color:var(--muted); font-size:1.05em; margin:.4em 0 0; padding-left:1.2em}
+.hs-names{display:flex; flex-wrap:wrap; gap:.5em; margin-top:.8em}
+.tag{background:var(--surface); border:2px solid var(--line); border-radius:999px; padding:.3em .9em; font-weight:700; font-size:1.15em; animation:pop .35s cubic-bezier(.2,1.4,.4,1) both; display:inline-flex; gap:.4em; align-items:center}
+.tag button{border:0; background:none; color:var(--muted); font-size:1em; cursor:pointer; padding:0; line-height:1}
+@keyframes pop{from{transform:scale(.4); opacity:0}}
+.hs-empty{color:var(--muted); font-size:1.2em; margin-top:.8em}
+.hs-panel{background:var(--surface); border:2px solid var(--line); border-radius:1em; padding:1em 1.2em}
+.hs-panel h3{margin:0 0 .6em; font-size:1.2em}
+.hs-set{display:grid; grid-template-columns:repeat(auto-fill,minmax(15em,1fr)); gap:.7em 1.2em}
+.hs-set label{display:block; font-size:.85em; color:var(--muted); margin-bottom:.15em}
+.hs-set input,.hs-set select{width:100%; font:inherit; font-size:1em; padding:.4em .5em; border-radius:.4em; border:2px solid var(--line); background:var(--bg); color:var(--ink)}
+.hs-note{font-size:.85em; color:var(--muted); margin:.6em 0 0}
+
+/* choosing */
+.hs-prompts{display:flex; flex-wrap:wrap; gap:.6em; margin-top:.6em}
+.hs-prompt{background:var(--gold); color:var(--gold-ink); font-weight:800; border-radius:.6em; padding:.35em .9em; font-size:1.2em}
+.hs-meter{height:1em; border-radius:.5em; background:var(--soft); overflow:hidden}
+.hs-meter i{display:block; height:100%; background:var(--mint); transition:width .4s}
+.hs-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(11em,1fr)); gap:.6em}
+.pchip{background:var(--surface); border:2px solid var(--line); border-radius:.8em; padding:.55em .8em; font-weight:700; display:flex; justify-content:space-between; gap:.5em; align-items:center}
+.pchip.done{border-color:var(--mint)}
+.pchip .st{color:var(--muted); font-weight:600}
+.pchip.done .st{color:var(--mint); font-weight:800}
+
+/* reveal */
+.hs-cards{display:grid; grid-template-columns:repeat(auto-fill,minmax(15em,1fr)); gap:.7em}
+.pcard{background:var(--surface); border:2px solid var(--line); border-radius:.9em; padding:.7em .9em; animation:pop .4s both}
+.pcard h4{margin:0 0 .35em; font-size:1.2em}
+.chip{display:inline-block; background:var(--soft); border-radius:.5em; padding:.2em .6em; margin:0 .3em .3em 0; font-size:.95em; font-weight:600}
+.chip.yes{background:color-mix(in srgb,var(--mint) 25%,transparent)}
+.chip.no{background:color-mix(in srgb,var(--coral) 18%,transparent)}
+.pcard .pay{display:flex; align-items:center; gap:.4em; font-size:.85em; color:var(--muted); margin-top:.3em}
+.pcard .pay input{width:7em; font:inherit; padding:.2em .4em; border:2px solid var(--line); border-radius:.4em; background:var(--bg); color:var(--ink)}
+.pcard .miss{color:var(--coral); font-weight:700; font-size:.85em}
+
+/* leaderboard */
+.hs-seg{display:inline-flex; border:2px solid var(--line); border-radius:.7em; overflow:hidden}
+.hs-seg button{font:inherit; font-size:1em; font-weight:700; padding:.4em 1em; border:0; background:var(--surface); color:var(--ink); cursor:pointer}
+.hs-seg button[aria-pressed="true"]{background:var(--accent); color:var(--accent-ink)}
+.lb{display:flex; flex-direction:column; gap:.3em; flex:1; justify-content:flex-start}
+.lb-row{display:grid; grid-template-columns:2.2em 10em minmax(0,1fr) 9em 5em; align-items:center; gap:.7em; min-height:2.2em}
+.lb.dense .lb-row{min-height:1.6em; gap:.5em; font-size:.82em}
+.lb-rank{font-weight:800; font-size:1.2em; text-align:center; color:var(--muted)}
+.lb-row:nth-child(1) .lb-rank{color:var(--gold)}
+.lb-name{line-height:1.1; overflow:hidden}
+.lb-name b{display:block; font-size:1.15em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.lb-name small{color:var(--muted); font-size:.8em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block}
+.lb-bar{position:relative; height:1.6em; background:var(--soft); border-radius:.4em; overflow:hidden}
+.lb-zero{position:absolute; top:0; bottom:0; width:2px; background:var(--ink); opacity:.5; z-index:2}
+.lb-fill{position:absolute; top:0; bottom:0; border-radius:.3em}
+.lb-fill.pos{background:var(--mint); transform-origin:left center}
+.lb-fill.neg{background:var(--coral); transform-origin:right center}
+.enter .lb-fill{animation:grow .9s cubic-bezier(.2,.8,.2,1) both}
+@keyframes grow{from{transform:scaleX(0)}}
+.lb-val{font-weight:800; font-size:1.2em; text-align:right}
+.lb-val.neg{color:var(--coral)}
+.lb-delta{font-size:.8em; text-align:right; color:var(--muted); font-weight:600; line-height:1.1}
+.lb-delta.up{color:var(--mint)} .lb-delta.dn{color:var(--coral)}
+.hs-table{width:100%; border-collapse:collapse; font-size:.95em}
+.hs-table th,.hs-table td{padding:.4em .6em; border-bottom:1px solid var(--line); text-align:right; white-space:nowrap; font-weight:400}
+.hs-table th{color:var(--muted); font-size:.85em}
+.hs-table td:nth-child(-n+3),.hs-table th:nth-child(-n+3){text-align:left}
+.hs-table td:last-child,.hs-table th:last-child{text-align:left; white-space:normal; min-width:18em}
+.hs-table td b{font-weight:800}
+.hs-scroll{overflow:auto; max-height:60vh}
+
+/* final */
+.hs-podium{display:flex; align-items:flex-end; justify-content:center; gap:1.2em; margin:.5em 0 1em}
+.pod{width:14em; text-align:center; border-radius:1em 1em 0 0; padding:.8em .6em; color:#fff; animation:rise .8s cubic-bezier(.2,.8,.2,1) both}
+.pod .nm{font-size:1.6em; font-weight:800}
+.pod .am{font-size:1.2em; font-weight:700}
+.pod .cr{opacity:.9; font-size:.9em}
+.pod.p1{height:12em; background:var(--gold); color:var(--gold-ink)}
+.pod.p2{height:9em; background:var(--sky); animation-delay:.2s}
+.pod.p3{height:7em; background:var(--mint); animation-delay:.4s}
+.pod .medal{font-size:2.2em}
+@keyframes rise{from{transform:translateY(3em) scaleY(.2); opacity:0}}
+
+/* ================= PHONE ================= */
+.ph{
+  font-size:17px; line-height:1.35; background:var(--bg); color:var(--ink);
+  min-height:100%; display:flex; flex-direction:column; padding:18px 16px 24px; gap:14px;
+}
+.ph-top{display:flex; justify-content:space-between; align-items:center; font-size:14px; color:var(--muted); font-weight:600}
+.ph h1{font-size:30px; line-height:1.05; margin:0; font-weight:800; letter-spacing:-.02em}
+.ph h2{font-size:22px; margin:0; font-weight:800}
+.ph p{margin:0}
+.ph .muted{color:var(--muted)}
+.ph input[type=text]{width:100%; font:inherit; font-size:20px; padding:14px 14px; border-radius:14px; border:2px solid var(--line); background:var(--surface); color:var(--ink)}
+.ph input[type=text]:focus-visible,.ph button:focus-visible{outline:3px solid var(--accent); outline-offset:2px}
+.ph-btn{font:inherit; font-size:20px; font-weight:800; border:0; border-radius:16px; padding:16px; background:var(--accent); color:var(--accent-ink); cursor:pointer; width:100%; box-shadow:0 4px 0 rgba(0,0,0,.2)}
+.ph-btn:active{transform:translateY(2px); box-shadow:0 2px 0 rgba(0,0,0,.2)}
+.ph-btn[disabled]{opacity:.4; box-shadow:none}
+.ph-btn.ghost{background:var(--surface); color:var(--ink); border:2px solid var(--line); box-shadow:none; font-size:16px; font-weight:600}
+.ph-card{background:var(--surface); border:2px solid var(--line); border-radius:18px; padding:16px}
+.ph-q{font-size:20px; font-weight:800; margin:6px 0 10px}
+.ph-opts{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+.ph-opt{font:inherit; font-size:16px; font-weight:700; border:2px solid var(--line); background:var(--surface); color:var(--ink); border-radius:14px; padding:12px 8px; display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer; min-height:78px; text-align:center}
+.ph-opt .ic{font-size:26px}
+.ph-opt.on{border-color:var(--accent); background:var(--soft); box-shadow:0 0 0 3px var(--accent)}
+.ph-yn{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+.ph-yn .ph-opt{min-height:64px; font-size:17px}
+.ph-center{text-align:center; display:flex; flex-direction:column; align-items:center; gap:10px; margin:auto 0; padding:10px}
+.ph-big{font-size:56px; line-height:1}
+.ph-stat{font-size:34px; font-weight:800}
+.ph-err{color:var(--coral); font-weight:700; min-height:1.3em}
+.ph-sticky{margin-top:auto}
+
+.hs-codebox{background:var(--surface); border:2px solid var(--line); border-radius:1em; padding:.6em 1em; margin-top:.8em; display:flex; flex-direction:column; align-items:center}
+.hs-codebox span{font-size:.9em; color:var(--muted); font-weight:600}
+.hs-codebox b{font-size:3em; letter-spacing:.2em; line-height:1.1; font-weight:800; color:var(--accent)}
+.hs-gh{margin:.9em 0 .4em; font-size:1em; color:var(--accent)}
+.ph-code{text-transform:uppercase; letter-spacing:.3em; text-align:center}
+
+.hs-split{display:grid; grid-template-columns:minmax(0,1fr) 22em; gap:1.2em; align-items:start; flex:1}
+.hs-focus{position:sticky; top:1em}
+.hs-notes{margin:.3em 0 0; padding-left:1.2em; font-size:.95em}
+.hs-notes li{margin:.3em 0}
+.lb-row{cursor:pointer}
+.lb-row.sel{background:var(--soft); border-radius:.5em}
+.ph-notes{text-align:left}
+.ph-notes ul{margin:0; padding-left:18px; font-size:15px}
+.ph-notes li{margin:5px 0}
+@media (max-width:900px){.hs-split{grid-template-columns:minmax(0,1fr)}}
+
+.ph-opt .cur{font-style:normal; font-size:12px; color:var(--muted); font-weight:600}
+
+.hs-chart{background:var(--surface); border:2px solid var(--line); border-radius:1em; padding:.8em 1em 1em; margin-top:1em}
+.hs-chart h3{margin:0 0 .4em; font-size:1.2em}
+.hs-chart svg{display:block; width:100%; height:auto; overflow:visible}
+.ch-axis{font-size:15px; fill:var(--muted); font-family:inherit}
+.ch-label{font-size:17px; font-weight:700; font-family:inherit}
+.hs-legend{display:flex; flex-wrap:wrap; gap:.35em .5em; margin-top:.6em}
+.hs-legend button{font:inherit; font-size:.9em; border:2px solid var(--line); background:var(--bg); color:var(--ink); border-radius:999px; padding:.15em .7em; cursor:pointer; display:inline-flex; align-items:center; gap:.4em}
+.hs-legend button.on{border-color:var(--ink); font-weight:700}
+.hs-legend i{width:.8em; height:.8em; border-radius:50%; display:inline-block}
+.hs-foot{position:sticky; bottom:0; background:var(--bg); padding:.7em 0 .3em; z-index:5}
+
+.confetti{position:fixed; inset:0; overflow:hidden; pointer-events:none; z-index:60}
+.confetti i,.confetti span{position:absolute; top:-6vh; animation-name:confall; animation-timing-function:linear; animation-fill-mode:both; border-radius:2px}
+@keyframes confall{from{transform:translate3d(0,0,0) rotate(0deg); opacity:1} 85%{opacity:1} to{transform:translate3d(var(--dx),112vh,0) rotate(var(--rot)); opacity:.9}}
+.hs-stats{display:flex; flex-wrap:wrap; gap:.5em; margin-bottom:.8em}
+.hs-stat{background:var(--surface); border:2px solid var(--line); border-radius:.7em; padding:.3em .8em; display:flex; flex-direction:column; line-height:1.15}
+.hs-stat small{color:var(--muted); font-size:.75em}
+.hs-stat b{font-size:1.05em}
+.hs-table.recap td,.hs-table.recap th{text-align:left; white-space:nowrap; font-size:.85em}
+.hs-table.recap td:last-child,.hs-table.recap th:last-child{min-width:0; white-space:nowrap}
+.hs-table.recap td.yes{color:var(--mint); font-weight:700}
+.hs-table.recap td.no{color:var(--muted)}
+
+.hs-wrap{position:relative}
+.hs-wrap.inside .hs{min-height:640px}
+.hs-modal{position:fixed; inset:0; background:rgba(8,6,32,.78); display:grid; place-items:center; z-index:40; padding:1em}
+.hs-modal.inside{position:absolute}
+.hs-modal-card{background:var(--surface); border-radius:1.2em; padding:1em 2em 1.4em; text-align:center; width:min(94%, 34em); max-height:96%; overflow:auto; box-shadow:0 1em 3em rgba(0,0,0,.45)}
+.hs-modal-card h2{margin:.1em 0 .4em; font-size:1.6em}
+.wheel-box{position:relative; width:min(100%, 24em); margin:.3em auto .6em}
+.wheel-spin{transition:transform 6s cubic-bezier(.12,.62,.12,1); will-change:transform}
+.wheel-spin svg{display:block; width:100%; height:auto; filter:drop-shadow(0 .3em .5em rgba(0,0,0,.35))}
+.wheel-pointer{position:absolute; top:-.55em; left:50%; transform:translateX(-50%); font-size:2.4em; line-height:1; color:var(--coral); text-shadow:0 2px 0 #fff}
+.wheel-out{font-size:1.6em; font-weight:800; margin:.2em 0}
+@media (prefers-reduced-motion:reduce){.wheel-spin{transition-duration:.01s}}
+
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{padding:16px}
+.pv-wrap{max-width:1300px;margin:0 auto}
+.pv-wrap h1{font-size:26px;margin:0 0 4px;font-weight:800}
+.pv-note{color:var(--muted);margin:0 0 14px;max-width:80ch}
+.pv-tv{border:6px solid var(--ink);border-radius:14px;overflow:auto;height:min(78vh,720px);background:var(--bg)}
+.pv-label{font-weight:700;margin:18px 0 8px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.pv-add{font:inherit;font-weight:700;border:2px solid var(--line);background:var(--surface);color:var(--ink);border-radius:10px;padding:6px 14px;cursor:pointer}
+.pv-phones{display:flex;gap:16px;overflow-x:auto;padding-bottom:10px}
+.pv-phone{flex:0 0 310px;height:600px;border:8px solid var(--ink);border-radius:30px;overflow:auto;background:var(--bg)}
+
+.ph-opt .fx{display:flex;flex-direction:column;gap:3px;margin-top:6px;width:100%}.ph-opt .fx i{font-style:normal;font-size:12.5px;font-weight:600;line-height:1.3;padding:3px 6px;border-radius:8px;background:rgba(98,95,143,.10);color:var(--muted)}.ph-opt .fx i.up{background:rgba(20,168,126,.13);color:var(--mint)}.ph-opt .fx i.down{background:rgba(232,69,107,.11);color:var(--coral)}
+
+</style>
+</head>
+<body>
+<div id="ph"></div>
+<script>
+/* Life Choices: game engine (runs in the teacher's browser; the preview page runs it the same way) */
+(function (root, factory) {
+  if (typeof module === "object" && module.exports) module.exports = factory();
+  else root.LifeEngine = factory();
+})(typeof self !== "undefined" ? self : this, function () {
+  "use strict";
+
+  var YEARS = 5, TOTAL = 6, START_AGE = 18;
+
+  /* Approximate typical annual pay, rounded (BLS national medians, with California minimum-wage floors). */
+  var CAREERS = [
+    { id: "doctor",      name: "Doctor",             icon: "🩺", pay: 140000, ramp: [0.15, 0.6] },
+    { id: "lawyer",      name: "Lawyer",             icon: "⚖️", pay: 118000, ramp: [0.3, 0.85] },
+    { id: "software",    name: "Software developer", icon: "💻", pay: 104000, ramp: [0.75] },
+    { id: "analyst",     name: "Financial analyst",  icon: "📈", pay: 90000, ramp: [0.75] },
+    { id: "nurse",       name: "Registered nurse",   icon: "🏥", pay: 82000, ramp: [0.75] },
+    { id: "accountant",  name: "Accountant",         icon: "🧮", pay: 76000, ramp: [0.8] },
+    { id: "police",      name: "Police officer",     icon: "🚓", pay: 72000 },
+    { id: "teacher",     name: "Elementary teacher", icon: "🍎", pay: 68000, ramp: [0.75] },
+    { id: "electrician", name: "Electrician",        icon: "⚡", pay: 66000 },
+    { id: "firefighter", name: "Firefighter",        icon: "🚒", pay: 64000 },
+    { id: "artist",      name: "Artist",             icon: "🎨", pay: 58000 },
+    { id: "mechanic",    name: "Auto mechanic",      icon: "🔧", pay: 58000 },
+    { id: "fastfood",    name: "Fast food worker",   icon: "🍔", pay: 52000 },
+    { id: "retail",      name: "Retail salesperson", icon: "🛍️", pay: 50000 },
+    { id: "entrepreneur", name: "Entrepreneur",      icon: "🌟", pay: 60000, ramp: [0.2, 0.25, 0.3, 2, 2], alwaysRamp: true, rampNote: "Startup years" }
+  ];
+
+  var DEFAULTS = {
+    /* basics */
+    showEffects: true, livingCostPerYear: 42000, useTaxes: true, otherCareerPay: 50000, firstJobPay: 30000, round1LivingPct: 30,
+    /* round 1 extras */
+    carCost: 20000, carValuePerYear: 1000, summerJobPay: 4000, alaskaSavingsPerYear: 15000,
+    /* round 2: insurance (you leave your parents' plan) */
+    entrepreneurWindfall: 4000000, wheelRound: 5, wheelCount: 1, netWorthFloor: 2000,
+    starterUpfront: 30000, starterExtraPerYear: 6000, starterEquityPerRound: 50000, starterUpgradeCost: 45000, starterUpgradeAfter: 2,
+    foreverUpfront: 80000, foreverExtraPerYear: 10000, foreverEquityPerRound: 90000,
+    insBasicPerYear: 2400, insPremiumPerYear: 6000, accidentRound: 4, accidentBasic: 120000, accidentPremium: 6000, insWaiting: "next",
+    useRamp: true, noCollegeBoost: 50000, lowIncomeBoost: 50000, lowIncomeLimit: 60000,
+    missionPenaltyPct: 40, missionBoostPct: 5, missionCost: 10000, missionValue: 0,
+    /* rounds 1 to 3 */
+    collegePenaltyPct: 50, collegeBoostPct: 15, collegeCost: 24000,
+    marriageBoostPct: 50, marriageDelayRounds: 2, marriageMode: "compound",
+    weddingCost: 25000, marriedExtraCostPerYear: 12000,
+    kidsPenaltyPct: 20, kidsBoostPct: 20, kidsCostPerYear: 15000,
+    /* round 4: home and money */
+    investPct: 15, investReturnPct: 7, tripCost: 12000, tripValue: 20000, tripBoostPct: 2,
+    /* round 5: health and giving back */
+    screeningCost: 2500, screeningValue: 50000, screeningLateValue: 25000, healthTripCost: 10000, healthTripValue: 12000, healthSkipBill: 30000,
+    serveCostPerYear: 2000, serveValuePerRound: 60000, serveBoostPct: 5, workHoursBonusPct: 6, workHoursBoostPct: 1,
+    businessCost: 20000, businessFirstPct: 5, businessBoostPct: 8,
+    /* round 6: family and legacy */
+    helpFamCost: 50000, helpFamValue: 90000,
+    promoPct: 25, familyPct: 15, familyValue: 60000,
+    dogCostPerYear: 2500, dogValuePerRound: 20000
+  };
+  var LIMITS = {
+    livingCostPerYear: [0, 200000], otherCareerPay: [0, 1000000], firstJobPay: [0, 200000], round1LivingPct: [0, 150],
+    carCost: [0, 200000], carValuePerYear: [0, 50000], summerJobPay: [0, 50000], alaskaSavingsPerYear: [0, 100000],
+    insBasicPerYear: [0, 50000], insPremiumPerYear: [0, 50000], accidentRound: [2, 6], accidentBasic: [0, 1000000], accidentPremium: [0, 1000000],
+    
+    noCollegeBoost: [0, 500000], lowIncomeBoost: [0, 500000], lowIncomeLimit: [0, 500000],
+    missionPenaltyPct: [0, 100], missionBoostPct: [0, 100], missionCost: [0, 200000], missionValue: [0, 1000000],
+    tripCost: [0, 200000], tripValue: [0, 1000000], tripBoostPct: [0, 100], businessCost: [0, 500000], businessFirstPct: [0, 100], businessBoostPct: [0, 100],
+    dogCostPerYear: [0, 50000], dogValuePerRound: [0, 1000000],
+    collegePenaltyPct: [0, 100], collegeBoostPct: [0, 200], collegeCost: [0, 500000],
+    marriageBoostPct: [0, 300], marriageDelayRounds: [0, 4], weddingCost: [0, 200000], marriedExtraCostPerYear: [0, 100000],
+    kidsPenaltyPct: [0, 100], kidsBoostPct: [0, 200], kidsCostPerYear: [0, 100000],
+    entrepreneurWindfall: [0, 20000000], wheelRound: [0, 6], wheelCount: [0, 5], netWorthFloor: [0, 1000000],
+    starterUpfront: [0, 500000], starterExtraPerYear: [0, 100000], starterEquityPerRound: [0, 1000000], starterUpgradeCost: [0, 500000], starterUpgradeAfter: [1, 4],
+    foreverUpfront: [0, 500000], foreverExtraPerYear: [0, 100000], foreverEquityPerRound: [0, 1000000],
+    investPct: [0, 100], investReturnPct: [0, 30],
+    screeningCost: [0, 100000], screeningValue: [0, 1000000], screeningLateValue: [0, 1000000], healthTripCost: [0, 200000], healthTripValue: [0, 1000000], healthSkipBill: [0, 500000],
+    serveCostPerYear: [0, 50000], serveValuePerRound: [0, 1000000], serveBoostPct: [0, 100], workHoursBonusPct: [0, 200], workHoursBoostPct: [0, 100],
+    helpFamCost: [0, 500000], helpFamValue: [0, 1000000],
+    promoPct: [0, 200], familyPct: [0, 100], familyValue: [0, 1000000]
+  };
+  var SETTING_FIELDS = [
+    { k: "livingCostPerYear", l: "Living costs per year, single ($)", g: "Basics" },
+    { k: "useTaxes", l: "Include estimated taxes", g: "Basics", opts: [["true", "Yes"], ["false", "No"]] },
+    { k: "showEffects", l: "Show what each choice does to pay, costs, and life value on phones", g: "Basics", opts: [["true", "Yes"], ["false", "No"]] },
+    { k: "otherCareerPay", l: "Write-in career: default pay per year ($)", g: "Basics" },
+    { k: "netWorthFloor", l: "Lowest possible net worth: nobody goes into debt ($)", g: "Basics" },
+    { k: "useRamp", l: "Career training years (doctors and lawyers start low)", g: "Round 1 extras", opts: [["true", "Yes"], ["false", "No"]] },
+    { k: "noCollegeBoost", l: "No college: head start cash ($)", g: "Round 1 extras" },
+    { k: "alaskaSavingsPerYear", l: "Rural Alaska: living cost savings per year ($)", g: "Round 1 extras" },
+    { k: "lowIncomeBoost", l: "Career launch fund: cash when you start a career ($)", g: "Round 1 extras" },
+    { k: "lowIncomeLimit", l: "Career launch fund applies to careers with typical pay up to ($ per year)", g: "Round 1 extras" },
+    { k: "missionPenaltyPct", l: "Mission: pay cut in round 1 (%)", g: "Round 1 extras" },
+    { k: "missionBoostPct", l: "Mission: pay boost each round after (%)", g: "Round 1 extras" },
+    { k: "missionCost", l: "Mission: cost ($)", g: "Round 1 extras" },
+    { k: "missionValue", l: "Mission: life value ($)", g: "Round 1 extras" },
+    { k: "collegePenaltyPct", l: "College: pay cut in round 1 (%)", g: "Rounds 1 to 3" },
+    { k: "collegeBoostPct", l: "College: pay boost each round after (%)", g: "Rounds 1 to 3" },
+    { k: "collegeCost", l: "College tuition, one time, BYU-style ~$6k/yr x4 ($)", g: "Rounds 1 to 3" },
+    { k: "marriageBoostPct", l: "Marriage: pay boost (%)", g: "Rounds 1 to 3" },
+    { k: "marriageDelayRounds", l: "Marriage: boost starts after (rounds)", g: "Rounds 1 to 3" },
+    { k: "marriageMode", l: "Marriage boost", g: "Rounds 1 to 3", opts: [["compound", "Compounds every round"], ["once", "One step that stays"]] },
+    { k: "weddingCost", l: "Wedding cost ($)", g: "Rounds 1 to 3" },
+    { k: "marriedExtraCostPerYear", l: "Married: extra costs per year ($)", g: "Rounds 1 to 3" },
+    { k: "kidsPenaltyPct", l: "Kids: pay cut in that round (%)", g: "Rounds 1 to 3" },
+    { k: "kidsBoostPct", l: "Kids: pay boost each round after (%)", g: "Rounds 1 to 3" },
+    { k: "kidsCostPerYear", l: "Kids: costs per year ($)", g: "Rounds 1 to 3" },
+    { k: "starterUpfront", l: "Starter home: upfront cost ($)", g: "Home buying" },
+    { k: "starterExtraPerYear", l: "Starter home: extra costs per year ($)", g: "Home buying" },
+    { k: "starterEquityPerRound", l: "Starter home: equity gained per round ($)", g: "Home buying" },
+    { k: "starterUpgradeAfter", l: "Starter home: forced to a bigger home after (rounds)", g: "Home buying" },
+    { k: "starterUpgradeCost", l: "Forced move to a bigger home: cost ($)", g: "Home buying" },
+    { k: "foreverUpfront", l: "Forever home: upfront cost ($)", g: "Home buying" },
+    { k: "foreverExtraPerYear", l: "Forever home: extra costs per year ($)", g: "Home buying" },
+    { k: "foreverEquityPerRound", l: "Forever home: equity gained per round ($)", g: "Home buying" },
+    { k: "entrepreneurWindfall", l: "Entrepreneur: windfall in the 4th round of the career ($)", g: "Basics" },
+    { k: "wheelRound", l: "Wheel of life spins at the start of round (0 = never)", g: "Wheel of life" },
+    { k: "wheelCount", l: "Players eliminated by the wheel", g: "Wheel of life" },
+    { k: "investPct", l: "Invest: share of take-home saved (%)", g: "Round 4" },
+    { k: "investReturnPct", l: "Invest: return per year (%)", g: "Round 4" },
+    { k: "tripCost", l: "Kazakhstan trip: cost ($)", g: "Round 4" },
+    { k: "tripValue", l: "Kazakhstan trip: life value ($)", g: "Round 4" },
+    { k: "tripBoostPct", l: "Kazakhstan trip: small pay boost each round after (%)", g: "Round 4" },
+    { k: "screeningCost", l: "Full health screening: cost ($)", g: "Round 5" },
+    { k: "screeningValue", l: "Full health screening: life value ($)", g: "Round 5" },
+    { k: "screeningLateValue", l: "Screening done late (round 6): life value ($)", g: "Round 5" },
+    { k: "healthTripCost", l: "Second trip instead of screening: cost ($)", g: "Round 5" },
+    { k: "healthTripValue", l: "Second trip instead of screening: life value ($)", g: "Round 5" },
+    { k: "healthSkipBill", l: "No screening: health bill the next round ($)", g: "Round 5" },
+    { k: "workHoursBonusPct", l: "Extra work hours: small bonus that round (%)", g: "Round 5" },
+    { k: "workHoursBoostPct", l: "Extra work hours: small pay boost each round after (%)", g: "Round 5" },
+    { k: "serveCostPerYear", l: "Volunteer service: cost per year ($)", g: "Round 5" },
+    { k: "serveValuePerRound", l: "Volunteer service: life value per round ($)", g: "Round 5" },
+    { k: "serveBoostPct", l: "Volunteer service: pay boost each round after (%)", g: "Round 5" },
+    { k: "businessCost", l: "Side business: startup cost ($)", g: "Round 5" },
+    { k: "businessFirstPct", l: "Side business: pay cut that round (%)", g: "Round 5" },
+    { k: "businessBoostPct", l: "Side business: pay boost each round after (%)", g: "Round 5" },
+    { k: "helpFamCost", l: "Help with school: cost ($)", g: "Round 6" },
+    { k: "helpFamValue", l: "Help with school: life value ($)", g: "Round 6" },
+    { k: "promoPct", l: "Big promotion: pay boost this round (%)", g: "Round 6" },
+    { k: "familyPct", l: "Cut back for family: pay cut this round (%)", g: "Round 6" },
+    { k: "familyValue", l: "Cut back for family: life value ($)", g: "Round 6" },
+    { k: "dogCostPerYear", l: "Adopt a dog: cost per year ($)", g: "Round 6" },
+    { k: "dogValuePerRound", l: "Adopt a dog: life value ($)", g: "Round 6" }
+  ];
+
+  var SUMMER = [
+    { id: "Mongolia", name: "Mongolia adventure", icon: "🐎", chip: "Mongolia", cost: 6500, value: 18000 },
+    { id: "Nicaragua", name: "Surf trip to Nicaragua", icon: "🏄", chip: "Nicaragua surf trip", cost: 3000, value: 12000 },
+    { id: "Pch", name: "Road trip along the PCH", icon: "🚗", chip: "PCH road trip", cost: 1500, value: 9000 },
+    { id: "Camping", name: "Camping trip with friends", icon: "⛺", chip: "Friends camping trip", cost: 500, value: 6000 },
+    { id: "Hawaii", name: "Hawaii", icon: "🌺", chip: "Hawaii", cost: 4000, value: 10000 },
+    { id: "Hefy", name: "HEFY", icon: "🎒", chip: "HEFY", cost: 2000, value: 8000 }
+  ];
+  SUMMER.forEach(function (t) {
+    DEFAULTS["summer" + t.id + "Cost"] = t.cost; DEFAULTS["summer" + t.id + "Value"] = t.value;
+    LIMITS["summer" + t.id + "Cost"] = [0, 200000]; LIMITS["summer" + t.id + "Value"] = [0, 1000000];
+    SETTING_FIELDS.push({ k: "summer" + t.id + "Cost", l: "Summer trip, " + t.chip + ": cost ($)", g: "Round 1 summer trips" });
+    SETTING_FIELDS.push({ k: "summer" + t.id + "Value", l: "Summer trip, " + t.chip + ": life value ($)", g: "Round 1 summer trips" });
+  });
+  [
+    { k: "firstJobPay", l: "Round 1 first jobs: pay per year ($)", g: "Basics" },
+    { k: "round1LivingPct", l: "Round 1 living costs (% of normal)", g: "Basics" },
+    { k: "carCost", l: "Buy a car: cost ($)", g: "Round 1 extras" },
+    { k: "carValuePerYear", l: "Buy a car: benefit per year ($)", g: "Round 1 extras" },
+    { k: "summerJobPay", l: "Stay home and work all summer: earnings ($)", g: "Round 1 extras" },
+    { k: "insBasicPerYear", l: "Cheap health plan: cost per year ($)", g: "Round 2 health insurance" },
+    { k: "insPremiumPerYear", l: "Premium health plan: cost per year ($)", g: "Round 2 health insurance" },
+    { k: "accidentRound", l: "Accident happens in round", g: "Round 2 health insurance" },
+    { k: "accidentBasic", l: "Accident bill with the cheap plan ($)", g: "Round 2 health insurance" },
+    { k: "accidentPremium", l: "Accident bill with the premium plan ($)", g: "Round 2 health insurance" },
+    { k: "insWaiting", l: "A new plan covers the accident", g: "Round 2 health insurance", opts: [["next", "Starting next round"], ["now", "Immediately"]] },
+    { k: "_end", l: "", g: "" }
+  ].filter(function (f) { return f.k !== "_end"; }).forEach(function (f) { SETTING_FIELDS.push(f); });
+
+  /* ---------- decisions (edit here to add or move decisions) ----------
+     from / to: the rounds where the question appears. once: true hides it after a player says yes.
+     yesno decisions can have yesEff / noEff; choice decisions have options with eff.
+     Effect fields: cash (one time), perYear (each round from now, times 5), perRound (each round from now),
+     incomePct (pay change in that round only), boostPct (pay boost each later round, compounding),
+     value (life value, one time), valuePerRound, invest (true). */
+  var ROUND_TITLES = ["College, mission, and summer", "Career, marriage, and insurance", "Family and big ideas", "Home and money", "Health and giving back", "Family and legacy"];
+  var DECISIONS = [
+    { id: "college", type: "yesno", from: 1, to: 1, label: "College", icon: "🎓", prompt: "Will you go to college?", yes: "Yes, go to college", no: "No, start working", yesChip: "Going to college", noChip: "Going straight to work" },
+    { id: "location", type: "yesno", from: 1, to: 1, label: "Location", icon: "🏔️", prompt: "Where will you live?", yes: "Move out to rural Alaska", no: "Stay near the city", yesChip: "Living in rural Alaska", noChip: "Living near the city",
+      yesEff: function (s) { return { perYear: s.alaskaSavingsPerYear, yearNote: "Lower cost of living out in rural Alaska", note: "Moving out to rural Alaska" }; } },
+    { id: "mission", type: "yesno", from: 1, to: 1, label: "Mission", icon: "🌍", prompt: "Will you serve a full-time church mission?", yes: "Yes, serve a mission", no: "No, not now", yesChip: "Serving a mission", noChip: "Not serving a mission",
+      yesEff: function (s) { return { incomePct: -s.missionPenaltyPct, boostPct: s.missionBoostPct, cash: -s.missionCost, value: s.missionValue, payNote: "Mission", note: "Mission costs", valueNote: "Mission experience" }; } },
+    { id: "summer", type: "choice", from: 1, to: 1, label: "Summer", prompt: "What will you do with your big summer?", options: SUMMER.map(function (t) {
+      return { id: t.id.toLowerCase(), name: t.name, icon: t.icon, chip: t.chip, eff: function (s) { return { cash: -s["summer" + t.id + "Cost"], value: s["summer" + t.id + "Value"], note: "Summer trip (" + t.chip + ")", valueNote: "Summer adventure: " + t.chip }; } };
+    }).concat([{ id: "work", name: "Stay home and work", icon: "💼", chip: "Working all summer", eff: function (s) { return { cash: s.summerJobPay, note: "Summer job earnings" }; } }]) },
+    { id: "car", type: "yesno", from: 1, to: 1, label: "Car", icon: "🚙", prompt: "Will you buy a car?", yes: "Yes, buy a car", no: "No, I will get around without one", yesChip: "Buying a car", noChip: "No car",
+      yesEff: function (s) { return { cash: -s.carCost, perYear: s.carValuePerYear, note: "Car purchase", yearNote: "Car convenience" }; } },
+    { id: "career", type: "career", from: 2, to: 2, prompt: "What career will you choose?" },
+    { id: "marry", type: "yesno", from: 2, to: 4, once: true, label: "Marriage", icon: "💍", prompt: "Do you want to get married now?", yes: "Yes, get married", no: "No, not now", yesChip: "Getting married", noChip: "Waiting" },
+    { id: "insurance", type: "choice", sticky: true, from: 2, to: 6, label: "Insurance", prompt: "You are off your parents' health insurance. Which plan will you have? You can switch any time.", options: [
+      { id: "basic", name: "Cheap plan: low cost, big bills if something goes wrong", icon: "🩹", chip: "Cheap health plan" },
+      { id: "premium", name: "Premium plan: costs more, covers almost everything", icon: "🛡️", chip: "Premium health plan" }
+    ] },
+    { id: "kids", type: "yesno", from: 3, to: 4, once: true, label: "Kids", icon: "👶", prompt: "Will you have kids now?", yes: "Yes, have kids", no: "No, not yet", yesChip: "Having kids", noChip: "Not yet" },
+    { id: "business", type: "yesno", from: 3, to: 5, once: true, label: "Side business", icon: "💡", prompt: "Will you start a side business?", yes: "Yes, start a business", no: "No, keep my day job", yesChip: "Starting a business", noChip: "Day job only",
+      yesEff: function (s) { return { cash: -s.businessCost, incomePct: -s.businessFirstPct, boostPct: s.businessBoostPct, payNote: "Side business", note: "Business startup" }; } },
+    { id: "home", type: "choice", from: 3, to: 5, once: true, skipId: "rent", label: "Home", prompt: "Will you buy a home, and what kind?", options: [
+      { id: "rent", name: "Keep renting", icon: "🏢", chip: "Renting" },
+      { id: "starter", name: "Buy a small starter home", icon: "🏡", chip: "Small starter home", eff: function (s) {
+        return { cash: -s.starterUpfront, perYear: -s.starterExtraPerYear, perRound: s.starterEquityPerRound, note: "Starter home costs", gainNote: "Starter home equity",
+          later: [{ after: Math.round(s.starterUpgradeAfter), eff: { cash: -s.starterUpgradeCost, perYear: -(s.foreverExtraPerYear - s.starterExtraPerYear), perRound: s.foreverEquityPerRound - s.starterEquityPerRound, note: "Forced move to a bigger home", yearNote: "Bigger home costs", gainNote: "Bigger home equity" } }] };
+      } },
+      { id: "forever", name: "Buy your forever home", icon: "🏠", chip: "Forever home", eff: function (s) {
+        return { cash: -s.foreverUpfront, perYear: -s.foreverExtraPerYear, perRound: s.foreverEquityPerRound, note: "Forever home costs", gainNote: "Forever home equity" };
+      } }
+    ] },
+    { id: "moneytrip", type: "choice", from: 4, to: 4, label: "Invest or trip", prompt: "Your big move this round. You can only pick one: invest part of every paycheck, or take the big adventure trip to Kazakhstan.", options: [
+      { id: "invest", name: "Save and invest part of every paycheck (pays off over time)", icon: "📈", chip: "Investing", eff: function () { return { invest: true }; } },
+      { id: "kazakhstan", name: "Take the big trip to Kazakhstan (costs money now, small boost)", icon: "🏔️", chip: "Trip to Kazakhstan", eff: function (s) {
+        return { cash: -s.tripCost, value: s.tripValue, boostPct: s.tripBoostPct, note: "Trip to Kazakhstan", valueNote: "Adventure and perspective", payNote: "Trip contacts and confidence" };
+      } }
+    ] },
+    { id: "invest", type: "yesno", from: 5, to: 6, once: true, hideIf: function (life) { return life.investing; }, hideText: "Already investing", label: "Invest later", icon: "📈", prompt: "Will you start saving and investing part of every paycheck?", yes: "Yes, invest", no: "No, spend it", yesChip: "Started investing", noChip: "Not investing",
+      yesEff: function () { return { invest: true }; } },
+    { id: "dog", type: "yesno", from: 4, to: 6, once: true, label: "Dog", icon: "🐶", prompt: "Will you adopt a dog?", yes: "Yes, adopt a dog", no: "No pets", yesChip: "Adopted a dog", noChip: "No pets",
+      yesEff: function (s) { return { perYear: -s.dogCostPerYear, valuePerRound: s.dogValuePerRound, note: "Dog costs", valueNote: "Companionship" }; } },
+    { id: "health", type: "choice", from: 5, to: 5, label: "Health", prompt: "Time to look after yourself. You can only pick one: a full health screening, or another big trip.", options: [
+      { id: "screening", name: "Do a full health screening", icon: "🩺", chip: "Full health screening", eff: function (s) {
+        return { cash: -s.screeningCost, value: s.screeningValue, screened: true, note: "Full health screening", valueNote: "Being super healthy" };
+      } },
+      { id: "trip2", name: "Go on another big trip", icon: "✈️", chip: "Another big trip", eff: function (s) {
+        return { cash: -s.healthTripCost, value: s.healthTripValue, note: "Second big trip", valueNote: "Another adventure",
+          later: [{ after: 1, eff: { cash: -s.healthSkipBill, note: "Health problem caught too late (no screening)" } }] };
+      } }
+    ] },
+    { id: "workserve", type: "choice", from: 5, to: 5, label: "Work or service", prompt: "You have a little extra time and energy. You can only pick one: put a few more hours into work, or take on regular volunteer service for your church.", options: [
+      { id: "work", name: "Put in a few more hours at work, hoping for a promotion", icon: "💼", chip: "Extra hours at work", eff: function (s) { return { incomePct: s.workHoursBonusPct, boostPct: s.workHoursBoostPct, payNote: "Extra hours and promotion" }; } },
+      { id: "serve", name: "Take on regular volunteer service for my church", icon: "🤝", chip: "Volunteering for church", eff: function (s) {
+        return { perYear: -s.serveCostPerYear, valuePerRound: s.serveValuePerRound, boostPct: s.serveBoostPct, served: true, note: "Service costs", valueNote: "Service, friendships, and purpose", payNote: "Church network and friendships" };
+      } }
+    ] },
+    { id: "healthLate", type: "yesno", from: 6, to: 6, once: true, hideIf: function (life) { return life.screened; }, hideText: "Already screened", label: "Late screening", icon: "🩺", prompt: "Will you finally do a full health screening?", yes: "Yes, do the screening", no: "No, skip it", yesChip: "Late health screening", noChip: "Still skipping it",
+      yesEff: function (s) { return { cash: -s.screeningCost, value: s.screeningLateValue, screened: true, note: "Late health screening", valueNote: "Peace of mind (smaller benefit, done late)" }; } },
+    { id: "serve", type: "yesno", from: 6, to: 6, once: true, hideIf: function (life) { return life.served; }, hideText: "Already serving", label: "Service later", icon: "🤝", prompt: "Will you take on regular volunteer service for your church?", yes: "Yes, serve regularly", no: "No, not right now", yesChip: "Started serving", noChip: "Not serving",
+      yesEff: function (s) { return { perYear: -s.serveCostPerYear, valuePerRound: s.serveValuePerRound, served: true, note: "Service costs", valueNote: "Service and friendships (started late)" }; } },
+    { id: "helpfam", type: "yesno", from: 6, to: 6, label: "Family help", icon: "💝", prompt: "Will you help a loved one pay for school?", yes: "Yes, help pay for school", no: "No, not this time", yesChip: "Helping with school", noChip: "Not this time",
+      yesEff: function (s) { return { cash: -s.helpFamCost, value: s.helpFamValue, note: "Helping with school", valueNote: "Helping someone you love" }; } },
+    { id: "balance", type: "choice", from: 6, to: 6, label: "Work balance", prompt: "How will you balance work and family?", options: [
+      { id: "promo", name: "Chase a big promotion", icon: "🚀", chip: "Chasing a promotion", eff: function (s) { return { incomePct: s.promoPct }; } },
+      { id: "steady", name: "Keep a steady pace", icon: "⚖️", chip: "Steady pace", eff: function () { return {}; } },
+      { id: "family", name: "Cut back for family time", icon: "👨‍👩‍👧", chip: "Cutting back for family", eff: function (s) { return { incomePct: -s.familyPct, value: s.familyValue, valueNote: "Time with family" }; } }
+    ] }
+  ];
+  var ROUNDS = ROUND_TITLES.map(function (t, i) {
+    return { title: t, decisions: DECISIONS.filter(function (d) { return d.from <= i + 1 && i + 1 <= d.to; }) };
+  });
+
+  /* ---------- taxes (rough 2025 estimate, single filer) ---------- */
+  var FED = [[11925,.10],[48475,.12],[103350,.22],[197300,.24],[250525,.32],[626350,.35],[Infinity,.37]];
+  var CA  = [[10756,.01],[25499,.02],[40245,.04],[55866,.06],[70606,.08],[360659,.093],[432787,.103],[721314,.113],[Infinity,.123]];
+  function bracketTax(inc, br) {
+    var t = 0, prev = 0;
+    for (var i = 0; i < br.length; i++) {
+      if (inc > prev) { t += (Math.min(inc, br[i][0]) - prev) * br[i][1]; prev = br[i][0]; } else break;
+    }
+    return t;
+  }
+  function annualTax(g) {
+    if (g <= 0) return 0;
+    var fica = Math.min(g, 176100) * 0.062 + g * 0.0145;
+    var fed = bracketTax(Math.max(0, g - 15000), FED);
+    var ca = Math.max(0, bracketTax(Math.max(0, g - 5540), CA) - 149);
+    return fica + fed + ca + g * 0.012;
+  }
+
+  function usd(n) { var v = Math.round(Math.abs(n)); return (n < 0 && v > 0 ? "-" : "") + "$" + v.toLocaleString("en-US"); }
+  function sgn(n) { var v = Math.round(Math.abs(n)); return (n < 0 ? "-" : "+") + "$" + v.toLocaleString("en-US"); }
+  function clean(s, max) { return String(s == null ? "" : s).replace(/[<>]/g, "").replace(/\s+/g, " ").trim().slice(0, max); }
+  function rid() { return Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-3); }
+  function careerById(id) { for (var i = 0; i < CAREERS.length; i++) if (CAREERS[i].id === id) return CAREERS[i]; return null; }
+  function optionById(d, id) { var o = d.options || []; for (var i = 0; i < o.length; i++) if (o[i].id === id) return o[i]; return null; }
+
+  var BOT_NAMES = ["Ava","Ben","Cora","Dev","Eli","Fay","Gus","Hana","Ivan","Jade","Kai","Lena","Milo","Nia","Omar","Pia","Quin","Remy","Sol","Tess","Uri","Vera","Wes","Xena","Yara","Zane"];
+
+  function newPlayer(id, name, bot) {
+    return { id: id, name: name, bot: !!bot, picks: {}, submitted: {}, auto: {}, ledger: [], history: [], scoreHistory: [], netWorth: 0, lifeValue: 0, otherPay: null, rank: 0, eliminated: null };
+  }
+
+  function createGame() {
+    var S = { v: 1, phase: "lobby", round: 0, players: [], settings: JSON.parse(JSON.stringify(DEFAULTS)) };
+    function bump() { S.v++; }
+    function find(pid) { for (var i = 0; i < S.players.length; i++) if (S.players[i].id === pid) return S.players[i]; return null; }
+    function roundDef(r) { return ROUNDS[r - 1] || { title: "", decisions: [] }; }
+
+    /* ----- life state built from picks ----- */
+    function lifeAt(p, upTo) {
+      var life = { careerId: null, careerName: "Undecided", careerRound: null, college: false, marriedRound: null, kidsRound: null, plan: null, investing: false, screened: false, served: false, did: {}, effects: [] }, noSeen = {};
+      for (var r = 1; r <= upTo; r++) {
+        var k = p.picks[r];
+        if (!k) continue;
+        if (k.career) {
+          life.careerId = k.career; life.careerRound = r;
+          life.careerName = k.career === "other" ? (k.careerOther || "Other") : (careerById(k.career) || { name: "Other" }).name;
+        }
+        if (k.college === true) life.college = true;
+        if (k.marry === true && !life.marriedRound) life.marriedRound = r;
+        if (k.kids === true && !life.kidsRound) life.kidsRound = r;
+        if (k.insurance) life.plan = k.insurance;
+        roundDef(r).decisions.forEach(function (d) {
+          var fn = null;
+          if (d.type === "yesno" && k[d.id] !== undefined) {
+            if (k[d.id]) { fn = d.yesEff; life.did[d.id] = true; }
+            else if (!(d.noOnce && noSeen[d.id])) { fn = d.noEff; noSeen[d.id] = true; }
+          } else if (d.type === "choice" && k[d.id]) { var o = optionById(d, k[d.id]); fn = o && o.eff; }
+          if (fn) {
+            var ef = fn(S.settings, life);
+            life.effects.push({ round: r, e: ef });
+            if (ef.invest) life.investing = true;
+            if (ef.screened) life.screened = true;
+            if (ef.served) life.served = true;
+            if (ef.later) ef.later.forEach(function (x) { life.effects.push({ round: r + x.after, e: x.eff }); });
+          }
+        });
+      }
+      return life;
+    }
+    function basePay(p, life) {
+      if (!life.careerId) return S.settings.firstJobPay;
+      if (life.careerId && life.careerId !== "other") return (careerById(life.careerId) || { pay: S.settings.otherCareerPay }).pay;
+      return p.otherPay != null ? p.otherPay : S.settings.otherCareerPay;
+    }
+    function eligible(p, d, round) {
+      if (d.hideIf && d.hideIf(lifeAt(p, round - 1))) return false;
+      if (d.once) {
+        for (var r2 = 1; r2 < round; r2++) {
+          var k = p.picks[r2], v = k && k[d.id];
+          if (d.type === "yesno" ? v === true : (v && v !== d.skipId)) return false;
+        }
+      }
+      return true;
+    }
+    function decisionsFor(p, round) {
+      if (p.eliminated) return [];
+      return roundDef(round).decisions.filter(function (d) { return eligible(p, d, round); });
+    }
+
+    /* ----- one round of math ----- */
+    function computeRound(p, r) {
+      var s = S.settings, life = lifeAt(p, r), B = basePay(p, life);
+      var cr = life.careerId && life.careerId !== "other" ? careerById(life.careerId) : null;
+      var mr = 1, mc = 1, mm = 1, mk = 1, start = null;
+      if ((s.useRamp || (cr && cr.alwaysRamp)) && cr && cr.ramp && life.careerRound && cr.ramp[r - life.careerRound] !== undefined) mr = cr.ramp[r - life.careerRound];
+      if (life.college) mc = r === 1 ? 1 - s.collegePenaltyPct / 100 : Math.pow(1 + s.collegeBoostPct / 100, r - 1);
+      if (life.marriedRound) {
+        start = life.marriedRound + s.marriageDelayRounds;
+        if (r >= start) mm = s.marriageMode === "once" ? 1 + s.marriageBoostPct / 100 : Math.pow(1 + s.marriageBoostPct / 100, r - start + 1);
+      }
+      if (life.kidsRound) {
+        if (r === life.kidsRound) mk = 1 - s.kidsPenaltyPct / 100;
+        else if (r > life.kidsRound) mk = Math.pow(1 + s.kidsBoostPct / 100, r - life.kidsRound);
+      }
+      var base5 = B * YEARS, a0 = base5 * mr, a = a0 * mc, b = a * mm, c = b * mk;
+
+      /* pay effects from later choices: a first-round change and a boost that compounds each round after */
+      var g = c, payLines = [];
+      life.effects.forEach(function (x) {
+        var e = x.e, m = 1;
+        if (r === x.round && e.incomePct) m *= 1 + e.incomePct / 100;
+        if (r > x.round && e.boostPct) m *= Math.pow(1 + e.boostPct / 100, r - x.round);
+        if (m !== 1) { payLines.push({ label: e.payNote || "Work choice", delta: g * (m - 1), m: m }); g *= m; }
+      });
+      var gross = g;
+      var perYear = gross / YEARS;
+      var tax = s.useTaxes ? annualTax(perYear) * YEARS : 0;
+      var take = gross - tax;
+
+      var live = s.livingCostPerYear * (r === 1 ? s.round1LivingPct / 100 : 1) * YEARS;
+      var marrExtra = life.marriedRound && r >= life.marriedRound ? s.marriedExtraCostPerYear * YEARS : 0;
+      var wedding = life.marriedRound === r ? s.weddingCost : 0;
+      var kidsCost = life.kidsRound && r >= life.kidsRound ? s.kidsCostPerYear * YEARS : 0;
+      var collegeCost = life.college && r === 1 ? s.collegeCost : 0;
+
+      /* money and life value from later choices */
+      var otherCost = 0, otherGain = 0, value = 0, investing = false, extraNotes = [];
+      function money(n) { if (n >= 0) otherGain += n; else otherCost += -n; }
+      if (r === 1 && !life.college && s.noCollegeBoost > 0) { money(s.noCollegeBoost); extraNotes.push("Head start without college: " + sgn(s.noCollegeBoost)); }
+      if (cr && cr.id === "entrepreneur" && life.careerRound && r === life.careerRound + 3 && s.entrepreneurWindfall > 0) { money(s.entrepreneurWindfall); extraNotes.push("Business sale windfall: " + sgn(s.entrepreneurWindfall)); }
+      if (life.careerRound === r && B <= s.lowIncomeLimit && s.lowIncomeBoost > 0) { money(s.lowIncomeBoost); extraNotes.push("Career launch fund: " + sgn(s.lowIncomeBoost)); }
+      extraNotes.push("Living costs: " + usd(-(live / YEARS)) + " per year");
+      if (marrExtra) extraNotes.push("Married household costs: " + usd(-s.marriedExtraCostPerYear) + " per year");
+      if (kidsCost) extraNotes.push("Costs of raising kids: " + usd(-s.kidsCostPerYear) + " per year");
+      /* health insurance and the accident */
+      var insCost = 0, accident = 0;
+      if (r >= 2) {
+        var plan = life.plan || "basic";
+        insCost = (plan === "premium" ? s.insPremiumPerYear : s.insBasicPerYear) * YEARS;
+        extraNotes.push("Health insurance (" + (plan === "premium" ? "premium" : "cheap") + " plan): " + usd(-(insCost / YEARS)) + " per year");
+        if (r === Math.round(s.accidentRound)) {
+          var covered = s.insWaiting === "now" ? plan : (lifeAt(p, r - 1).plan || "basic");
+          accident = covered === "premium" ? s.accidentPremium : s.accidentBasic;
+          extraNotes.push("Accident in round " + r + ": " + usd(-accident) + (covered === "premium" ? " (premium plan covered most of it)" : " (cheap plan: a big out-of-pocket bill)"));
+        }
+      }
+      life.effects.forEach(function (x) {
+        var e = x.e, now = r === x.round;
+        if (r < x.round) return;
+        if (e.invest) investing = true;
+        if (e.cash && now) { money(e.cash); extraNotes.push((e.note || "Choice") + ": " + usd(e.cash)); }
+        if (e.perYear) { money(e.perYear * YEARS); extraNotes.push((e.yearNote || e.note || "Choice") + ": " + sgn(e.perYear) + " per year"); }
+        if (e.perRound) { money(e.perRound); extraNotes.push((e.gainNote || e.note || "Choice") + ": " + sgn(e.perRound)); }
+        if (e.value && now) { value += e.value; extraNotes.push((e.valueNote || "Life value") + ": " + sgn(e.value) + " life value"); }
+        if (e.valuePerRound) { value += e.valuePerRound; extraNotes.push((e.valueNote || "Life value") + ": " + sgn(e.valuePerRound) + " life value"); }
+      });
+
+      var expenses = live + marrExtra + wedding + kidsCost + collegeCost + otherCost + insCost + accident;
+
+      /* investing: part of what you saved grows at a yearly return */
+      var prevBal = r > 1 && p.ledger[r - 2] ? (p.ledger[r - 2].investBalance || 0) : 0;
+      var contrib = 0, investGain = 0, bal = prevBal;
+      if (investing) {
+        var f = Math.pow(1 + s.investReturnPct / 100, YEARS), half = Math.sqrt(f);
+        contrib = Math.max(0, s.investPct / 100 * take);
+        investGain = prevBal * (f - 1) + contrib * (half - 1);
+        bal = prevBal * f + contrib * half;
+      }
+
+      var L = {
+        round: r, careerName: life.careerId ? life.careerName : "First jobs", basePerYear: B, grossPerYear: perYear, gross: gross, tax: tax, takeHome: take,
+        expenses: expenses, otherGain: otherGain, investGain: investGain, investBalance: bal, value: value,
+        net: take + otherGain + investGain - expenses,
+        mult: { ramp: mr, college: mc, marriage: mm, kids: mk },
+        impact: { ramp: a0 - base5, college: a - a0, marriage: b - a, kids: c - b },
+        payLines: payLines, base5: base5,
+        exp: { college: collegeCost, wedding: wedding },
+        marriageStart: start, rampNote: (cr && cr.rampNote) || "Training years"
+      };
+      L.notes = impactNotes(L, life, extraNotes, investing, contrib, investGain);
+      return L;
+    }
+    function times(m) { return " (pay x" + (Math.round(m * 100) / 100) + ")"; }
+    function impactNotes(L, life, extra, investing, contrib, investGain) {
+      var out = [(life.careerId ? "Career pay: " : "First jobs and part-time work: ") + usd(L.basePerYear) + " per year"];
+      var tot = L.gross - L.base5;
+      if (L.base5 > 0 && Math.abs(tot) >= 1) out.push("All pay effects together: " + sgn(tot / YEARS) + " per year (" + (tot >= 0 ? "+" : "-") + Math.abs(Math.round(tot / L.base5 * 100)) + "% versus base pay)");
+      if (L.impact.ramp) out.push(L.rampNote + ": " + sgn(L.impact.ramp / YEARS) + " per year" + times(L.mult.ramp));
+      if (L.impact.college) out.push("College: " + sgn(L.impact.college / YEARS) + " per year" + times(L.mult.college) + (L.round === 1 ? " while studying" : ""));
+      if (L.impact.marriage) out.push("Marriage boost: " + sgn(L.impact.marriage / YEARS) + " per year" + times(L.mult.marriage));
+      else if (life.marriedRound && L.marriageStart && L.round < L.marriageStart) out.push("Marriage boost starts in round " + L.marriageStart);
+      if (L.impact.kids) out.push("Kids: " + sgn(L.impact.kids / YEARS) + " per year" + times(L.mult.kids));
+      L.payLines.forEach(function (x) { out.push(x.label + ": " + sgn(x.delta / YEARS) + " per year" + times(x.m)); });
+      if (L.exp.college) out.push("College cost: " + usd(-L.exp.college));
+      if (L.exp.wedding) out.push("Wedding: " + usd(-L.exp.wedding));
+      extra.forEach(function (n) { out.push(n); });
+      if (investing) out.push("Invested " + usd(contrib) + " this round and earned " + sgn(investGain) + "; investment balance " + usd(L.investBalance));
+      return out;
+    }
+
+    /* ----- picks ----- */
+    function validate(p, picks) {
+      var out = {}, ds = decisionsFor(p, S.round);
+      for (var i = 0; i < ds.length; i++) {
+        var d = ds[i], v = picks ? picks[d.id] : undefined;
+        if (d.type === "career") {
+          if (v === "other") {
+            var t = clean(picks.careerOther, 30);
+            if (!t) return { error: "Type your career" };
+            out.career = "other"; out.careerOther = t;
+          } else if (careerById(v)) out.career = v;
+          else return { error: "Pick a career" };
+        } else if (d.type === "yesno") {
+          if (v !== true && v !== false) return { error: "Answer every question" };
+          out[d.id] = v;
+        } else if (d.type === "choice") {
+          if (!optionById(d, v)) return { error: "Answer every question" };
+          out[d.id] = v;
+        }
+      }
+      return { picks: out };
+    }
+    function applyPicks(p, picks, auto) {
+      p.picks[S.round] = picks;
+      p.submitted[S.round] = true;
+      p.auto[S.round] = !!auto;
+    }
+    function botPicks(p) {
+      var ds = decisionsFor(p, S.round), o = {};
+      ds.forEach(function (d) {
+        if (d.type === "career") o.career = CAREERS[Math.floor(Math.random() * CAREERS.length)].id;
+        else if (d.type === "choice") o[d.id] = d.options[Math.floor(Math.random() * d.options.length)].id;
+        else o[d.id] = Math.random() < (d.id === "kids" ? 0.45 : 0.55);
+      });
+      return o;
+    }
+    function autoSkip() {
+      if (!roundDef(S.round).decisions.length) return;
+      S.players.forEach(function (p) {
+        if (!p.bot && !p.submitted[S.round] && decisionsFor(p, S.round).length === 0) applyPicks(p, {}, false);
+      });
+    }
+    function autoBots() { S.players.forEach(function (p) { if (p.bot) applyPicks(p, botPicks(p), false); }); }
+    function fillDefaults() {
+      S.players.forEach(function (p) {
+        if (p.submitted[S.round]) return;
+        var o = {};
+        decisionsFor(p, S.round).forEach(function (d) {
+          if (d.type === "career") { o.career = "other"; o.careerOther = "Undecided"; }
+          else if (d.type === "choice") o[d.id] = d.sticky ? (lifeAt(p, S.round - 1).plan || d.options[0].id) : d.options[Math.min(1, d.options.length - 1)].id;
+          else o[d.id] = false;
+        });
+        applyPicks(p, o, true);
+      });
+    }
+    function frozenLedger(p, r) {
+      var prev = r > 1 && p.ledger[r - 2] ? p.ledger[r - 2] : null;
+      return { round: r, careerName: prev ? prev.careerName : "", basePerYear: 0, grossPerYear: 0, gross: 0, tax: 0, takeHome: 0, expenses: 0, otherGain: 0, investGain: 0,
+        investBalance: prev ? (prev.investBalance || 0) : 0, value: 0, net: 0, payLines: [], impact: {}, mult: {}, base5: 0, exp: {},
+        notes: ["🎡 Eliminated by the wheel in round " + p.eliminated + ". Score stays frozen."] };
+    }
+    function computeResults() {
+      S.players.forEach(function (p) {
+        var L = p.eliminated && S.round >= p.eliminated ? frozenLedger(p, S.round) : computeRound(p, S.round);
+        p.ledger[S.round - 1] = L;
+        var prev = S.round > 1 ? p.history[S.round - 2] : 0;
+        var floor = S.settings.netWorthFloor, raw = prev + L.net;
+        if (raw < floor) {
+          L.support = floor - raw; L.net += L.support; raw = floor;
+          L.notes = L.notes.concat(["Family and community support: " + sgn(L.support) + " (covers the shortfall so net worth never goes below " + usd(floor) + ")"]);
+        }
+        p.history[S.round - 1] = raw;
+        p.netWorth = raw;
+        p.lifeValue = (S.round > 1 ? p.lifeValue : 0) + L.value;
+        p.scoreHistory = p.scoreHistory || [];
+        p.scoreHistory[S.round - 1] = p.netWorth + p.lifeValue;
+      });
+    }
+    function score(p) { return p.netWorth + p.lifeValue; }
+    function ranked() {
+      var rows = S.players.slice().sort(function (a, b) { return score(b) - score(a) || a.name.localeCompare(b.name); });
+      rows.forEach(function (p, i) { p.rank = i + 1; });
+      return rows;
+    }
+    function choiceText(p, r) {
+      var k = p.picks[r] || {}, out = [];
+      roundDef(r).decisions.forEach(function (d) {
+        if (d.type === "career" && k.career) {
+          var c = careerById(k.career);
+          out.push({ k: "Career", v: k.career === "other" ? k.careerOther : c.name, icon: c ? c.icon : "✏️" });
+        } else if (d.type === "yesno" && k[d.id] !== undefined) {
+          out.push({ k: d.label, v: k[d.id] ? d.yesChip : d.noChip, icon: d.icon, yes: k[d.id] });
+        } else if (d.type === "choice" && k[d.id]) {
+          var o = optionById(d, k[d.id]);
+          if (o) out.push({ k: d.label, v: o.chip || o.name, icon: o.icon });
+        }
+      });
+      if (roundDef(r).decisions.some(function (d) { return d.id === "marry"; }) && k.marry === undefined && lifeAt(p, r - 1).marriedRound)
+        out.push({ k: "Marriage", v: "Already married", icon: "💍", yes: true });
+      return out;
+    }
+
+    /* ----- public API ----- */
+    function addPlayer(id, nm, bot) { var p = newPlayer(id, nm, bot); S.players.push(p); bump(); return p; }
+    function joinAs(hint, name) {
+      var ex = hint ? find(hint) : null;
+      if (ex) return { pid: ex.id, name: ex.name };
+      var nm = clean(name, 20);
+      if (!nm) return { error: "Please type a name" };
+      var same = null;
+      S.players.forEach(function (p) { if (p.name.toLowerCase() === nm.toLowerCase()) same = p; });
+      if (same) {
+        if (S.phase === "lobby") return { error: "That name is taken. Add an initial or number." };
+        return { pid: same.id, name: same.name };
+      }
+      if (S.phase !== "lobby") return { error: "The game already started. Ask your teacher." };
+      var id = /^[A-Za-z0-9]{6,24}$/.test(hint || "") ? hint : rid();
+      var p = addPlayer(id, nm, false);
+      return { pid: p.id, name: p.name };
+    }
+    function join(name, pid) { return joinAs(pid, name); }
+    function submit(pid, picks) {
+      var p = find(pid);
+      if (!p) return { error: "unknown" };
+      if (S.phase !== "choosing") return { error: "Choices are closed for now" };
+      var v = validate(p, picks);
+      if (v.error) return v;
+      applyPicks(p, v.picks, false); bump();
+      return { ok: true };
+    }
+    function hostAct(action, a) {
+      a = a || {};
+      var i;
+      if (action === "bots") {
+        if (S.phase !== "lobby") return { error: "Add practice players before the game starts" };
+        var n = Math.max(1, Math.min(30, +a.n || 5)), added = 0;
+        for (i = 0; i < BOT_NAMES.length && added < n; i++) {
+          var nm = BOT_NAMES[i];
+          if (S.players.some(function (p) { return p.name === nm; })) continue;
+          addPlayer(rid(), nm, true); added++;
+        }
+      } else if (action === "kick") {
+        S.players = S.players.filter(function (p) { return p.id !== a.pid; });
+      } else if (action === "settings") {
+        if (S.phase !== "lobby") return { error: "Settings can only change in the lobby" };
+        Object.keys(a).forEach(function (k) {
+          if (k === "marriageMode") S.settings.marriageMode = a[k] === "once" ? "once" : "compound";
+          else if (k === "useTaxes") S.settings.useTaxes = a[k] === true || a[k] === "true";
+          else if (k === "insWaiting") S.settings.insWaiting = a[k] === "now" ? "now" : "next";
+          else if (LIMITS[k]) { var x = +a[k]; if (isFinite(x)) S.settings[k] = Math.min(LIMITS[k][1], Math.max(LIMITS[k][0], x)); }
+        });
+      } else if (action === "defaults") {
+        if (S.phase !== "lobby") return { error: "Settings can only change in the lobby" };
+        S.settings = JSON.parse(JSON.stringify(DEFAULTS));
+      } else if (action === "start") {
+        if (S.phase !== "lobby") return { error: "Already started" };
+        if (!S.players.length) return { error: "Wait for at least one player" };
+        S.phase = "choosing"; S.round = 1; autoBots(); autoSkip();
+      } else if (action === "reveal") {
+        if (S.phase !== "choosing") return { error: "Not in a choosing step" };
+        if (!roundDef(S.round).decisions.length) { computeResults(); S.phase = "results"; }
+        else { fillDefaults(); S.phase = "reveal"; }
+      } else if (action === "results") {
+        if (S.phase !== "reveal") return { error: "Reveal choices first" };
+        computeResults(); S.phase = "results";
+      } else if (action === "setpay") {
+        if (S.phase !== "reveal" && S.phase !== "choosing") return { error: "Pay can be set before results" };
+        var p = find(a.pid);
+        if (p) { var x = +a.pay; if (isFinite(x)) p.otherPay = Math.min(1000000, Math.max(0, x)); }
+      } else if (action === "next") {
+        if (S.phase !== "results") return { error: "Show results first" };
+        if (S.round >= TOTAL) S.phase = "final";
+        else {
+          S.round++;
+          var alive = S.players.filter(function (q) { return !q.eliminated; }).length;
+          if (S.settings.wheelRound && Math.round(S.settings.wheelRound) === S.round && S.settings.wheelCount > 0 && alive > 1) {
+            S.phase = "wheel"; S.wheel = { left: Math.min(Math.round(S.settings.wheelCount), alive - 1), spinId: 0, last: null, out: [] };
+          } else { S.phase = "choosing"; autoBots(); autoSkip(); }
+        }
+      } else if (action === "spin") {
+        if (S.phase !== "wheel" || !S.wheel || S.wheel.left <= 0) return { error: "No spin available" };
+        if (S.wheel.last && !S.wheel.last.done) return { error: "Wait for the wheel to stop" };
+        var cands = S.players.filter(function (q) { return !q.eliminated; });
+        if (cands.length < 2) return { error: "Not enough players" };
+        var w = cands[Math.floor(Math.random() * cands.length)];
+        S.wheel.spinId++; S.wheel.last = { pid: w.id, name: w.name, done: false };
+      } else if (action === "wheelConfirm") {
+        var lw = S.wheel && S.wheel.last;
+        if (S.phase !== "wheel" || !lw || lw.done) return { error: "Nothing to confirm" };
+        var wp = find(lw.pid); if (wp) wp.eliminated = S.round;
+        lw.done = true; S.wheel.left--; S.wheel.out.push(lw.name);
+      } else if (action === "wheelDone") {
+        if (S.phase !== "wheel") return { error: "Not at the wheel" };
+        if (S.wheel && S.wheel.left > 0) return { error: "Spin the wheel first" };
+        S.phase = "choosing"; S.wheel = null; autoBots(); autoSkip();
+      } else if (action === "reset") {
+        S.phase = "lobby"; S.round = 0;
+        S.players.forEach(function (p) { var q = newPlayer(p.id, p.name, p.bot); p.picks = q.picks; p.submitted = q.submitted; p.auto = q.auto; p.ledger = q.ledger; p.history = q.history; p.scoreHistory = []; p.netWorth = 0; p.lifeValue = 0; p.otherPay = null; p.eliminated = null; });
+        S.wheel = null;
+      } else return { error: "Unknown action" };
+      bump();
+      return { ok: true };
+    }
+
+    function ageRange(r) { var a = START_AGE + (r - 1) * YEARS; return "Ages " + a + " to " + (a + YEARS - 1); }
+    function baseView() {
+      var d = roundDef(S.round);
+      return {
+        v: S.v, phase: S.phase, round: S.round, totalRounds: TOTAL,
+        roundTitle: S.round ? d.title : "", ageRange: S.round ? ageRange(S.round) : "",
+        hasDecisions: !!d.decisions.length
+      };
+    }
+    function hostView() {
+      var v = baseView(), showChoices = S.phase === "reveal" || S.phase === "results" || S.phase === "final";
+      v.settings = S.settings; v.settingsFields = SETTING_FIELDS;
+      v.prompts = roundDef(S.round).decisions.map(function (d) { return d.prompt; });
+      v.promptNote = roundDef(S.round).decisions.some(function (d) { return d.once; }) ? "Each player only sees questions they have not already said yes to. Doing things earlier pays off more." : "";
+      v.nextTitle = S.round && S.round < TOTAL ? roundDef(S.round + 1).title : "";
+      v.players = S.players.map(function (p) {
+        return {
+          id: p.id, name: p.name, bot: p.bot, submitted: !!p.submitted[S.round] || (S.phase !== "choosing" && S.phase !== "lobby"),
+          auto: !!p.auto[S.round], eliminated: p.eliminated,
+          choices: showChoices && S.round ? choiceText(p, S.round) : null,
+          needsPay: S.phase === "reveal" && lifeAt(p, S.round).careerId === "other",
+          otherPay: p.otherPay != null ? p.otherPay : S.settings.otherCareerPay
+        };
+      });
+      v.joined = S.players.length;
+      v.submittedCount = S.players.filter(function (p) { return p.submitted[S.round]; }).length;
+      v.wheel = S.phase === "wheel" && S.wheel ? {
+        left: S.wheel.left, spinId: S.wheel.spinId, last: S.wheel.last, out: S.wheel.out,
+        candidates: S.players.filter(function (q) { return !q.eliminated; }).map(function (q) { return { id: q.id, name: q.name }; })
+      } : null;
+      if (S.phase === "results" || S.phase === "final") {
+        v.leaderboard = ranked().map(function (p) {
+          var L = p.ledger[S.round - 1];
+          return {
+            id: p.id, name: p.name, eliminated: p.eliminated, rank: p.rank, netWorth: p.netWorth, lifeValue: p.lifeValue, score: score(p), net: L.net, delta: L.net + L.value, career: L.careerName,
+            grossPerYear: L.grossPerYear, takeHome: L.takeHome, expenses: L.expenses, notes: L.notes, history: (p.scoreHistory || []).slice(), recap: S.phase === "final" ? recapCells(p) : null, what: S.phase === "final" ? whatIfFor(p) : null
+          };
+        });
+      }
+      return v;
+    }
+
+    /* Short labels that tell players what each choice does, so they can plan. Surprises that come later stay hidden. */
+    function fxOn() { var v = S.settings.showEffects; return !(v === false || v === "false"); }
+    function m$(n) { return usd(Math.abs(Math.round(n))); }
+    function fxFromEff(e) {
+      var s = S.settings, out = [];
+      if (!e) return out;
+      if (e.cash) out.push(e.cash < 0 ? "Costs " + m$(e.cash) + " now" : "+" + m$(e.cash) + " now");
+      if (e.perYear) out.push(e.perYear < 0 ? "Costs " + m$(e.perYear) + " a year" : "+" + m$(e.perYear) + " a year" + (e.yearNote ? " (" + e.yearNote.charAt(0).toLowerCase() + e.yearNote.slice(1) + ")" : ""));
+      if (e.perRound) out.push("+" + m$(e.perRound) + " home value each round");
+      if (e.incomePct) out.push(e.incomePct < 0 ? Math.abs(e.incomePct) + "% less pay this round" : "+" + e.incomePct + "% pay this round");
+      if (e.boostPct) out.push("+" + e.boostPct + "% pay every round after");
+      if (e.value) out.push("+" + m$(e.value) + " life value");
+      if (e.valuePerRound) out.push("+" + m$(e.valuePerRound) + " life value each round");
+      if (e.invest) out.push("Saves " + s.investPct + "% of take-home pay, growing about " + s.investReturnPct + "% a year");
+      if (e.later && e.later.length) out.push("Watch out: may cost more later");
+      return out;
+    }
+    function careerFx(c) {
+      var s = S.settings, out = [m$(c.pay) + " a year at full pay"];
+      if ((s.useRamp === true || s.useRamp === "true" || c.alwaysRamp) && c.ramp) {
+        var full = c.ramp.filter(function (x) { return x < 1; });
+        if (full.length) out.push((c.rampNote || "Training years") + ": " + full.map(function (x) { return Math.round(x * 100) + "%"; }).join(", then ") + " of full pay at first");
+        var big = c.ramp.filter(function (x) { return x > 1; });
+        if (big.length) out.push("Then " + Math.round(big[0] * 100) + "% of pay if the business takes off");
+      }
+      if (c.id === "entrepreneur" && s.entrepreneurWindfall > 0) out.push("Chance at a " + m$(s.entrepreneurWindfall) + " business sale later");
+      if (c.pay <= s.lowIncomeLimit && s.lowIncomeBoost > 0) out.push("+" + m$(s.lowIncomeBoost) + " career launch fund");
+      return out;
+    }
+    function decisionFx(d, which) {
+      var s = S.settings;
+      if (d.id === "college") return which ? ["Tuition: " + m$(s.collegeCost), s.collegePenaltyPct + "% less pay this round", "Then +" + s.collegeBoostPct + "% pay every round after, and it keeps growing"]
+                                           : (s.noCollegeBoost > 0 ? ["+" + m$(s.noCollegeBoost) + " head start now"] : ["No change"]);
+      if (d.id === "marry") return which ? ["Wedding: " + m$(s.weddingCost), "Household costs: " + m$(s.marriedExtraCostPerYear) + " a year",
+                                            (s.marriageMode === "once" ? "+" + s.marriageBoostPct + "% household pay" : "Household pay grows " + s.marriageBoostPct + "% each round") + " starting " + s.marriageDelayRounds + " rounds later"] : ["No change for now"];
+      if (d.id === "location") return which ? ["+" + m$(s.alaskaSavingsPerYear) + " a year saved on living costs"] : ["No change"];
+      if (d.id === "kids") return which ? [s.kidsPenaltyPct + "% less pay the round they arrive", "Then +" + s.kidsBoostPct + "% pay every round after", "Costs " + m$(s.kidsCostPerYear) + " a year"] : ["No change for now"];
+      var fn = which ? d.yesEff : d.noEff, out = fn ? fxFromEff(fn(s)) : [];
+      return out.length ? out : ["No change"];
+    }
+    function optionFx(d, o) {
+      var s = S.settings;
+      if (d.id === "insurance") return o.id === "premium" ? ["Costs " + m$(s.insPremiumPerYear) + " a year", "Covers almost everything if you get hurt"] : ["Costs " + m$(s.insBasicPerYear) + " a year", "Big bills if you get hurt"];
+      if (d.id === "home" && o.id === "rent") return ["No upfront cost", "No home value building up"];
+      var out = o.eff ? fxFromEff(o.eff(s)) : [];
+      return out.length ? out : ["No change"];
+    }
+    function playerView(pid) {
+      var p = find(pid);
+      if (!p) return { error: "unknown" };
+      var v = baseView();
+      v.name = p.name;
+      v.joined = S.players.length;
+      v.eliminated = p.eliminated || null;
+      if (p.eliminated) v.frozenScore = score(p);
+      v.decisions = [];
+      if (S.phase === "choosing") {
+        v.decisions = decisionsFor(p, S.round).map(function (d) {
+          var o = { id: d.id, type: d.type, prompt: d.prompt, yes: d.yes, no: d.no }, fx = fxOn();
+          if (d.type === "career") o.options = CAREERS.map(function (c) { return { id: c.id, name: c.name, icon: c.icon, fx: fx ? careerFx(c) : null }; });
+          if (d.type === "career" && fx) o.otherFx = careerFx({ id: "other", pay: S.settings.otherCareerPay });
+          if (d.type === "choice") o.options = d.options.map(function (c) { return { id: c.id, name: c.name, icon: c.icon, fx: fx ? optionFx(d, c) : null }; });
+          if (d.type === "yesno" && fx) { o.yesFx = decisionFx(d, true); o.noFx = decisionFx(d, false); }
+          if (d.sticky) o.current = lifeAt(p, S.round - 1).plan || null;
+          return o;
+        });
+      }
+      v.submitted = !!p.submitted[S.round];
+      v.picks = p.picks[S.round] || null;
+      if (S.phase === "results" || S.phase === "final") {
+        ranked();
+        v.rank = p.rank; v.netWorth = p.netWorth; v.lifeValue = p.lifeValue; v.score = score(p);
+        var L = p.ledger[S.round - 1]; v.net = L ? L.net : 0;
+        v.notes = L ? L.notes : [];
+      }
+      return v;
+    }
+    function recapCells(p) {
+      var life = lifeAt(p, TOTAL);
+      return DECISIONS.map(function (d) {
+        if (d.type === "career") return { k: "Career", v: life.careerName };
+        if (d.type === "yesno") {
+          var yr = null;
+          for (var r = 1; r <= TOTAL; r++) { if (p.picks[r] && p.picks[r][d.id] === true) { yr = r; break; } }
+          if (!yr && d.hideIf && d.hideIf(life)) return { k: d.label, v: d.hideText || "Already done", yes: true };
+          return { k: d.label, v: yr ? "Round " + yr : "No", yes: !!yr };
+        }
+        if (d.sticky) {
+          var segs = [];
+          for (var r2 = 1; r2 <= TOTAL; r2++) {
+            var pk = p.picks[r2] && p.picks[r2][d.id]; if (!pk) continue;
+            var last = segs[segs.length - 1];
+            if (last && last.id === pk) last.to = r2; else segs.push({ id: pk, name: (optionById(d, pk) || { chip: pk }).chip, from: r2, to: r2 });
+          }
+          return { k: d.label, v: segs.map(function (g) { return g.name + " (round " + g.from + (g.to > g.from ? " to " + g.to : "") + ")"; }).join(", ") || "None" };
+        }
+        var opt = null;
+        for (var r3 = 1; r3 <= TOTAL; r3++) { var q = p.picks[r3] && p.picks[r3][d.id]; if (q) opt = optionById(d, q); }
+        return { k: d.label, v: opt ? opt.chip : "None" };
+      });
+    }
+    /* what-if: the final score if one big choice had gone the other way, everything else the same */
+    function simScore(p, round, id, val) {
+      var q = JSON.parse(JSON.stringify({ id: p.id, name: p.name, picks: p.picks, otherPay: p.otherPay, eliminated: p.eliminated }));
+      q.ledger = [];
+      q.picks[round] = q.picks[round] || {};
+      q.picks[round][id] = val;
+      var nw = 0, lv = 0;
+      for (var r = 1; r <= S.round; r++) {
+        var L = q.eliminated && r >= q.eliminated ? frozenLedger(q, r) : computeRound(q, r);
+        q.ledger[r - 1] = L; nw += L.net; if (nw < S.settings.netWorthFloor) nw = S.settings.netWorthFloor; lv += L.value;
+      }
+      return nw + lv;
+    }
+    function whatIfFor(p) {
+      var defs = [["moneytrip", 4, { invest: "kazakhstan", kazakhstan: "invest" }], ["workserve", 5, { work: "serve", serve: "work" }], ["health", 5, { screening: "trip2", trip2: "screening" }]], out = {};
+      defs.forEach(function (d) {
+        var pk = p.picks[d[1]] && p.picks[d[1]][d[0]];
+        if (pk && d[2][pk]) out[d[0]] = { pick: pk, diff: simScore(p, d[1], d[0], d[2][pk]) - score(p) };
+      });
+      return out;
+    }
+    function snapshot() { return JSON.parse(JSON.stringify(S)); }
+    function restore(snap) {
+      if (!snap || !snap.players) return false;
+      snap.settings = Object.assign({}, JSON.parse(JSON.stringify(DEFAULTS)), snap.settings || {});
+      snap.players.forEach(function (p) { if (p.lifeValue === undefined) p.lifeValue = 0; if (!p.scoreHistory) p.scoreHistory = []; });
+      S = snap; bump();
+      return true;
+    }
+
+    return { join: join, joinAs: joinAs, submit: submit, hostAct: hostAct, hostView: hostView, playerView: playerView, snapshot: snapshot, restore: restore, version: function () { return S.v; } };
+  }
+
+  return { createGame: createGame, CAREERS: CAREERS, DEFAULTS: DEFAULTS, ROUNDS: ROUNDS, annualTax: annualTax, usd: usd };
+});
+
+</script>
+<script>
+/* Life Choices: phone screen. mountPhone(rootEl, api, opts) */
+(function (root) {
+  "use strict";
+
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  /* what a choice does to money and life value, shown under each button */
+  function fxH(a) {
+    if (!a || !a.length) return "";
+    return '<span class="fx">' + a.map(function (x) {
+      var dn = /^(Costs|Tuition|Wedding|Household costs|Watch out|Big bills)|less pay/.test(x), k = dn ? "down" : (/\+/.test(x) ? "up" : "");
+      return '<i class="' + k + '">' + esc(x) + '</i>';
+    }).join("") + '</span>';
+  }
+  function usd(n) { var v = Math.round(Math.abs(n)); return (n < 0 && v > 0 ? "-" : "") + "$" + v.toLocaleString("en-US"); }
+  function money(n) {
+    var a = Math.abs(n);
+    if (a >= 1e6) return (n < 0 ? "-" : "") + "$" + (a / 1e6).toFixed(a >= 1e7 ? 1 : 2).replace(/\.?0+$/, "") + "M";
+    return usd(n);
+  }
+  function memoryStore() {
+    var m = {};
+    return { get: function (k) { return m[k] || null; }, set: function (k, v) { m[k] = v; }, del: function (k) { delete m[k]; } };
+  }
+  function localStore(prefix) {
+    return {
+      get: function (k) { try { return localStorage.getItem(prefix + k); } catch (e) { return null; } },
+      set: function (k, v) { try { localStorage.setItem(prefix + k, v); } catch (e) {} },
+      del: function (k) { try { localStorage.removeItem(prefix + k); } catch (e) {} }
+    };
+  }
+
+  function mountPhone(rootEl, api, opts) {
+    opts = opts || {};
+    var store = opts.store || memoryStore();
+    rootEl.innerHTML = '<div class="ph"></div>';
+    var ph = rootEl.querySelector(".ph");
+
+    var pid = store.get("pid"), view = null, lastJson = "", since = 0;
+    var nameDraft = store.get("name") || "", err = "", busy = false;
+    var draft = {}, draftRound = 0, editing = false, awaiting = 0;
+
+    /* ---------- polling ---------- */
+    function fetchOnce() {
+      if (!pid) return Promise.resolve();
+      return Promise.resolve(api.player.state(pid, since)).then(function (r) {
+        if (r && r.error === "unknown") { pid = null; store.del("pid"); view = null; lastJson = ""; since = 0; render(); return; }
+        if (r && r.view) {
+          since = r.v;
+          var j = JSON.stringify(r.view);
+          if (j !== lastJson) { lastJson = j; view = r.view; syncDraft(); render(); }
+        }
+      }).catch(function () {});
+    }
+    function loop() { fetchOnce().then(function () { setTimeout(loop, opts.pollMs || 1200); }); }
+
+    function syncDraft() {
+      if (!view) return;
+      if (view.round !== draftRound) { draftRound = view.round; draft = {}; editing = false; err = ""; awaiting = 0; }
+      if (view.submitted) awaiting = 0;
+      if (view.submitted && view.picks && !editing && !Object.keys(draft).length) draft = JSON.parse(JSON.stringify(view.picks));
+    }
+
+    /* ---------- helpers ---------- */
+    function complete() {
+      if (!view || !view.decisions.length) return false;
+      return view.decisions.every(function (d) {
+        if (d.type === "career") return draft.career && (draft.career !== "other" || (draft.careerOther || "").trim().length > 0);
+        if (d.type === "choice") return !!draft[d.id];
+        return draft[d.id] === true || draft[d.id] === false;
+      });
+    }
+    function head() {
+      var r = view && view.round ? "Round " + view.round + " of " + view.totalRounds + " · " + view.ageRange : "Waiting room";
+      return '<div class="ph-top"><span>Life Choices</span><span>' + esc(view ? view.name : "") + '</span></div>' +
+        '<div class="ph-top"><span>' + esc(r) + '</span><span></span></div>';
+    }
+
+    /* ---------- screens ---------- */
+    function joinScreen() {
+      return '<div class="ph-top"><span>Life Choices</span><span></span></div>' +
+        '<div style="margin-top:10px"><h1>Welcome!</h1><p class="muted" style="margin-top:8px">Type your name to join the game.</p></div>' +
+        '<div><input type="text" id="nm" maxlength="20" placeholder="Your name" autocomplete="off" value="' + esc(nameDraft) + '"></div>' +
+        '<div class="ph-err">' + esc(err) + '</div>' +
+        '<div class="ph-sticky"><button type="button" class="ph-btn" data-join' + (busy ? " disabled" : "") + '>Join game</button></div>';
+    }
+    function lobbyScreen() {
+      return head() + '<div class="ph-center"><div class="ph-big">🎉</div><h2>You are in, ' + esc(view.name) + '!</h2>' +
+        '<p class="muted">Waiting for the host to start the game.<br>' + view.joined + ' player' + (view.joined === 1 ? "" : "s") + ' so far.</p></div>';
+    }
+    function formScreen() {
+      view.decisions.forEach(function (d) { if (d.current && draft[d.id] === undefined) draft[d.id] = d.current; });
+      var cards = view.decisions.map(function (d) {
+        if (d.type === "career") {
+          var opts2 = d.options.map(function (o) {
+            return '<button type="button" class="ph-opt' + (draft.career === o.id ? " on" : "") + '" data-career="' + o.id + '"><span class="ic">' + o.icon + '</span>' + esc(o.name) + fxH(o.fx) + '</button>';
+          }).join("") + '<button type="button" class="ph-opt' + (draft.career === "other" ? " on" : "") + '" data-career="other"><span class="ic">✏️</span>Other' + fxH(d.otherFx) + '</button>';
+          return '<div class="ph-card"><div class="ph-q">' + esc(d.prompt) + '</div><div class="ph-opts">' + opts2 + '</div>' +
+            (draft.career === "other" ? '<div style="margin-top:10px"><input type="text" id="oth" maxlength="30" placeholder="Type your career" value="' + esc(draft.careerOther || "") + '"></div>' : "") + '</div>';
+        }
+        if (d.type === "choice") {
+          return '<div class="ph-card"><div class="ph-q">' + esc(d.prompt) + '</div><div class="ph-opts">' + d.options.map(function (o) {
+            return '<button type="button" class="ph-opt' + (draft[d.id] === o.id ? " on" : "") + '" data-choice="' + d.id + '" data-val="' + o.id + '"><span class="ic">' + o.icon + '</span>' + esc(o.name) + (d.current === o.id ? ' <em class="cur">(your plan now)</em>' : '') + fxH(o.fx) + '</button>';
+          }).join("") + '</div></div>';
+        }
+        return '<div class="ph-card"><div class="ph-q">' + esc(d.prompt) + '</div><div class="ph-yn">' +
+          '<button type="button" class="ph-opt' + (draft[d.id] === true ? " on" : "") + '" data-yn="' + d.id + '" data-val="1">' + esc(d.yes) + fxH(d.yesFx) + '</button>' +
+          '<button type="button" class="ph-opt' + (draft[d.id] === false ? " on" : "") + '" data-yn="' + d.id + '" data-val="0">' + esc(d.no) + fxH(d.noFx) + '</button></div></div>';
+      }).join("");
+      return head() + '<div><h2>' + esc(view.roundTitle) + '</h2></div>' + cards +
+        '<div class="ph-err">' + esc(err) + '</div>' +
+        '<div class="ph-sticky"><button type="button" class="ph-btn" data-lock' + (complete() && !busy ? "" : " disabled") + '>Lock in my choices</button></div>';
+    }
+    function lockedScreen() {
+      return head() + '<div class="ph-center"><div class="ph-big">✅</div><h2>Locked in!</h2>' +
+        '<p class="muted">Watch the big screen. You can still change your answers until the host reveals them.</p></div>' +
+        '<div class="ph-sticky"><button type="button" class="ph-btn ghost" data-edit>Change my answers</button></div>';
+    }
+    function noDecisionScreen() {
+      return head() + '<div class="ph-center"><div class="ph-big">⏳</div><h2>' + esc(view.roundTitle) + '</h2>' +
+        '<p class="muted">You have nothing new to decide this round. Watch the big screen.</p></div>';
+    }
+    function eliminatedScreen() {
+      return head() + '<div class="ph-center"><div class="ph-big">🎡</div><h2>You were eliminated</h2>' +
+        '<p class="muted">The wheel of life picked you in round ' + view.eliminated + '. Real life is unpredictable.</p>' +
+        (view.frozenScore !== undefined ? '<p class="muted">Your score stays at</p><div class="ph-stat num">' + money(view.frozenScore) + '</div>' : '') +
+        '<p class="muted">Keep watching the screen to see how everyone else finishes.</p></div>';
+    }
+    function wheelPhoneScreen() {
+      return head() + '<div class="ph-center"><div class="ph-big">🎡</div><h2>The wheel is spinning!</h2><p class="muted">Look at the big screen.</p></div>';
+    }
+    function revealScreen() {
+      return head() + '<div class="ph-center"><div class="ph-big">📺</div><h2>Look at the screen!</h2><p class="muted">Everyone’s choices are showing.</p></div>';
+    }
+    function resultsScreen(final) {
+      return head() + '<div class="ph-center"><div class="ph-big">' + (final ? (view.rank <= 3 ? "🏆" : "🏁") : "📊") + '</div>' +
+        '<h2>' + (final ? "Final result" : "Round " + view.round + " done") + '</h2>' +
+        '<p class="muted">You are</p><div class="ph-stat">#' + view.rank + ' of ' + view.joined + '</div>' +
+        '<p class="muted">Total score</p><div class="ph-stat num" style="color:' + (view.score < 0 ? "var(--coral)" : "var(--mint)") + '">' + money(view.score) + '</div>' +
+        (view.eliminated ? '<p class="muted">🎡 Eliminated in round ' + view.eliminated + '</p>' : '') +
+        '<p class="muted">Net worth ' + money(view.netWorth) + (view.lifeValue ? ' · life value ' + money(view.lifeValue) : '') + '</p></div>' +
+        ((view.notes && view.notes.length) ? '<div class="ph-card ph-notes"><div class="ph-q">What shaped your result</div><ul>' + view.notes.map(function (n) { return '<li>' + esc(n) + '</li>'; }).join("") + '</ul></div>' : "");
+    }
+
+    var confettiDone = false;
+    function confetti() {
+      if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      var wrap = document.createElement("div"); wrap.className = "confetti";
+      var colors = ["#FFC933", "#34D3A0", "#FF6B8E", "#5CA9FF", "#9380FF", "#FF9F43"], i, el;
+      for (i = 0; i < 70; i++) {
+        el = document.createElement("i");
+        el.style.left = (Math.random() * 100) + "%"; el.style.background = colors[i % colors.length];
+        el.style.width = (6 + Math.random() * 6) + "px"; el.style.height = (9 + Math.random() * 9) + "px";
+        el.style.animationDelay = (Math.random() * 1.2) + "s"; el.style.animationDuration = (3 + Math.random() * 2) + "s";
+        el.style.setProperty("--dx", (Math.random() * 40 - 20) + "vw"); el.style.setProperty("--rot", (360 + Math.random() * 720) + "deg");
+        wrap.appendChild(el);
+      }
+      document.body.appendChild(wrap);
+      setTimeout(function () { if (wrap.parentNode) wrap.parentNode.removeChild(wrap); }, 8000);
+    }
+    function render() {
+      var html;
+      if (!pid || !view) html = pid ? '<div class="ph-center"><p class="muted">Loading…</p></div>' : joinScreen();
+      else if (view.phase === "lobby") html = lobbyScreen();
+      else if (view.phase === "wheel") html = view.eliminated ? eliminatedScreen() : wheelPhoneScreen();
+      else if (view.eliminated && (view.phase === "choosing" || view.phase === "reveal")) html = eliminatedScreen();
+      else if (view.phase === "choosing") {
+        if (!view.decisions.length) html = noDecisionScreen();
+        else html = (view.submitted || awaiting > Date.now()) && !editing ? lockedScreen() : formScreen();
+      }
+      else if (view.phase === "reveal") html = revealScreen();
+      else html = resultsScreen(view.phase === "final");
+      ph.innerHTML = html;
+      if (view && view.phase === "final" && !confettiDone) { confettiDone = true; setTimeout(confetti, 300); }
+      if (view && view.phase !== "final") confettiDone = false;
+    }
+
+    /* ---------- events ---------- */
+    ph.addEventListener("input", function (e) {
+      var t = e.target;
+      if (t.id === "nm") { nameDraft = t.value; }
+      else if (t.id === "oth") {
+        draft.careerOther = t.value;
+        var b = ph.querySelector("[data-lock]");
+        if (b) b.disabled = !complete() || busy;
+      }
+    });
+    ph.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" && e.target.id === "nm") { e.preventDefault(); join(); }
+    });
+    function join() {
+      if (busy) return;
+      var n = (nameDraft || "").trim();
+      if (!n) { err = "Please type a name"; render(); return; }
+      busy = true; err = ""; render();
+      Promise.resolve(api.player.join(n, null)).then(function (r) {
+        busy = false;
+        if (r && r.error) { err = r.error; render(); return; }
+        pid = r.pid; store.set("pid", pid); store.set("name", r.name);
+        since = 0; lastJson = ""; render(); return fetchOnce();
+      }).catch(function () { busy = false; err = "Could not reach the game. Check your Wi-Fi."; render(); });
+    }
+    ph.addEventListener("click", function (e) {
+      var t = e.target.closest ? e.target.closest("button") : null;
+      if (!t || t.disabled) return;
+      if (t.hasAttribute("data-join")) { join(); return; }
+      if (t.hasAttribute("data-career")) { draft.career = t.getAttribute("data-career"); render(); return; }
+      if (t.hasAttribute("data-choice")) { draft[t.getAttribute("data-choice")] = t.getAttribute("data-val"); render(); return; }
+      if (t.hasAttribute("data-yn")) { draft[t.getAttribute("data-yn")] = t.getAttribute("data-val") === "1"; render(); return; }
+      if (t.hasAttribute("data-edit")) { editing = true; render(); return; }
+      if (t.hasAttribute("data-lock")) {
+        busy = true; err = ""; render();
+        Promise.resolve(api.player.submit(pid, draft)).then(function (r) {
+          busy = false;
+          if (r && r.error) { err = r.error; if (r.error === "unknown") { pid = null; store.del("pid"); } render(); return; }
+          editing = false; awaiting = Date.now() + 6000; since = 0; lastJson = ""; render();
+          setTimeout(function () { if (!(view && view.submitted)) { awaiting = 0; render(); } }, 6200);
+          return fetchOnce();
+        }).catch(function () { busy = false; err = "Could not send. Try again."; render(); });
+      }
+    });
+
+    render();
+    if (pid) loop();
+    else {
+      /* start polling once joined */
+      var iv = setInterval(function () { if (pid) { clearInterval(iv); loop(); } }, 400);
+    }
+  }
+
+  root.LifePhone = { mount: mountPhone, localStore: localStore, memoryStore: memoryStore };
+})(typeof self !== "undefined" ? self : this);
+
+</script>
+<script>
+/* Seminary game framework: Firebase Realtime Database bridge (REST, no SDK). The teacher's page runs the game;
+   phones send their name and picks to the database and read back their own private view. */
+(function (root) {
+  "use strict";
+
+  function rid() { return Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-3); }
+  function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+  function lsDel(k) { try { localStorage.removeItem(k); } catch (e) {} }
+  function newCode() {
+    var a = "ABCDEFGHJKLMNPQRSTUVWXYZ", c = "";
+    for (var i = 0; i < 4; i++) c += a.charAt(Math.floor(Math.random() * a.length));
+    return c;
+  }
+  function http(method, url, body) {
+    var o = { method: method, cache: "no-store" };
+    if (body !== undefined) { o.body = JSON.stringify(body); o.headers = { "Content-Type": "application/json" }; }
+    return fetch(url, o).then(function (r) {
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      return r.json();
+    });
+  }
+
+  /* ---------------- teacher side ---------------- */
+  function hostBridge(cfg) {
+    var db = cfg.dbUrl.replace(/\/$/, "");
+    var root0 = cfg.root || "lifeGames";
+    var PFX = "life." + root0.replace(/[^A-Za-z0-9]/g, "_") + ".";
+    var code = lsGet(PFX + "code") || newCode(); lsSet(PFX + "code", code);
+    var game = root.LifeEngine.createGame();
+    var meta = { aliases: {}, lastN: {}, handled: {} };
+    var written = {};
+    var stopped = false;
+
+    function u(path) { return db + "/" + root0 + "/" + code + path + ".json"; }
+
+    function load() {
+      try {
+        var snap = lsGet(PFX + "snap." + code);
+        if (snap) game.restore(JSON.parse(snap));
+        var m = lsGet(PFX + "meta." + code);
+        if (m) meta = Object.assign(meta, JSON.parse(m));
+      } catch (e) {}
+    }
+    function persist() {
+      lsSet(PFX + "snap." + code, JSON.stringify(game.snapshot()));
+      lsSet(PFX + "meta." + code, JSON.stringify(meta));
+    }
+
+    function writeError(pid, msg) {
+      return http("PUT", u("/views/" + pid), { error: msg }).catch(function () {});
+    }
+
+    function writeViews() {
+      var hv = game.hostView();
+      var jobs = [];
+      (hv.players || []).forEach(function (p) {
+        var view = game.playerView(p.id);
+        jobs.push(http("PUT", u("/views/" + p.id), view).catch(function () {}));
+        Object.keys(meta.aliases).forEach(function (a) {
+          if (meta.aliases[a] === p.id) jobs.push(http("PUT", u("/views/" + a), view).catch(function () {}));
+        });
+      });
+      return Promise.all(jobs);
+    }
+
+    function tick() {
+      if (stopped) return;
+      Promise.all([http("GET", u("/in/joins")), http("GET", u("/in/picks"))]).then(function (r) {
+        var joins = r[0] || {}, picks = r[1] || {}, pid;
+        for (pid in joins) {
+          if (meta.handled[pid]) continue;
+          var j = joins[pid] || {};
+          var name = String(j.name || "").trim().slice(0, 24) || "Player";
+          var existing = null;
+          var hv = game.hostView();
+          (hv.players || []).forEach(function (p) { if (!existing && p.name === name && !p.bot) existing = p.id; });
+          if (existing) {
+            meta.aliases[pid] = existing;
+          } else {
+            var res = game.join(name, pid);
+            if (res && res.error) { writeError(pid, res.error); meta.handled[pid] = true; continue; }
+          }
+          meta.handled[pid] = true;
+        }
+        for (pid in picks) {
+          var pk = picks[pid];
+          if (!pk || typeof pk.n !== "number") continue;
+          if (meta.lastN[pid] === pk.n) continue;
+          var realPid = meta.aliases[pid] || pid;
+          game.submit(realPid, pk.picks);
+          meta.lastN[pid] = pk.n;
+        }
+        persist();
+        return writeViews();
+      }).catch(function () {}).then(function () {
+        if (!stopped) setTimeout(tick, 800);
+      });
+    }
+
+    function beat() {
+      if (stopped) return;
+      http("PUT", u("/host"), { code: code, t: Date.now() }).catch(function () {}).then(function () {
+        if (!stopped) setTimeout(beat, 4000);
+      });
+    }
+
+    function newGame() {
+      var oldSettings = null;
+      try { oldSettings = game.hostView().settings; } catch (e) {}
+      lsDel(PFX + "snap." + code); lsDel(PFX + "meta." + code);
+      code = newCode(); lsSet(PFX + "code", code);
+      game = root.LifeEngine.createGame();
+      if (oldSettings) game.hostAct("settings", oldSettings);
+      meta = { aliases: {}, lastN: {}, handled: {} }; written = {};
+      persist();
+      http("PUT", u("/host"), { code: code, t: Date.now() }).catch(function () {});
+    }
+
+    var api = { host: {
+      state: function (since) {
+        var v = game.version();
+        if (since === v) return Promise.resolve({ v: v, same: true });
+        return Promise.resolve({ v: v, view: game.hostView() });
+      },
+      act: function (action, payload) {
+        if (action === "newgame") { newGame(); return Promise.resolve({ ok: true }); }
+        var pids = [];
+        if (action === "kick" && payload && payload.pid) {
+          pids.push(payload.pid);
+          Object.keys(meta.aliases).forEach(function (a) { if (meta.aliases[a] === payload.pid) pids.push(a); });
+        }
+        var r = game.hostAct(action, payload || {});
+        if (r && r.error) return Promise.resolve(r);
+        persist();
+        var jobs = pids.map(function (pid) { return writeError(pid, "unknown"); });
+        if (action === "reset") {
+          jobs.push(http("DELETE", u("/in")).catch(function () {}));
+          meta.lastN = {};
+        }
+        return Promise.all(jobs).then(writeViews).then(function () { return r; });
+      }
+    } };
+
+    load();
+    http("PUT", u("/host"), { code: code, t: Date.now() }).catch(function () {});
+    tick(); beat();
+    return {
+      api: api,
+      code: function () { return code; },
+      joinUrl: function () { return location.origin + location.pathname.replace(/teacher\.html$/, "play.html") + "?g=" + code; },
+      siteText: function () { return location.host; },
+      stop: function () { stopped = true; }
+    };
+  }
+
+  /* ---------------- phone side ---------------- */
+  function normalize(v) {
+    if (!v || v.error) return v;
+    v.decisions = (v.decisions || []).map(function (d) {
+      if (d.options) d.options = Array.isArray(d.options) ? d.options : Object.keys(d.options).map(function (k) { return d.options[k]; });
+      return d;
+    });
+    if (!Array.isArray(v.decisions)) v.decisions = [];
+    if (v.picks === undefined) v.picks = null;
+    return v;
+  }
+  function playerApi(cfg, code) {
+    var db = cfg.dbUrl.replace(/\/$/, ""), root0 = cfg.root || "lifeGames";
+    function u(path) { return db + "/" + root0 + "/" + code + path + ".json"; }
+    var lastRound = 0;
+    function waitView(pid, tries) {
+      return http("GET", u("/views/" + pid)).then(function (v) {
+        if (v) { if (v.error) return { error: v.error }; return { pid: pid, name: v.name }; }
+        if (tries <= 0) return { error: "The TV screen did not answer. Is it still open?" };
+        return new Promise(function (res) { setTimeout(res, 700); }).then(function () { return waitView(pid, tries - 1); });
+      });
+    }
+    return { player: {
+      join: function (name, hint) {
+        var pid = hint || rid();
+        return http("GET", u("/host")).then(function (h) {
+          if (!h) return { error: "Game not found. Check the code, and make sure the TV screen is open." };
+          return http("PUT", u("/in/joins/" + pid), { name: name, t: Date.now() }).then(function () { return waitView(pid, 20); });
+        });
+      },
+      state: function (pid) {
+        return http("GET", u("/views/" + pid)).then(function (v) {
+          if (!v) return { v: 0 };
+          if (v.error) return { error: "unknown" };
+          v = normalize(v); lastRound = v.round || 0;
+          return { v: Date.now(), view: v };
+        });
+      },
+      submit: function (pid, picks) {
+        return http("PUT", u("/in/picks/" + pid), { n: Date.now(), round: lastRound, picks: picks }).then(function () { return { ok: true }; });
+      }
+    } };
+  }
+
+  root.LifeFirebase = { hostBridge: hostBridge, playerApi: playerApi };
+})(typeof self !== "undefined" ? self : this);
+
+</script>
+<script>
+(function(){
+  var CFG = { dbUrl: "https://penny-project-fb5da-default-rtdb.firebaseio.com", root: "seminaryGames/lifechoices" };
+  var code = (new URLSearchParams(location.search).get('g') || '').toUpperCase();
+  var api = LifeFirebase.playerApi(CFG, code);
+  LifePhone.mount(document.getElementById('ph'), api, {
+    store: LifePhone.localStore('life.' + "seminaryGames/lifechoices".replace(/[^A-Za-z0-9]/g,'_') + '.' + code + '.'),
+    pollMs: 1200
+  });
+})();
+</script>
+</body>
+</html>

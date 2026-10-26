@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>/* Practice mode: when this page runs inside the site's practice page, use its pretend database and give this screen its own storage. Does nothing otherwise. */
+(function(){try{var P=window.parent!==window&&window.parent.PRACTICE;if(!P)return;window.fetch=P.fetch;var s=P.storage(window.name||location.href);Object.defineProperty(window,'localStorage',{configurable:true,get:function(){return s.local;}});Object.defineProperty(window,'sessionStorage',{configurable:true,get:function(){return s.session;}});}catch(e){}})();</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>The Penny Problem</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-deep:#12162A; --bg-panel:#1B2140; --bg-panel-raised:#232B4F;
+    --copper:#C97A3D; --copper-bright:#E6A05F; --gold:#E8C468;
+    --purple:#7C5DAE; --purple-bright:#A68CD0;
+    --flat-blue:#6FA3C4;
+    --text-primary:#F3EFE6; --text-muted:#9AA3C0;
+    --line-soft:rgba(243,239,230,0.12); --radius:18px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;min-height:100%;background:var(--bg-deep);color:var(--text-primary);font-family:'Inter',system-ui,sans-serif;
+    padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);}
+  body{display:flex;justify-content:center;padding:32px 16px 60px;}
+  .stage{width:100%;max-width:760px;}
+  h1,h2,h3{font-family:'Fraunces',Georgia,serif;margin:0 0 8px;letter-spacing:-0.01em;}
+  .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px;}
+  .screen{display:none;}
+  .screen.active{display:block;}
+  .card{background:var(--bg-panel);border:1px solid var(--line-soft);border-radius:var(--radius);padding:24px;margin-bottom:18px;}
+  p{line-height:1.55;color:var(--text-muted);}
+  .roster{display:grid;gap:10px;}
+  .roster-row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;background:var(--bg-panel-raised);border-radius:10px;padding:10px 12px;}
+  .roster-row input[type=text]{background:transparent;border:none;color:var(--text-primary);font-size:15px;font-family:inherit;width:100%;}
+  .roster-row input[type=text]:focus{outline:none;}
+  .choice-group{display:flex;gap:6px;}
+  .choice-btn{font-family:'IBM Plex Mono',monospace;font-size:11px;padding:8px 10px;border-radius:8px;border:1px solid var(--line-soft);background:transparent;color:var(--text-muted);cursor:pointer;}
+  .choice-btn.sel-penny{background:var(--copper);color:#1a1208;border-color:var(--copper);}
+  .choice-btn.sel-flat{background:var(--flat-blue);color:#0c222c;border-color:var(--flat-blue);}
+  .choice-btn.sel-compound{background:var(--purple);color:#15101f;border-color:var(--purple);}
+  .tally{display:flex;gap:16px;font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--text-muted);margin-top:14px;flex-wrap:wrap;}
+  .tally span b{color:var(--text-primary);}
+  .btn-row{display:flex;gap:12px;justify-content:center;margin-top:10px;flex-wrap:wrap;}
+  .btn{font-family:'Fraunces',serif;font-weight:600;font-size:15px;padding:12px 24px;border-radius:10px;border:none;cursor:pointer;background:var(--copper);color:#1a1208;}
+  .btn:hover{background:var(--copper-bright);}
+  .btn.ghost{background:transparent;color:var(--text-muted);border:1px solid var(--line-soft);}
+  .btn:disabled{opacity:0.35;cursor:not-allowed;}
+  .day-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px;}
+  .day-count{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--text-muted);}
+  .values-row{display:flex;gap:14px;flex-wrap:wrap;margin:14px 0;}
+  .value-chip{flex:1;min-width:150px;background:var(--bg-panel-raised);border-radius:12px;padding:14px 16px;}
+  .value-chip .label{font-family:'IBM Plex Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;}
+  .value-chip .val{font-family:'Fraunces',serif;font-weight:700;font-size:1.3rem;}
+  .value-chip.penny .label{color:var(--copper-bright);}
+  .value-chip.flat .label{color:var(--flat-blue);}
+  .value-chip.compound .label{color:var(--purple-bright);}
+  .chart-wrap{background:var(--bg-panel-raised);border-radius:12px;padding:16px;}
+  .chart{width:100%;height:auto;display:block;}
+  .legend{display:flex;gap:16px;margin-top:10px;font-size:12px;color:var(--text-muted);flex-wrap:wrap;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .legend i{width:12px;height:12px;border-radius:3px;display:inline-block;}
+  #milestones .milestone-row{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-muted);margin-top:8px;}
+  .milestone-chip{font-family:'IBM Plex Mono',monospace;font-size:11px;color:#fff;border-radius:50%;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .leaderboard-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line-soft);font-size:14px;}
+  .lb-value{font-family:'IBM Plex Mono',monospace;}
+  table{width:100%;border-collapse:collapse;margin-top:10px;font-size:13px;}
+  th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line-soft);}
+  th{color:var(--text-muted);font-weight:600;font-family:'IBM Plex Mono',monospace;font-size:11px;text-transform:uppercase;}
+  .tag{font-family:'IBM Plex Mono',monospace;font-size:10px;padding:2px 7px;border-radius:10px;margin-right:6px;}
+  .tag.penny{background:var(--copper);color:#1a1208;}
+  .tag.flat{background:var(--flat-blue);color:#0c222c;}
+  .tag.compound{background:var(--purple);color:#15101f;}
+  .scripture-list{list-style:none;margin:0;padding:0;}
+  .scripture-list li{display:flex;align-items:center;gap:10px;padding:8px 0;color:var(--text-primary);}
+  .scripture-icon{color:var(--gold);flex-shrink:0;}
+</style>
+</head>
+<body>
+<div class="stage">
+
+  <section class="screen active" id="screen-setup">
+    <div class="eyebrow">A classroom illustration</div>
+    <h1>The Penny Problem</h1>
+    <div class="card">
+      <p>Everyone gets to choose one of three paths for the next 30 days:</p>
+      <ul>
+        <li><b>Penny doubling:</b> start with one penny, and it doubles every day</li>
+        <li><b>$1,500,000 flat:</b> take the money today, no changes</li>
+        <li><b>10% daily growth:</b> start with $100,000, and it grows 10% every day</li>
+      </ul>
+      <p>Before you reveal what happens, have each of your 15 students lock in a choice below.</p>
+    </div>
+    <div class="card">
+      <h3>Roster</h3>
+      <div class="roster" id="roster"></div>
+      <div class="tally" id="tally"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn" id="btn-start">Start the 30 days</button>
+    </div>
+  </section>
+
+  <section class="screen" id="screen-days">
+    <div class="eyebrow">Day by day</div>
+    <div class="day-head">
+      <h2 id="day-title">Day 1</h2>
+      <span class="day-count" id="day-count">Day 1 of 30</span>
+    </div>
+    <div class="card">
+      <div class="values-row">
+        <div class="value-chip penny"><div class="label">Penny doubling</div><div class="val" id="val-penny"></div></div>
+        <div class="value-chip flat"><div class="label">$1,500,000 flat</div><div class="val" id="val-flat"></div></div>
+        <div class="value-chip compound"><div class="label">10% daily growth</div><div class="val" id="val-compound"></div></div>
+      </div>
+      <div class="chart-wrap">
+        <svg class="chart" id="chart" viewBox="0 0 640 340" aria-label="Line chart comparing penny doubling, 10 percent daily growth, and a flat 1,500,000 dollar reference"></svg>
+        <div class="legend">
+          <span><i style="background:var(--copper-bright);"></i>Penny doubling</span>
+          <span><i style="background:var(--flat-blue);"></i>$1,500,000 flat</span>
+          <span><i style="background:var(--purple-bright);"></i>10% daily growth</span>
+        </div>
+      </div>
+      <div id="milestones"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn ghost" id="btn-prev">&larr; Previous day</button>
+      <button class="btn ghost" id="btn-skip">Skip to Day 30</button>
+      <button class="btn" id="btn-next">Next day &rarr;</button>
+    </div>
+    <div class="btn-row">
+      <button class="btn ghost" id="btn-results">See final results</button>
+    </div>
+  </section>
+
+  <section class="screen" id="screen-results">
+    <div class="eyebrow">After 30 days</div>
+    <h1>Final Results</h1>
+    <div class="card">
+      <h3>Leaderboard</h3>
+      <div id="leaderboard"></div>
+    </div>
+    <div class="card">
+      <h3>Who picked what</h3>
+      <table>
+        <thead><tr><th>#</th><th>Student</th><th>Choice</th><th>Result</th></tr></thead>
+        <tbody id="results-body"></tbody>
+      </table>
+      <div class="tally" id="final-tally"></div>
+    </div>
+    <div class="card">
+      <p><strong>For discussion:</strong> All three paths start out looking unequal, and for most of the month the flat $1,500,000 looks like the smartest pick. The doubling penny quietly overtakes the 10% growth plan on Day 28, then passes the flat $1,500,000 on Day 29 to take the lead for good. The 10% growth plan does not catch up to the flat option until Day 30, the very last day. Small, steady, compounding choices can end up outpacing something that looks big and certain up front &mdash; a principle Doctrine and Covenants 64:33 teaches directly.</p>
+    </div>
+    <div class="card">
+      <h3>Wrap-up</h3>
+      <ul class="scripture-list">
+        <li>
+          <svg class="scripture-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6c2-1.2 5-1.2 7 0v13c-2-1.2-5-1.2-7 0V6z"/><path d="M22 6c-2-1.2-5-1.2-7 0v13c2-1.2 5-1.2 7 0V6z"/></svg>
+          <span>Ecclesiastes 12:13&ndash;14</span>
+        </li>
+        <li>
+          <svg class="scripture-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6c2-1.2 5-1.2 7 0v13c-2-1.2-5-1.2-7 0V6z"/><path d="M22 6c-2-1.2-5-1.2-7 0v13c2-1.2 5-1.2 7 0V6z"/></svg>
+          <span>Alma 34:32</span>
+        </li>
+      </ul>
+    </div>
+    <div class="btn-row">
+      <button class="btn ghost" id="btn-results-back">&larr; Back</button>
+      <button class="btn ghost" id="btn-restart">Restart the whole lesson</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+(function(){
+  var NUM_PEOPLE = 15;
+  var TOTAL_DAYS = 30;
+  var FLAT_VALUE = 1500000;
+  var CROSSOVER_COMPOUND_DAY = 28; // penny overtakes 10% growth
+  var CROSSOVER_FLAT_DAY = 29;     // penny overtakes $1,500,000
+  var CROSSOVER_LAST_DAY = 30;     // 10% growth finally overtakes $1,500,000
+
+  var state = { people: [], day: 1 };
+  for (var i = 0; i < NUM_PEOPLE; i++) state.people.push({ name: '', choice: null });
+
+  function $(id){ return document.getElementById(id); }
+  function showScreen(id){
+    document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
+    $(id).classList.add('active');
+  }
+
+  function pennyValueForDay(n){ return Math.pow(2, n - 1) / 100; }
+  function compoundValueForDay(n){ return 100000 * Math.pow(1.1, n - 1); }
+  function flatValue(){ return FLAT_VALUE; }
+
+  function formatDollars(n){
+    return '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  /* ---------------- roster / setup ---------------- */
+  function renderRoster(){
+    var wrap = $('roster');
+    wrap.innerHTML = '';
+    state.people.forEach(function(person, idx){
+      var row = document.createElement('div');
+      row.className = 'roster-row';
+      var input = document.createElement('input');
+      input.type = 'text';
+      input.placeholder = 'Student ' + (idx + 1);
+      input.value = person.name;
+      input.addEventListener('input', function(e){ state.people[idx].name = e.target.value; });
+      var group = document.createElement('div');
+      group.className = 'choice-group';
+      [['penny','Penny'], ['flat','$1.5M'], ['compound','10% growth']].forEach(function(pair){
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'choice-btn' + (person.choice === pair[0] ? ' sel-' + pair[0] : '');
+        btn.textContent = pair[1];
+        btn.addEventListener('click', function(){
+          state.people[idx].choice = pair[0];
+          renderRoster();
+          updateTally();
+        });
+        group.appendChild(btn);
+      });
+      row.appendChild(input);
+      row.appendChild(group);
+      wrap.appendChild(row);
+    });
+  }
+
+  function updateTally(){
+    var counts = { penny: 0, flat: 0, compound: 0, undecided: 0 };
+    state.people.forEach(function(p){
+      if (p.choice) counts[p.choice]++; else counts.undecided++;
+    });
+    $('tally').innerHTML =
+      '<span>Penny: <b>' + counts.penny + '</b></span>' +
+      '<span>$1.5M flat: <b>' + counts.flat + '</b></span>' +
+      '<span>10% growth: <b>' + counts.compound + '</b></span>' +
+      '<span>Undecided: <b>' + counts.undecided + '</b></span>';
+  }
+
+  $('btn-start').addEventListener('click', function(){
+    state.day = 1;
+    showScreen('screen-days');
+    renderDay();
+  });
+
+  /* ---------------- day-by-day chart ---------------- */
+  function xForDay(d){ return 50 + (d - 1) * (560 / (TOTAL_DAYS - 1)); }
+  function yForValue(v){
+    var logMin = Math.log10(0.01), logMax = Math.log10(6000000);
+    var t = (Math.log10(Math.max(v, 0.01)) - logMin) / (logMax - logMin);
+    return 300 - t * 260;
+  }
+
+  function badgeMarker(parts, x, y, dy, label, color){
+    parts.push('<circle cx="' + x + '" cy="' + (y + dy) + '" r="9" fill="' + color + '"/>');
+    parts.push('<text x="' + x + '" y="' + (y + dy + 4) + '" text-anchor="middle" font-size="11" fill="#fff" font-family="IBM Plex Mono, monospace">' + label + '</text>');
+  }
+
+  function buildChart(uptoDay){
+    var parts = [];
+    parts.push('<line x1="50" y1="300" x2="610" y2="300" stroke="rgba(243,239,230,0.25)" stroke-width="1"/>');
+
+    function pathFor(valueFn, color){
+      var d = '';
+      for (var day = 1; day <= uptoDay; day++){
+        var x = xForDay(day), y = yForValue(valueFn(day));
+        d += (day === 1 ? 'M' : 'L') + x + ',' + y + ' ';
+      }
+      return '<path d="' + d + '" fill="none" stroke="' + color + '" stroke-width="2.5"/>';
+    }
+    parts.push(pathFor(function(d){ return flatValue(); }, '#6FA3C4'));
+    parts.push(pathFor(compoundValueForDay, '#A68CD0'));
+    parts.push(pathFor(pennyValueForDay, '#E6A05F'));
+
+    if (uptoDay >= CROSSOVER_COMPOUND_DAY){
+      var cx = xForDay(CROSSOVER_COMPOUND_DAY), cy = yForValue(pennyValueForDay(CROSSOVER_COMPOUND_DAY));
+      badgeMarker(parts, cx, cy, -22, '1', '#C97A3D');
+    }
+    if (uptoDay >= CROSSOVER_FLAT_DAY){
+      var fx = xForDay(CROSSOVER_FLAT_DAY), fy = yForValue(pennyValueForDay(CROSSOVER_FLAT_DAY));
+      badgeMarker(parts, fx, fy, -22, '2', '#C97A3D');
+    }
+    if (uptoDay >= CROSSOVER_LAST_DAY){
+      var lx = xForDay(CROSSOVER_LAST_DAY), ly = yForValue(compoundValueForDay(CROSSOVER_LAST_DAY));
+      badgeMarker(parts, lx, ly, 22, '3', '#7C5DAE');
+    }
+    $('chart').innerHTML = parts.join('');
+  }
+
+  function renderMilestones(uptoDay){
+    var rows = [];
+    if (uptoDay >= CROSSOVER_COMPOUND_DAY){
+      rows.push('<div class="milestone-row"><span class="milestone-chip" style="background:#C97A3D;">1</span>Day 28: the doubling penny overtakes the 10% growth plan</div>');
+    }
+    if (uptoDay >= CROSSOVER_FLAT_DAY){
+      rows.push('<div class="milestone-row"><span class="milestone-chip" style="background:#C97A3D;">2</span>Day 29: the penny passes $1,500,000 and takes the lead for good</div>');
+    }
+    if (uptoDay >= CROSSOVER_LAST_DAY){
+      rows.push('<div class="milestone-row"><span class="milestone-chip" style="background:#7C5DAE;">3</span>Day 30: the 10% growth plan finally catches up to $1,500,000</div>');
+    }
+    $('milestones').innerHTML = rows.join('');
+  }
+
+  function renderDay(){
+    $('day-title').textContent = 'Day ' + state.day;
+    $('day-count').textContent = 'Day ' + state.day + ' of ' + TOTAL_DAYS;
+    $('val-penny').textContent = formatDollars(pennyValueForDay(state.day));
+    $('val-flat').textContent = formatDollars(flatValue());
+    $('val-compound').textContent = formatDollars(compoundValueForDay(state.day));
+    buildChart(state.day);
+    renderMilestones(state.day);
+    $('btn-prev').disabled = state.day <= 1;
+    $('btn-next').disabled = state.day >= TOTAL_DAYS;
+  }
+
+  $('btn-prev').addEventListener('click', function(){ if (state.day > 1){ state.day--; renderDay(); } });
+  $('btn-next').addEventListener('click', function(){ if (state.day < TOTAL_DAYS){ state.day++; renderDay(); } });
+  $('btn-skip').addEventListener('click', function(){ state.day = TOTAL_DAYS; renderDay(); });
+  $('btn-results').addEventListener('click', function(){ showScreen('screen-results'); renderResults(); });
+  $('btn-results-back').addEventListener('click', function(){ showScreen('screen-days'); });
+
+  /* ---------------- results ---------------- */
+  function renderResults(){
+    var pennyFinal = pennyValueForDay(TOTAL_DAYS);
+    var flatFinal = flatValue();
+    var compoundFinal = compoundValueForDay(TOTAL_DAYS);
+
+    var standings = [
+      { tag: 'penny', name: 'Penny doubling', value: pennyFinal },
+      { tag: 'compound', name: '10% daily growth', value: compoundFinal },
+      { tag: 'flat', name: '$1,500,000 flat', value: flatFinal }
+    ].sort(function(a, b){ return b.value - a.value; });
+
+    var rankByTag = {};
+    standings.forEach(function(s, i){ rankByTag[s.tag] = i; });
+
+    var lb = $('leaderboard');
+    lb.innerHTML = '';
+    standings.forEach(function(s, rank){
+      var row = document.createElement('div');
+      row.className = 'leaderboard-row';
+      row.innerHTML = '<span><span class="tag ' + s.tag + '">#' + (rank + 1) + '</span>' + s.name + '</span>' +
+        '<span class="lb-value">' + formatDollars(s.value) + '</span>';
+      lb.appendChild(row);
+    });
+
+    var body = $('results-body');
+    body.innerHTML = '';
+    var counts = { penny: 0, flat: 0, compound: 0, undecided: 0 };
+
+    var order = state.people.map(function(_, idx){ return idx; });
+    order.sort(function(aIdx, bIdx){
+      var a = state.people[aIdx], b = state.people[bIdx];
+      var aRank = a.choice ? rankByTag[a.choice] : 99;
+      var bRank = b.choice ? rankByTag[b.choice] : 99;
+      if (aRank !== bRank) return aRank - bRank;
+      return aIdx - bIdx;
+    });
+
+    order.forEach(function(idx){
+      var person = state.people[idx];
+      var name = person.name.trim() ? person.name.trim() : 'Student ' + (idx + 1);
+      var choiceLabel, resultLabel, tagClass;
+      if (person.choice === 'penny'){ counts.penny++; choiceLabel = 'Penny doubling'; tagClass = 'penny'; resultLabel = 'Finished with ' + formatDollars(pennyFinal); }
+      else if (person.choice === 'flat'){ counts.flat++; choiceLabel = '$1,500,000 flat'; tagClass = 'flat'; resultLabel = 'Finished with ' + formatDollars(flatFinal); }
+      else if (person.choice === 'compound'){ counts.compound++; choiceLabel = '10% daily growth'; tagClass = 'compound'; resultLabel = 'Finished with ' + formatDollars(compoundFinal); }
+      else { counts.undecided++; choiceLabel = 'No pick recorded'; tagClass = 'flat'; resultLabel = 'n/a'; }
+
+      var tr = document.createElement('tr');
+      tr.innerHTML = '<td>' + (idx + 1) + '</td>' +
+        '<td>' + name + '</td>' +
+        '<td><span class="tag ' + tagClass + '">' + choiceLabel + '</span></td>' +
+        '<td>' + resultLabel + '</td>';
+      body.appendChild(tr);
+    });
+
+    $('final-tally').innerHTML =
+      '<span>Penny: <b>' + counts.penny + '</b></span>' +
+      '<span>$1.5M flat: <b>' + counts.flat + '</b></span>' +
+      '<span>10% growth: <b>' + counts.compound + '</b></span>' +
+      '<span>Undecided: <b>' + counts.undecided + '</b></span>';
+  }
+
+  $('btn-restart').addEventListener('click', function(){
+    state.people = [];
+    for (var i = 0; i < NUM_PEOPLE; i++) state.people.push({ name: '', choice: null });
+    state.day = 1;
+    renderRoster();
+    updateTally();
+    showScreen('screen-setup');
+  });
+
+  renderRoster();
+  updateTally();
+})();
+</script>
+</body>
+</html>

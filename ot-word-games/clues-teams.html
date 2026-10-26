@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Old Testament Clue Quest: Teams</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--night:#0D1528;--panel:#152039;--panel2:#1B2846;--line:rgba(160,185,230,.18);--ink:#EEF3FB;--soft:#A3B2CE;--teal:#1FB5A8;--amber:#F4B740;--good:#3FA66B;color-scheme:dark;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--night);color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;line-height:1.5}
+.w{max-width:980px;margin:0 auto;padding:64px 20px 40px}
+h1{font-family:Fraunces,Georgia,serif;font-size:2rem;margin:0 0 6px}h2{font-size:1.15rem;margin:0 0 10px}
+.sub{color:var(--soft);margin:0 0 18px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:14px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+label{font-weight:700;color:var(--soft);font-size:.9rem;display:block;margin:10px 0 6px}
+input[type=text]{font:inherit;background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:9px 12px;min-width:150px;flex:1}
+.b{font:inherit;font-weight:800;cursor:pointer;border-radius:999px;padding:10px 16px;border:1px solid var(--line);background:var(--panel2);color:var(--ink)}
+.b.on{background:var(--ink);color:var(--night)}.b.go{background:var(--teal);border-color:var(--teal);color:#062a27}.b.big{font-size:1.1rem;padding:14px 22px}
+.b:focus-visible,#tgl a:focus-visible{outline:3px solid #fff;outline-offset:2px}
+#tgl{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));right:12px;z-index:5;display:flex;gap:4px;background:rgba(13,21,40,.92);border:1px solid var(--line);border-radius:999px;padding:4px}
+#tgl a{color:var(--soft);font-weight:800;font-size:13px;padding:7px 12px;border-radius:999px;text-decoration:none}#tgl a.on{background:var(--ink);color:var(--night)}
+.score{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}.chip{flex:1 1 140px;background:var(--panel);border-radius:12px;padding:8px 12px;border-top:5px solid var(--c)}
+.chip .n{font-size:.85rem;color:var(--soft)}.chip .s{font-size:1.7rem;font-weight:800}
+.meta{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;color:var(--soft);margin-bottom:8px}
+.clock{font-family:ui-monospace,Menlo,monospace;font-size:1.5rem;font-weight:700;color:var(--amber)}
+.worth{font-weight:800;color:var(--amber)}
+.clues{list-style:none;padding:0;margin:6px 0 12px;display:grid;gap:10px}
+.clues li{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:14px 16px;font-size:1.35rem;display:flex;gap:12px}
+.clues li i{font-style:normal;font-weight:800;color:var(--amber);min-width:1.6em}
+.clues li.locked{color:var(--soft);font-size:1rem;font-style:italic}
+.who{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0}.who .b{border-left:6px solid var(--c)}.who .b.got{background:var(--good);border-color:var(--good);color:#fff}
+.ans{font-family:Fraunces,Georgia,serif;font-size:2.2rem;margin:4px 0}
+.learn{border-left:4px solid var(--teal);padding:12px 14px;background:rgba(31,181,168,.10);border-radius:10px;margin:12px 0}.learn p{margin:4px 0}
+.stand{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);font-size:1.2rem}
+.keys{color:var(--soft);font-size:.85rem;margin-top:10px}
+</style>
+</head>
+<body>
+<div id="tgl" role="group" aria-label="How students play"><a href="clues-host.html">📱 Phones</a><a class="on" href="clues-teams.html" aria-current="page">👥 Teams, no phones</a></div>
+<div class="w" id="app"></div>
+<script src="core.js"></script>
+<script src="banks.js"></script>
+<script>
+(function () {
+  var C = window.SemCore, BANK = window.CLUE_BANK, COLORS = ['#F0545C', '#3E8EF7', '#1FB5A8', '#F4B740', '#8B7CF6', '#E57AC2'], PTS = [4, 3, 2, 1];
+  var app = document.getElementById('app'), S = { started: false };
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } }
+  function title(a) { return a.split(' ').map(function (w) { return w.length > 3 || w === a.split(' ')[0] ? w.charAt(0) + w.slice(1).toLowerCase() : w.toLowerCase(); }).join(' '); }
+  var topics = ['All'].concat(BANK.map(function (x) { return x.t; }).filter(function (t, i, a) { return a.indexOf(t) === i; }));
+  function setup() {
+    var n = parseInt(store('cq_n') || '3', 10), topic = store('cq_topic') || 'All', count = store('cq_count') || '5', secs = store('cq_secs') || '15';
+    var names = []; try { names = JSON.parse(store('cq_names') || '[]'); } catch (e) {}
+    app.innerHTML = '<h1>Clue Quest: Teams</h1><p class="sub">No phones needed. Clues unlock one at a time. Pause when a hand goes up, then tap the team that got it. Answering early earns more: 4, 3, 2, then 1 point.</p>' +
+      '<div class="card"><h2>Teams</h2><div class="row" id="n">' + [2, 3, 4, 5, 6].map(function (k) { return '<button class="b' + (k === n ? ' on' : '') + '" data-v="' + k + '">' + k + ' teams</button>'; }).join('') + '</div><div class="row" id="names" style="margin-top:12px"></div></div>' +
+      '<div class="card"><h2>Game</h2><label>Topic</label><div class="row" id="topic">' + topics.map(function (t) { var k = BANK.filter(function (x) { return t === 'All' || x.t === t; }).length; return '<button class="b' + (t === topic ? ' on' : '') + '" data-v="' + esc(t) + '">' + esc(t) + ' (' + k + ')</button>'; }).join('') + '</div>' +
+      '<label>Clue sets</label><div class="row" id="count">' + ['3', '5', '10', '15'].map(function (c) { return '<button class="b' + (c === count ? ' on' : '') + '" data-v="' + c + '">' + c + '</button>'; }).join('') + '</div>' +
+      '<label>Seconds before the next clue unlocks</label><div class="row" id="secs">' + ['0', '10', '15', '20', '30'].map(function (c) { return '<button class="b' + (c === secs ? ' on' : '') + '" data-v="' + c + '">' + (c === '0' ? 'Off (I’ll unlock them)' : c + ' sec') + '</button>'; }).join('') + '</div></div>' +
+      '<button class="b go big" id="start">Start team game</button>';
+    function drawNames() { var box = app.querySelector('#names'), old = [].map.call(box.querySelectorAll('input'), function (i) { return i.value; }); box.innerHTML = '';
+      for (var i = 0; i < n; i++) box.insertAdjacentHTML('beforeend', '<input type="text" maxlength="24" aria-label="Name for team ' + (i + 1) + '" style="border-left:6px solid ' + COLORS[i] + '" value="' + esc(old[i] || names[i] || 'Team ' + (i + 1)) + '">'); }
+    drawNames();
+    function group(id, fn) { app.querySelector('#' + id).onclick = function (e) { var b = e.target.closest('[data-v]'); if (!b) return; [].forEach.call(this.children, function (x) { x.classList.toggle('on', x === b); }); fn(b.getAttribute('data-v')); }; }
+    group('n', function (v) { n = +v; drawNames(); }); group('topic', function (v) { topic = v; }); group('count', function (v) { count = v; }); group('secs', function (v) { secs = v; });
+    app.querySelector('#start').onclick = function () {
+      S.teams = [].map.call(app.querySelectorAll('#names input'), function (x, i) { return x.value.trim() || 'Team ' + (i + 1); });
+      store('cq_n', String(n)); store('cq_topic', topic); store('cq_count', count); store('cq_secs', secs); store('cq_names', JSON.stringify(S.teams));
+      var pool = BANK.map(function (x, i) { return i; }).filter(function (i) { return topic === 'All' || BANK[i].t === topic; });
+      S.ids = C.fresh('ot-clues-teams-used', pool, parseInt(count, 10)); S.scores = S.teams.map(function () { return 0; }); S.i = 0; S.secs = parseInt(secs, 10); S.started = true; item();
+    };
+  }
+  function bar() { return '<div class="score">' + S.teams.map(function (t, i) { return '<div class="chip" style="--c:' + COLORS[i] + '"><div class="n">' + esc(t) + '</div><div class="s">' + S.scores[i] + '</div></div>'; }).join('') + '</div>'; }
+  function item() { S.shown = 1; S.got = {}; S.revealed = false; S.paused = false; S.left = S.secs; render(); clock(); }
+  function clock() { clearInterval(S.timer); S.timer = null; if (!S.secs) return;
+    S.timer = setInterval(function () { if (S.paused || S.revealed) return; S.left--; if (S.left <= 0) { if (S.shown < 4) { S.shown++; S.left = S.secs; render(); } else { clearInterval(S.timer); S.timer = null; } } paint(); }, 1000); }
+  function paint() { var c = app.querySelector('.clock'); if (c) c.textContent = !S.secs ? '' : (S.revealed ? '' : (S.paused ? 'Paused ' : '') + (S.shown < 4 ? 'Next clue in ' + Math.max(S.left, 0) + 's' : 'Last clue')); }
+  function render() {
+    var x = BANK[S.ids[S.i]], worth = PTS[S.shown - 1], h = bar();
+    h += '<div class="meta"><span>Clue set ' + (S.i + 1) + ' of ' + S.ids.length + ' &nbsp;&nbsp; ' + esc(x.t) + '</span><span class="row"><span class="clock"></span>' +
+      (S.revealed ? '' : (S.secs ? '<button class="b" id="pause">' + (S.paused ? 'Resume' : 'Pause') + '</button>' : '') + (S.shown < 4 ? '<button class="b" id="more">Next clue</button>' : '')) + '</span></div>';
+    h += '<div class="card"><div class="worth">' + (S.revealed ? 'The answer' : 'Right now a correct answer is worth ' + worth + (worth === 1 ? ' point' : ' points')) + '</div><ol class="clues">' +
+      x.c.map(function (c, k) { return k < S.shown || S.revealed ? '<li><i>' + (k + 1) + '</i>' + esc(c) + '</li>' : '<li class="locked"><i>' + (k + 1) + '</i>Clue ' + (k + 1) + ' is still hidden</li>'; }).join('') + '</ol>';
+    if (S.revealed) h += '<div class="ans">' + esc(title(x.a)) + '</div><div class="learn"><b>About ' + esc(title(x.a)) + '</b><p>' + esc(x.s) + '</p><p style="color:var(--soft)">Read it: ' + esc(x.r) + '</p></div>';
+    h += '<h2 style="margin-top:14px">Who got it? <span class="sub" style="font-weight:400;font-size:.9rem">tap the team to give the points shown, tap again to undo</span></h2><div class="who">' +
+      S.teams.map(function (t, i) { return '<button class="b' + (S.got[i] ? ' got' : '') + '" style="--c:' + COLORS[i] + '" data-t="' + i + '">' + (S.got[i] ? '✓ ' + esc(t) + ' +' + S.got[i] : esc(t)) + '</button>'; }).join('') + '</div>';
+    h += '<div class="row" style="margin-top:14px">' + (S.revealed ? '' : '<button class="b go big" id="reveal">Reveal answer</button>') + '<button class="b' + (S.revealed ? ' go' : '') + ' big" id="next">' + (S.i + 1 >= S.ids.length ? 'Final standings' : 'Next clue set') + '</button></div>' +
+      '<p class="keys">Keyboard: Space pauses, C shows the next clue, R reveals, N goes to the next set.</p></div>';
+    app.innerHTML = h; paint();
+    var p = app.querySelector('#pause'); if (p) p.onclick = pause;
+    var m = app.querySelector('#more'); if (m) m.onclick = moreClue;
+    var r = app.querySelector('#reveal'); if (r) r.onclick = reveal;
+    app.querySelector('#next').onclick = next;
+    app.querySelector('.who').onclick = function (e) { var b = e.target.closest('[data-t]'); if (!b) return; var t = +b.getAttribute('data-t');
+      if (S.got[t]) { S.scores[t] -= S.got[t]; delete S.got[t]; } else { S.got[t] = PTS[S.shown - 1]; S.scores[t] += S.got[t]; } render(); };
+  }
+  function pause() { S.paused = !S.paused; render(); }
+  function moreClue() { if (S.shown < 4) { S.shown++; S.left = S.secs; render(); } }
+  function reveal() { S.revealed = true; clearInterval(S.timer); render(); }
+  function next() { clearInterval(S.timer); if (S.i + 1 >= S.ids.length) return final(); S.i++; item(); }
+  function final() {
+    var order = S.teams.map(function (t, i) { return i; }).sort(function (a, b) { return S.scores[b] - S.scores[a]; });
+    app.innerHTML = '<h1>Final standings</h1><div class="card">' + order.map(function (i, k) { return '<div class="stand"><span>' + (k + 1) + '. ' + esc(S.teams[i]) + '</span><b>' + S.scores[i] + '</b></div>'; }).join('') + '</div><div class="row"><button class="b go big" id="again">Play again</button><button class="b big" id="setup">Change teams</button></div>';
+    app.querySelector('#again').onclick = function () { setup(); app.querySelector('#start').click(); };
+    app.querySelector('#setup').onclick = setup;
+  }
+  document.addEventListener('keydown', function (e) {
+    if (!S.started || /input/i.test((e.target && e.target.tagName) || '') || !app.querySelector('#next')) return;
+    if (e.key === ' ') { e.preventDefault(); if (S.secs && !S.revealed) pause(); } else if (e.key === 'c' || e.key === 'C') moreClue();
+    else if (e.key === 'r' || e.key === 'R') reveal(); else if (e.key === 'n' || e.key === 'N' || e.key === 'ArrowRight') next();
+  });
+  setup();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<script>/* Practice mode: when this page runs inside the site's practice page, use its pretend database and give this screen its own storage. Does nothing otherwise. */
+(function(){try{var P=window.parent!==window&&window.parent.PRACTICE;if(!P)return;window.fetch=P.fetch;var s=P.storage(window.name||location.href);Object.defineProperty(window,'localStorage',{configurable:true,get:function(){return s.local;}});Object.defineProperty(window,'sessionStorage',{configurable:true,get:function(){return s.session;}});}catch(e){}})();</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Scripture Level Up</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,600;1,400&family=Figtree:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f2f4f1;--surface:#fff;--ink:#1e2a32;--muted:#5d6b73;--line:#d3dad6;--pencil:#2f5d8c;--mark:#ffe066;--good:#2f7d4f;--bad:#b3403a;
+  --serif:"Newsreader",Georgia,"Times New Roman",serif;--sans:"Figtree",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color-scheme:light;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.5}
+.wrap{max-width:560px;margin:0 auto;padding:16px 14px 40px}
+.head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px;font-weight:700}
+.pill{border-radius:999px;padding:3px 12px;color:#fff;font-size:.85rem}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:12px}
+h1{font-size:1.4rem;margin:0 0 6px}h2{font-size:1.15rem;margin:0 0 8px}
+.muted{color:var(--muted)}
+input{width:100%;font:inherit;font-size:1.1rem;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink)}
+button{font:inherit;cursor:pointer;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:12px 14px;font-weight:700}
+button.primary{background:var(--pencil);border-color:var(--pencil);color:#fff;width:100%;margin-top:10px;font-size:1.05rem}
+button[disabled]{opacity:.45;cursor:not-allowed}
+.teams{display:grid;gap:8px}
+.team{display:flex;align-items:center;gap:10px;border-left:8px solid var(--c);text-align:left;font-size:1.05rem}
+.team.on{background:#eef4fb;box-shadow:0 0 0 3px var(--pencil)}
+.ref{display:inline-block;font-weight:700;border:2px solid var(--ink);border-radius:999px;padding:2px 12px;margin-bottom:10px}
+.lvl{font-weight:700}.hint{color:var(--muted);font-size:.92rem;margin:2px 0 10px}
+.verse{font-family:var(--serif);font-size:1.3rem;line-height:2.1}
+.slot{display:inline-block;min-width:3.2em;padding:0 6px;border-bottom:2px dashed #8fa0a8;border-radius:4px;text-align:center;font-family:var(--sans);font-size:1rem;font-weight:700;color:var(--muted);cursor:pointer;line-height:1.6}
+.slot.filled{background:#e6eef7;color:var(--ink);border-bottom-color:transparent}
+.slot.sel{outline:3px solid var(--pencil);outline-offset:1px}
+.slot.ok{background:#e3f2e8;color:var(--good);border-bottom-color:transparent}.slot.no{background:#f8e5e3;color:var(--bad);border-bottom-color:transparent;text-decoration:line-through}
+.slot.key{background:var(--mark);color:var(--ink);border-bottom-color:transparent}
+.bank{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.bank button{padding:10px 12px;font-size:1rem;border-radius:999px}
+.opts{display:grid;gap:8px;margin-top:12px}.opts button{font-size:1.1rem;text-align:left}
+.row{display:flex;gap:8px;margin-top:10px}.row button{flex:1}
+.big{font-size:1.4rem;font-weight:800;margin:4px 0}
+.good{color:var(--good)}.bad{color:var(--bad)}
+.stand{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line)}.stand:last-child{border-bottom:0}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script>
+(function () {
+  var DBURL = "https://penny-project-fb5da-default-rtdb.firebaseio.com", ROOT = "seminaryGames/levelup";
+  var app = document.getElementById("app"), code = (new URLSearchParams(location.search).get("g") || "").toUpperCase();
+  var room = null, last = "", busy = false, msg = "", sending = false, D = { step: -1, fill: [], sel: 0 };
+  function u(p) { return DBURL + "/" + ROOT + "/" + code + (p ? "/" + p : "") + ".json"; }
+  function req(m, p, v) { var o = { method: m, cache: "no-store" }; if (v !== undefined) o.body = JSON.stringify(v);
+    return fetch(u(p), o).then(function (r) { return r.json(); }).catch(function () { return { error: "network" }; }); }
+  function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } }
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function norm(w) { return String(w || "").toLowerCase().replace(/[^a-z]/g, ""); }
+  var pid = null;
+  function setCode(c) { code = c; pid = store("lu_pid_" + code) || ("p" + Math.random().toString(36).slice(2, 10)); store("lu_pid_" + code, pid); }
+  if (code) setCode(code);
+  function me() { return room && room.players && room.players[pid]; }
+  function mySub() { return room && room.meta && ((room.subs || {})[room.meta.step] || {})[pid]; }
+  function teamPill(m, p) { return p && p.team >= 0 ? '<span class="pill" style="background:' + m.colors[p.team] + '">' + esc(m.teams[p.team]) + "</span>" : ""; }
+  function verse(r, mode) {
+    var b = 0, sub = mySub(), key = room.meta.key || [];
+    return '<div class="verse">' + r.tokens.map(function (t) {
+      if (!t.b) return esc(t.p) + esc(t.w) + esc(t.s);
+      var k = b++, inner, cls = "slot";
+      if (mode === "edit") { var fi = D.fill[k]; if (fi != null) { inner = esc(r.bank[fi]); cls += " filled"; } else inner = t.h ? esc(t.h) : "&nbsp;"; if (k === D.sel) cls += " sel"; return esc(t.p) + '<span class="' + cls + '" data-a="slot" data-k="' + k + '">' + inner + "</span>" + esc(t.s); }
+      if (mode === "mine") { inner = esc(sub && sub.w ? sub.w[k] : ""); return esc(t.p) + '<span class="slot filled">' + inner + "</span>" + esc(t.s); }
+      if (mode === "key") { var mine = sub && sub.w ? sub.w[k] : null, right = key[k];
+        if (mine != null && norm(mine) === norm(right)) return esc(t.p) + '<span class="slot ok">' + esc(right) + "</span>" + esc(t.s);
+        return esc(t.p) + (mine != null ? '<span class="slot no">' + esc(mine) + "</span> " : "") + '<span class="slot key">' + esc(right) + "</span>" + esc(t.s); }
+      return esc(t.p) + '<span class="slot">' + (t.h ? esc(t.h) : "&nbsp;") + "</span>" + esc(t.s);
+    }).join(" ") + "</div>";
+  }
+  function render() {
+    var h = "";
+    if (!code) { if (app.querySelector('#cd')) return; h = '<div class="card"><h1>Scripture Level Up</h1><p class="muted">Type the code on the big screen.</p><input id="cd" maxlength="4" placeholder="ABCD" autocapitalize="characters" style="text-align:center;letter-spacing:.2em;text-transform:uppercase"><button class="primary" data-a="code">Continue</button></div>'; app.innerHTML = h; return; }
+    if (!room) { app.innerHTML = '<div class="card"><p class="muted">Connecting to game ' + esc(code) + "...</p></div>"; return; }
+    if (!room.meta) { app.innerHTML = '<div class="card"><h2>Game not found</h2><p class="muted">Check the code on the big screen and try again.</p></div>'; return; }
+    var m = room.meta, p = me();
+    if (m.phase === "ended") { app.innerHTML = '<div class="card"><h2>This game has ended</h2><p class="muted">Thanks for playing.</p></div>'; return; }
+    if (!p) { if (app.querySelector('#nm')) { var je = app.querySelector('#joinErr'); if (je) je.textContent = msg; return; }
+      app.innerHTML = '<div class="card"><h1>Scripture Level Up</h1><p class="muted">Join game ' + esc(code) + '</p><input id="nm" maxlength="20" placeholder="Your first name" autocomplete="off"><button class="primary" data-a="join">Join</button><p class="bad" id="joinErr">' + esc(msg) + "</p></div>"; return; }
+    h = '<div class="head"><span>' + esc(p.name) + "</span>" + teamPill(m, p) + "</div>";
+    if (m.phase === "lobby") {
+      h += '<div class="card"><h2>' + (p.team >= 0 ? "You’re on " + esc(m.teams[p.team]) : "Pick your team") + '</h2><p class="muted">You can switch teams until the game starts.</p><div class="teams">' +
+        m.teams.map(function (t, i) { return '<button class="team' + (p.team === i ? " on" : "") + '" style="--c:' + m.colors[i] + '" data-a="team" data-t="' + i + '">' + esc(t) + "</button>"; }).join("") + "</div></div>";
+    } else if (m.phase === "question") {
+      var r = m.round, sub = mySub();
+      h += '<div class="card"><div class="lvl">' + esc(r.name) + '</div><div class="hint">' + esc(r.hint) + '</div><div class="ref">' + esc(r.ref) + "</div>";
+      if (p.team < 0) h += verse(r, "plain") + '<p class="bad">You’re not on a team yet. Ask your teacher to add you.</p>';
+      else if (sub) h += verse(r, "mine") + '<p class="good"><b>Locked in.</b> Waiting for everyone else.</p>';
+      else if (r.kind === "mc") h += verse(r, "plain") + '<div class="opts">' + r.options.map(function (o, i) { return '<button data-a="opt" data-i="' + i + '"' + (sending ? " disabled" : "") + ">" + esc(o) + "</button>"; }).join("") + "</div>";
+      else {
+        if (D.step !== m.step) { D = { step: m.step, fill: new Array(r.n).fill(null), sel: 0 }; }
+        var used = {}; D.fill.forEach(function (x) { if (x != null) used[x] = 1; });
+        var full = D.fill.every(function (x) { return x != null; });
+        h += verse(r, "edit") + '<div class="bank">' + r.bank.map(function (w, i) { return used[i] ? "" : '<button data-a="word" data-i="' + i + '">' + esc(w) + "</button>"; }).join("") + "</div>" +
+          '<div class="row"><button data-a="clear">Clear</button><button class="primary" style="margin-top:0" data-a="lock"' + (full && !sending ? "" : " disabled") + ">Lock in</button></div>";
+      }
+      h += "</div>";
+    } else if (m.phase === "reveal") {
+      var r2 = m.round, s2 = mySub(), key = m.key || [], mine = s2 && s2.w && s2.w.length === key.length && s2.w.every(function (w, k) { return norm(w) === norm(key[k]); });
+      var tr = (m.results || []).filter(function (x) { return x.team === p.team; })[0];
+      h += '<div class="card"><div class="big ' + (mine ? "good" : "bad") + '">' + (mine ? "You got it!" : (s2 ? "Not quite" : "No answer")) + '</div><div class="ref">' + esc(r2.ref) + "</div>" + verse(r2, "key") +
+        (tr ? '<p><b>' + esc(m.teams[p.team]) + ":</b> " + (tr.all ? "everyone got it right, +" + (tr.pts + (tr.bonus ? 1 : 0)) + " points" : tr.correct + " of " + tr.members + " got it right") + "</p>" : "") + "</div>" + scores(m);
+    } else if (m.phase === "final") {
+      h += '<div class="card"><h2>Final standings</h2>' + scores(m, true) + "</div>";
+    }
+    app.innerHTML = h;
+  }
+  function scores(m, bare) {
+    var sc = m.scores || [], order = m.teams.map(function (t, i) { return i; }).sort(function (a, b) { return (sc[b] || 0) - (sc[a] || 0); });
+    var rows = order.map(function (i, k) { return '<div class="stand"><span>' + (k + 1) + ". " + esc(m.teams[i]) + "</span><b>" + (sc[i] || 0) + "</b></div>"; }).join("");
+    return bare ? rows : '<div class="card"><h2>Team scores</h2>' + rows + "</div>";
+  }
+  function poll() { if (busy || !code) return; busy = true;
+    req("GET", "").then(function (d) { busy = false; if (d && !d.error) { var k = JSON.stringify(d); room = d; if (k !== last) { last = k; render(); } } }); }
+  function submit(words) { sending = true; render();
+    req("PUT", "subs/" + room.meta.step + "/" + pid, { w: words, t: { ".sv": "timestamp" } }).then(function () { sending = false; last = ""; poll(); }); }
+  app.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-a]"); if (!b || b.disabled) return; var a = b.getAttribute("data-a");
+    if (a === "code") { var v = (document.getElementById("cd").value || "").trim().toUpperCase(); if (v.length === 4) { setCode(v); history.replaceState(null, "", "?g=" + v); render(); poll(); } }
+    else if (a === "join") { var nm = (document.getElementById("nm").value || "").trim().slice(0, 20); if (!nm) { msg = "Type your name first."; render(); return; }
+      req("PUT", "players/" + pid, { name: nm, team: -1 }).then(function (r) { if (r && r.error) { msg = "Could not join. Check your connection."; render(); } else { last = ""; poll(); } }); }
+    else if (a === "team") { req("PATCH", "players/" + pid, { team: parseInt(b.getAttribute("data-t"), 10) }).then(function () { last = ""; poll(); }); }
+    else if (a === "opt") submit([room.meta.round.options[parseInt(b.getAttribute("data-i"), 10)]]);
+    else if (a === "slot") { var k = parseInt(b.getAttribute("data-k"), 10); if (D.fill[k] != null) D.fill[k] = null; D.sel = k; render(); }
+    else if (a === "word") { var i = parseInt(b.getAttribute("data-i"), 10), n = D.fill.length;
+      if (D.sel == null || D.fill[D.sel] != null) { D.sel = D.fill.indexOf(null); if (D.sel < 0) return; }
+      D.fill[D.sel] = i; var nx = null; for (var s = 1; s <= n; s++) { var j = (D.sel + s) % n; if (D.fill[j] == null) { nx = j; break; } } D.sel = nx; render(); }
+    else if (a === "clear") { D.fill = D.fill.map(function () { return null; }); D.sel = 0; render(); }
+    else if (a === "lock") { var r = room.meta.round; submit(D.fill.map(function (x) { return r.bank[x]; })); }
+  });
+  render(); if (code) { poll(); } setInterval(poll, 1200);
+})();
+</script>
+</body>
+</html>

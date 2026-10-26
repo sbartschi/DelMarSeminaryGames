@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>/* Practice mode: when this page runs inside the site's practice page, use its pretend database and give this screen its own storage. Does nothing otherwise. */
+(function(){try{var P=window.parent!==window&&window.parent.PRACTICE;if(!P)return;window.fetch=P.fetch;var s=P.storage(window.name||location.href);Object.defineProperty(window,'localStorage',{configurable:true,get:function(){return s.local;}});Object.defineProperty(window,'sessionStorage',{configurable:true,get:function(){return s.session;}});}catch(e){}})();</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Match the Prophet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-page:#0E1B2B; --bg-panel:#16273B; --bg-panel-raised:#1E3450;
+  --ink:#F1F6FB; --muted:#9FB4C9; --line:rgba(241,246,251,0.14);
+  --accent:#4FA3D1; --accent-strong:#2E7CB0; --ok:#3FA66B; --bad:#C65B5B;
+  color-scheme: dark;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;min-height:100%;background:var(--bg-page);color:var(--ink);
+  font-family:'Inter',-apple-system,Segoe UI,Roboto,sans-serif;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);}
+.wrap{max-width:760px;margin:0 auto;padding:20px 16px 50px;}
+.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:6px;}
+h1{font-family:'Fraunces',Georgia,serif;font-size:1.8rem;margin:0 0 6px;}
+h2{font-family:'Fraunces',Georgia,serif;font-size:1.3rem;margin:0 0 10px;}
+.card{background:var(--bg-panel);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px;}
+.muted{color:var(--muted);font-size:0.92rem;}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+input[type=text]{font:inherit;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:var(--bg-panel-raised);color:var(--ink);flex:1;min-width:160px;}
+.btn{font:inherit;font-weight:700;padding:14px 20px;border-radius:10px;border:1px solid var(--line);background:var(--bg-panel-raised);color:var(--ink);cursor:pointer;}
+.btn.primary{background:var(--accent);border-color:var(--accent-strong);color:#05131F;}
+.btn.big{font-size:1.1rem;width:100%;padding:18px;}
+.btn[disabled]{opacity:0.4;cursor:default;}
+.qr-box{display:flex;justify-content:center;padding:18px;background:#fff;border-radius:14px;margin:14px 0;}
+.code{font-family:'IBM Plex Mono',monospace;font-size:2.2rem;letter-spacing:0.15em;text-align:center;color:var(--accent);margin:8px 0;}
+.tag{display:inline-block;background:var(--bg-panel-raised);border-radius:20px;padding:6px 14px;margin:4px;font-size:0.9rem;}
+.lb{width:100%;border-collapse:collapse;margin-top:10px;}
+.lb td,.lb th{padding:8px 6px;border-bottom:1px solid var(--line);text-align:left;font-size:0.95rem;}
+.lb th{color:var(--muted);font-weight:600;font-size:0.78rem;text-transform:uppercase;}
+.q{font-size:1.4rem;line-height:1.4;margin:10px 0 18px;}
+.verse{font-size:1.25rem;line-height:1.5;font-style:italic;margin:10px 0 6px;}
+.ref{color:var(--muted);font-size:0.9rem;margin-bottom:16px;}
+.ans{display:block;width:100%;text-align:left;font:inherit;font-size:1.05rem;padding:16px;margin-bottom:10px;border-radius:12px;border:1px solid var(--line);background:var(--bg-panel-raised);color:var(--ink);cursor:pointer;}
+.ans.mine{border-color:var(--accent);background:rgba(79,163,209,0.18);}
+.ans.correct{border-color:var(--ok);background:rgba(63,166,107,0.22);}
+.ans.wrong{border-color:var(--bad);background:rgba(198,91,91,0.2);}
+.ans[disabled]{cursor:default;}
+.ph{text-align:center;padding:30px 10px;}
+.ph .big{display:flex;flex-direction:column;gap:12px;margin-top:16px;}
+.ph .ans.t{background:rgba(63,166,107,0.18);border-color:var(--ok);}
+.ph .ans.f{background:rgba(198,91,91,0.18);border-color:var(--bad);}
+.timer{font-family:'IBM Plex Mono',monospace;font-size:0.95rem;color:var(--muted);margin-bottom:10px;}
+.podium{display:flex;justify-content:center;align-items:flex-end;gap:14px;margin:20px 0;}
+.podium .spot{background:var(--bg-panel-raised);border-radius:10px 10px 0 0;padding:14px 16px;text-align:center;min-width:90px;}
+.podium .spot.g1{min-height:120px;background:linear-gradient(180deg,#F0CB77,#C9A227);color:#2b2418;}
+.podium .spot.g2{min-height:90px;}
+.podium .spot.g3{min-height:70px;}
+footer{text-align:center;color:var(--muted);font-size:0.8rem;margin-top:20px;}
+.ctx{margin-top:14px;padding:14px 16px;border-left:4px solid var(--accent);background:rgba(79,163,209,0.12);border-radius:10px;text-align:left;}
+.ctx .ctx-h{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:4px;}
+.ctx b{display:block;font-size:1.05rem;margin-bottom:6px;}
+.ctx p{margin:0;line-height:1.55;font-size:0.98rem;}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script>
+var CFG = {"title": "Match the Prophet", "kind": "match", "questions": [{"text": "This is my work and my glory\u2014to bring to pass the immortality and eternal life of man.", "ref": "Moses 1:39", "options": ["Moses", "Abraham", "Enoch", "Isaiah"], "answer": 0, "expl": "The Lord speaks these words to Moses. Doctrinal mastery: Moses 1:39.", "story": "Moses sees God (Moses 1)", "ctx": "In the Pearl of Great Price, Moses is caught up to a high mountain and sees God face to face. Satan then tries to deceive him, but Moses casts him out in the name of the Only Begotten. When Moses asks why God made all these things, the Lord explains His purpose: our immortality and eternal life."}, {"text": "Choose you this day whom ye will serve.", "ref": "Joshua 24:15", "options": ["Joshua", "Solomon", "Samuel", "David"], "answer": 0, "expl": "Joshua challenges Israel to choose whom they will serve. Doctrinal mastery: Joshua 24:15.", "story": "Joshua\u2019s final challenge (Joshua 24)", "ctx": "After leading Israel into the promised land, the elderly Joshua gathered the tribes at Shechem. He reviewed everything the Lord had done for them and challenged them to choose whom they would serve. Joshua declared that he and his house would serve the Lord, and the people covenanted to do the same."}, {"text": "Trust in the Lord with all thine heart; and lean not unto thine own understanding.", "ref": "Proverbs 3:5-6", "options": ["Jeremiah", "Solomon", "Isaiah", "David"], "answer": 1, "expl": "This proverb is attributed to Solomon. Doctrinal mastery: Proverbs 3:5-6.", "story": "Trusting the Lord (Proverbs 3)", "ctx": "Proverbs is a collection of wise sayings, many attributed to King Solomon, written like a father\u2019s counsel to his son. This passage teaches that when we trust the Lord with all our heart instead of relying only on our own understanding, He will direct our paths."}, {"text": "Though your sins be as scarlet, they shall be as white as snow.", "ref": "Isaiah 1:18", "options": ["Jeremiah", "Ezekiel", "Amos", "Isaiah"], "answer": 3, "expl": "Isaiah teaches of the Lord's power to forgive sins. Doctrinal mastery: Isaiah 1:18.", "story": "Sins as scarlet (Isaiah 1)", "ctx": "Isaiah opened his book by describing Judah as rebellious and spiritually sick, offering empty sacrifices. Yet in the middle of these warnings, the Lord invited them, \u201cCome now, and let us reason together,\u201d promising that even sins as deep red as scarlet could become white as snow through repentance."}, {"text": "Surely the Lord God will do nothing, but he revealeth his secret unto his servants the prophets.", "ref": "Amos 3:7", "options": ["Amos", "Ezekiel", "Daniel", "Malachi"], "answer": 0, "expl": "Amos taught that God reveals His will through prophets. Doctrinal mastery: Amos 3:7.", "story": "Amos the herdsman prophet (Amos 3)", "ctx": "Amos was a herdsman and fig farmer from Judah, not a trained prophet, whom the Lord sent to warn the northern kingdom of Israel. He taught that the Lord reveals His plans to His prophets before acting, a key reason we follow living prophets today."}, {"text": "Bring ye all the tithes into the storehouse, that there may be meat in mine house, and prove me now herewith.", "ref": "Malachi 3:10", "options": ["Moses", "Malachi", "Isaiah", "Elijah"], "answer": 1, "expl": "Malachi taught the blessings of paying tithing. Doctrinal mastery: Malachi 3:8-10.", "story": "Malachi on tithing (Malachi 3)", "ctx": "Malachi was the last prophet of the Old Testament. The Lord asked, \u201cWill a man rob God?\u201d and explained the people robbed Him in tithes and offerings. He promised that if they brought their tithes into the storehouse, He would open the windows of heaven. The Savior later taught these same words to the Nephites (3 Nephi 24)."}, {"text": "How then can I do this great wickedness, and sin against God?", "ref": "Genesis 39:9", "options": ["Joseph", "Abraham", "Moses", "Jacob"], "answer": 2, "expl": "Joseph spoke these words, but Moses is the writer of Genesis, so he is the prophet credited with this scripture. Doctrinal mastery: Genesis 39:9.", "story": "Joseph and Potiphar\u2019s wife (Genesis 39)", "ctx": "Joseph was sold as a slave to Potiphar, an Egyptian officer, and became overseer of his house. Potiphar\u2019s wife tried to tempt him day after day, but Joseph refused because it would be a sin against God. When she grabbed him, he fled and left his garment behind. She lied about him and he was put in prison, yet the Lord was with him."}, {"text": "Before I formed thee in the belly I knew thee... I ordained thee a prophet unto the nations.", "ref": "Jeremiah 1:4-5", "options": ["Daniel", "Ezekiel", "Jeremiah", "Isaiah"], "answer": 2, "expl": "The Lord tells Jeremiah he was foreordained to be a prophet. Doctrinal mastery: Jeremiah 1:4-5.", "story": "The call of Jeremiah (Jeremiah 1)", "ctx": "The Lord told Jeremiah that He knew him and ordained him a prophet before he was born. Jeremiah protested that he was only a child and could not speak. The Lord touched his mouth, put His words there, and told him not to be afraid. Jeremiah prophesied for about forty years, in the same era as Lehi."}, {"text": "So God created man in his own image, in the image of God created he him; male and female created he them.", "ref": "Genesis 1:26-27", "options": ["Moses", "Enoch", "Adam", "Abraham"], "answer": 0, "expl": "Moses is the prophet credited as the writer of Genesis. Doctrinal mastery: Genesis 1:26-27.", "story": "The Creation (Genesis 1)", "ctx": "Genesis 1 describes God creating the earth in six creative periods. On the sixth, He created man and woman in His own image and gave them dominion over the earth. It teaches that every person is a child of God with divine nature and potential."}, {"text": "Therefore the Lord himself shall give you a sign; Behold, a virgin shall conceive, and bear a son, and shall call his name Immanuel.", "ref": "Isaiah 7:14", "options": ["Micah", "Jeremiah", "Isaiah", "Daniel"], "answer": 2, "expl": "Isaiah prophesies of the coming birth of the Savior.", "story": "The sign of Immanuel (Isaiah 7)", "ctx": "When King Ahaz of Judah feared an attack from Syria and Israel, Isaiah urged him to trust the Lord and offered a sign: a virgin would bear a son named Immanuel, meaning \u201cGod with us.\u201d Matthew 1:23 teaches this was fulfilled in the birth of Jesus Christ to Mary."}, {"text": "The Lord is my shepherd; I shall not want.", "ref": "Psalm 23:1", "options": ["Solomon", "Asaph", "David", "Moses"], "answer": 2, "expl": "Psalm 23 is one of David's best-known psalms.", "story": "The Shepherd\u2019s psalm (Psalm 23)", "ctx": "David was a shepherd before he became king, protecting his father\u2019s flocks from lions and bears. In this psalm he describes the Lord as a shepherd who leads, feeds, restores, and protects His sheep, even through the valley of the shadow of death."}, {"text": "To every thing there is a season, and a time to every purpose under the heaven.", "ref": "Ecclesiastes 3:1", "options": ["David", "Solomon", "Job", "Isaiah"], "answer": 1, "expl": "Ecclesiastes is traditionally attributed to Solomon.", "story": "A time for everything (Ecclesiastes 3)", "ctx": "Ecclesiastes is written by \u201cthe Preacher,\u201d traditionally King Solomon, who reflects on what gives life meaning. In chapter 3 he lists the seasons of life, a time to be born and a time to die, a time to weep and a time to laugh, teaching that God has a purpose for each season."}, {"text": "I know that my redeemer liveth.", "ref": "Job 19:25", "options": ["Moses", "Isaiah", "David", "Job"], "answer": 3, "expl": "Job declares this testimony in the midst of his suffering.", "story": "Job\u2019s testimony (Job 19)", "ctx": "Job had lost his children, wealth, and health, and his friends insisted he must be suffering for secret sins. Feeling abandoned, Job still bore powerful testimony that his Redeemer lives and that he would see God in the flesh, a witness of the Resurrection."}, {"text": "Can a woman forget her sucking child, that she should not have compassion... yet will I not forget thee.", "ref": "Isaiah 49:15", "options": ["Ezekiel", "Jeremiah", "Hosea", "Isaiah"], "answer": 3, "expl": "Isaiah teaches that the Lord's love is even greater than a mother's love.", "story": "The Lord will not forget (Isaiah 49)", "ctx": "Isaiah 49 speaks to scattered Israel, who felt forsaken. The Lord answers that even if a mother could forget her nursing child, He will never forget His people, adding, \u201cI have graven thee upon the palms of my hands.\u201d Nephi quoted this chapter to his brothers (1 Nephi 21)."}, {"text": "The heart is deceitful above all things, and desperately wicked: who can know it?", "ref": "Jeremiah 17:9", "options": ["Jeremiah", "Isaiah", "Ezekiel", "Daniel"], "answer": 0, "expl": "Jeremiah warns of how easily the heart can deceive.", "story": "The deceitful heart (Jeremiah 17)", "ctx": "Jeremiah warned Judah that their sin was written \u201cwith a pen of iron\u201d on their hearts. He contrasted those who trust in man with those who trust in the Lord, who are like a tree planted by the waters. He taught that only the Lord truly searches and knows the heart."}, {"text": "Son of man, can these bones live?", "ref": "Ezekiel 37:3", "options": ["Ezekiel", "Jeremiah", "Daniel", "Isaiah"], "answer": 0, "expl": "The Lord asks Ezekiel this in the vision of the valley of dry bones.", "story": "The valley of dry bones (Ezekiel 37)", "ctx": "In vision, the Lord set Ezekiel in a valley full of very dry bones and asked, \u201cCan these bones live?\u201d As Ezekiel prophesied, the bones came together, received flesh, and were filled with breath. The Lord explained it represented the house of Israel being gathered and given new life, and it also points to the Resurrection."}, {"text": "They that wait upon the Lord shall renew their strength; they shall mount up with wings as eagles.", "ref": "Isaiah 40:31", "options": ["Isaiah", "Joel", "Micah", "Jeremiah"], "answer": 0, "expl": "Isaiah teaches that those who wait on the Lord will find renewed strength.", "story": "Strength for the weary (Isaiah 40)", "ctx": "Isaiah 40 opens with \u201cComfort ye, comfort ye my people,\u201d a message of hope for Israel. Isaiah reminds them that the everlasting God never grows tired, and promises that those who wait upon the Lord will run and not be weary, and walk and not faint."}, {"text": "What doth the Lord require of thee, but to do justly, and to love mercy, and to walk humbly with thy God?", "ref": "Micah 6:8", "options": ["Joel", "Micah", "Amos", "Hosea"], "answer": 1, "expl": "Micah summarizes what the Lord asks of His people.", "story": "What the Lord requires (Micah 6)", "ctx": "Micah prophesied in Judah around the same time as Isaiah. In this chapter the people ask whether the Lord wants thousands of rams or rivers of oil as offerings. The answer is no: what He truly wants is for us to do justly, love mercy, and walk humbly with Him."}, {"text": "But Daniel purposed in his heart that he would not defile himself.", "ref": "Daniel 1:8", "options": ["Joseph", "Moses", "Daniel", "Samuel"], "answer": 2, "expl": "Daniel resolved not to eat the king's food, which would have defiled him.", "story": "Daniel\u2019s food test (Daniel 1)", "ctx": "Daniel and three friends were young Jewish captives chosen for training in the Babylonian king\u2019s court. Rather than defile themselves with the king\u2019s food and wine, they asked to eat pulse (vegetables) and drink water for ten days. At the end they were healthier than the others, and God gave them knowledge and wisdom."}, {"text": "Not by might, nor by power, but by my spirit, saith the Lord of hosts.", "ref": "Zechariah 4:6", "options": ["Zechariah", "Malachi", "Ezra", "Haggai"], "answer": 0, "expl": "Zechariah delivers this message to Zerubbabel about rebuilding the temple.", "story": "Zerubbabel and the temple (Zechariah 4)", "ctx": "After returning from Babylon, the Jews struggled to finish rebuilding the temple under their governor Zerubbabel. Zechariah saw a vision of a golden candlestick fed by olive trees, and the Lord explained that the temple would be finished not by human might or power, but by His Spirit."}, {"text": "Create in me a clean heart, O God; and renew a right spirit within me.", "ref": "Psalm 51:10", "options": ["Isaiah", "David", "Samuel", "Solomon"], "answer": 1, "expl": "David\u2019s prayer of repentance", "story": "David\u2019s prayer of repentance (Psalm 51)", "ctx": "David wrote this psalm after the prophet Nathan confronted him about his sin with Bathsheba. He pleads, \u201cCreate in me a clean heart, O God,\u201d and teaches that God desires \u201ca broken and a contrite heart.\u201d The resurrected Savior asked the Nephites for this same sacrifice (3 Nephi 9:20)."}, {"text": "Fear God, and keep his commandments: for this is the whole duty of man.", "ref": "Ecclesiastes 12:13", "options": ["David", "Solomon", "Moses", "Job"], "answer": 1, "expl": "The Preacher\u2019s conclusion", "story": "The whole duty of man (Ecclesiastes 12)", "ctx": "After exploring wealth, pleasure, work, and wisdom and calling them all vanity on their own, the Preacher reaches his conclusion: \u201cFear God, and keep his commandments: for this is the whole duty of man.\u201d The same chapter begins, \u201cRemember now thy Creator in the days of thy youth.\u201d"}, {"text": "Man looketh on the outward appearance, but the LORD looketh on the heart.", "ref": "1 Samuel 16:7", "options": ["David", "Samuel", "Moses", "Nathan"], "answer": 1, "expl": "The Lord taught Samuel this as he chose a new king; Samuel is credited with the record", "story": "Samuel anoints David (1 Samuel 16)", "ctx": "The Lord sent Samuel to Jesse\u2019s house in Bethlehem to anoint a new king. Samuel was impressed by the tall oldest son, but the Lord said, \u201cMan looketh on the outward appearance, but the LORD looketh on the heart.\u201d The youngest, David, was called in from the sheep and anointed."}, {"text": "The LORD gave, and the LORD hath taken away; blessed be the name of the LORD.", "ref": "Job 1:21", "options": ["Job", "Jeremiah", "Jonah", "David"], "answer": 0, "expl": "Job said this after losing his children and possessions", "story": "Job\u2019s trial begins (Job 1 to 2)", "ctx": "Job was a perfect and upright man with great wealth and ten children. Satan claimed Job was faithful only because he was blessed, so the Lord allowed Job to be tried. In one day he lost his animals, servants, and children, and later his health. Job worshipped and said, \u201cThe LORD gave, and the LORD hath taken away,\u201d and he did not curse God."}, {"text": "Here am I; send me.", "ref": "Isaiah 6:8", "options": ["Jeremiah", "Samuel", "Isaiah", "Ezekiel"], "answer": 2, "expl": "Isaiah\u2019s answer to the Lord\u2019s call", "story": "Isaiah\u2019s call to be a prophet (Isaiah 6)", "ctx": "In the year King Uzziah died, Isaiah saw the Lord on His throne surrounded by seraphim. Feeling unworthy, he cried that he was \u201ca man of unclean lips,\u201d but a seraph touched his lips with a live coal from the altar and his sin was purged. When the Lord asked, \u201cWhom shall I send?\u201d Isaiah answered, \u201cHere am I; send me.\u201d"}, {"text": "Behold, I will send you Elijah the prophet before the coming of the great and dreadful day of the LORD.", "ref": "Malachi 4:5", "options": ["Malachi", "Joel", "Isaiah", "Zechariah"], "answer": 0, "expl": "Fulfilled in the Kirtland Temple in 1836", "story": "Elijah\u2019s promised return (Malachi 4)", "ctx": "In the last verses of the Old Testament, Malachi promised the Lord would send Elijah before His Second Coming to turn the hearts of the fathers and children to each other. Moroni quoted these verses to Joseph Smith in 1823, and Elijah came to the Kirtland Temple in 1836 to restore the sealing power that binds families forever (D&C 110)."}, {"text": "Call the sabbath a delight, the holy of the LORD, honourable.", "ref": "Isaiah 58:13", "options": ["Malachi", "Isaiah", "Amos", "Jeremiah"], "answer": 1, "expl": "Isaiah\u2019s teaching on the Sabbath", "story": "Making the Sabbath a delight (Isaiah 58)", "ctx": "In the same chapter as his teachings on fasting, Isaiah taught how to keep the Sabbath. Turning away from \u201cdoing thy pleasure\u201d on the Lord\u2019s holy day and calling it a delight brings the promise, \u201cThen shalt thou delight thyself in the LORD.\u201d"}, {"text": "Who knoweth whether thou art come to the kingdom for such a time as this?", "ref": "Esther 4:14", "options": ["Mordecai", "Ezra", "Daniel", "Nehemiah"], "answer": 0, "expl": "Mordecai urged Esther to speak to the king", "story": "Esther saves her people (Esther 4 to 8)", "ctx": "Haman got a decree to destroy every Jew in Persia. Mordecai urged Esther to plead with the king, reminding her she may have become queen \u201cfor such a time as this.\u201d Anyone who went to the king uninvited could be put to death, so Esther and her people fasted three days. She went in, the king held out his golden sceptre, and her people were saved."}, {"text": "I am doing a great work, so that I cannot come down.", "ref": "Nehemiah 6:3", "options": ["Haggai", "Ezra", "Zerubbabel", "Nehemiah"], "answer": 3, "expl": "Nehemiah refused to leave the wall", "story": "Rebuilding the wall (Nehemiah 4 to 6)", "ctx": "As Nehemiah\u2019s workers rebuilt Jerusalem\u2019s walls, enemies mocked them and plotted to attack. Nehemiah set guards and had the builders carry weapons as they worked. When his enemies tried four times to lure him away to harm him, he answered, \u201cI am doing a great work, so that I cannot come down.\u201d The wall was finished in 52 days."}, {"text": "Whither thou goest, I will go; and where thou lodgest, I will lodge: thy people shall be my people, and thy God my God.", "ref": "Ruth 1:16", "options": ["Ruth", "Esther", "Naomi", "Hannah"], "answer": 0, "expl": "Ruth\u2019s loyalty to Naomi", "story": "Ruth and Naomi (Ruth 1 to 4)", "ctx": "Ruth was a Moabite woman whose Israelite husband died. Instead of going home, she stayed loyal to her mother-in-law Naomi, saying \u201cwhither thou goest, I will go.\u201d In Bethlehem she gleaned grain in the fields of Boaz, a kind relative, who married her. Their great-grandson was King David."}], "seconds": 25, "root": "seminaryGames/prophets"};
+var DB = "https://penny-project-fb5da-default-rtdb.firebaseio.com";
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function url(code, path){ return DB + '/' + CFG.root + '/' + code + (path ? '/' + path : '') + '.json'; }
+function dbErr(r){ return r && typeof r === 'object' && typeof r.error === 'string' ? r.error : null; }
+function jget(code, path){ return fetch(url(code, path), {cache:'no-store'}).then(function(r){ return r.json(); }).catch(function(){ return { error: 'network' }; }); }
+function jput(code, path, v){ return fetch(url(code, path), {method:'PUT', body: JSON.stringify(v)}).then(function(r){ return r.json(); }).catch(function(){ return { error: 'network' }; }); }
+function jpatch(code, path, v){ return fetch(url(code, path), {method:'PATCH', body: JSON.stringify(v)}).then(function(r){ return r.json(); }).catch(function(){ return { error: 'network' }; }); }
+function dbErrorScreen(msg){
+  return '<div class="card"><div class="eyebrow">Could not reach the database</div>' +
+    '<p>'+esc(msg)+'</p>' +
+    '<p class="muted">This usually means the Firebase Realtime Database rules need to allow read and write. In the Firebase console, go to Realtime Database, then Rules, and make sure they allow access (for example, <code>{"rules": {".read": true, ".write": true}}</code>), then reload this page.</p></div>';
+}
+function ranked(players){ var a=[]; for (var k in (players||{})) a.push({id:k, name:players[k].name, score:players[k].score||0}); a.sort(function(x,y){ return y.score-x.score || x.name.localeCompare(y.name); }); return a; }
+function store(k, v){ try{ if (v===undefined) return sessionStorage.getItem(k); sessionStorage.setItem(k, v); }catch(e){ return null; } }
+function ctxHtml(q){ if(!q||(!q.story&&!q.ctx)) return ''; return '<div class="ctx"><div class="ctx-h">The story</div>'+(q.story?'<b>'+esc(q.story)+'</b>':'')+(q.ctx?'<p>'+esc(q.ctx)+'</p>':'')+'</div>'; }
+function mkCode(){ var L='ABCDEFGHJKLMNPQRSTUVWXYZ', c=''; for (var i=0;i<4;i++) c+=L[Math.floor(Math.random()*L.length)]; return c; }
+
+(function(){
+var app=document.getElementById('app'),Q=CFG.questions,code=(new URLSearchParams(location.search).get('g')||'').toUpperCase(),pid=store('pid_'+code)||(function(){var v='p'+Math.random().toString(36).slice(2,10); store('pid_'+code,v); return v;})(),room=null,seenQ=-1,mine=null,busy=false;
+
+function render(){
+  var h='';
+  if (!code){ if (app.querySelector('#gc')) return; h='<div class="ph"><div class="eyebrow">'+esc(CFG.title)+'</div><h2>Enter the game code</h2><input id="gc" maxlength="4" placeholder="ABCD" autocapitalize="characters" style="text-align:center;font-size:1.4rem;letter-spacing:0.2em;"><button class="btn primary big" data-a="code">Continue</button></div>'; app.innerHTML=h; return; }
+  var meName = store('name_'+code);
+  if (!meName){ if (app.querySelector('#nm')) return; h='<div class="ph"><div class="eyebrow">'+esc(CFG.title)+'</div><h2>Join game '+esc(code)+'</h2><input id="nm" maxlength="16" placeholder="Your name"><button class="btn primary big" data-a="join">Join</button><div class="muted" id="err"></div></div>'; app.innerHTML=h; return; }
+  if (!room){ app.innerHTML='<div class="ph"><div class="muted">Connecting...</div></div>'; return; }
+  if (room.error){ app.innerHTML='<div class="ph">'+dbErrorScreen(room.error)+'</div>'; return; }
+  var m=room.meta, me=(room.players||{})[pid];
+  if (!me){ app.innerHTML='<div class="ph"><div class="muted">Not joined yet, one moment...</div></div>'; return; }
+  var r=ranked(room.players), rank=r.findIndex(function(x){ return x.id===pid; })+1;
+  if (m.phase==='lobby'){
+    h='<div class="ph"><div class="eyebrow">You are in</div><h2>'+esc(me.name)+'</h2><div class="muted">Watch the big screen. The game starts soon.</div></div>';
+  } else if (m.phase==='question'){
+    var q=Q[m.qids[m.q]];
+    if (seenQ!==m.q){ seenQ=m.q; var existing=((room.ans||{})[m.q]||{})[pid]; mine = existing ? existing.i : null; }
+    h='<div class="ph"><div class="eyebrow">Question '+(m.q+1)+' of '+m.qids.length+'</div>';
+    if (CFG.kind==='match'){
+      h+='<div class="muted">Which prophet said or wrote this?</div><div class="verse">&ldquo;'+esc(q.text)+'&rdquo;</div><div class="big">'+
+        q.options.map(function(o,i){ return '<button class="ans'+(mine===i?' mine':'')+'" data-a="pick" data-i="'+i+'"'+(mine!==null?' disabled':'')+'>'+esc(o)+'</button>'; }).join('')+'</div>';
+    } else {
+      h+='<div class="q">'+esc(q.text)+'</div><div class="big">'+
+        '<button class="ans t'+(mine===0?' mine':'')+'" data-a="pick" data-i="0"'+(mine!==null?' disabled':'')+'>True</button>'+
+        '<button class="ans f'+(mine===1?' mine':'')+'" data-a="pick" data-i="1"'+(mine!==null?' disabled':'')+'>False</button></div>';
+    }
+    h+=mine!==null?'<div class="muted">Answer locked in, waiting on the host...</div>':'';
+    h+='</div>';
+  } else if (m.phase==='reveal'){
+    var q=Q[m.qids[m.q]];
+    var correctIdx = CFG.kind==='match' ? q.answer : (q.answer?0:1);
+    var got = ((room.ans||{})[m.q]||{})[pid];
+    var right = got && got.i===correctIdx;
+    h='<div class="ph"><div class="eyebrow">'+(right?'Correct!':'Not quite')+'</div><h2>'+esc(q.ref)+'</h2><div class="muted">'+esc(q.expl)+'</div>'+ctxHtml(q)+
+      '<div class="card" style="margin-top:16px"><div class="muted">Your rank</div><h2>#'+rank+'</h2><div class="muted">'+me.score+' points</div></div></div>';
+  } else if (m.phase==='final'){
+    h='<div class="ph"><div class="eyebrow">Final rank</div><h2>#'+rank+' of '+r.length+'</h2><div class="muted">'+me.score+' points</div></div>';
+  }
+  app.innerHTML=h;
+}
+
+function poll(){
+  if (busy || !code) return; busy=true;
+  jget(code,'').then(function(d){ busy=false; if (d){ room=d; render(); } });
+}
+
+app.addEventListener('click', function(e){
+  var b=e.target.closest('[data-a]'); if (!b) return; var a=b.getAttribute('data-a');
+  if (a==='code'){ var v=(document.getElementById('gc').value||'').trim().toUpperCase(); if (v.length===4){ code=v; history.replaceState(null,'','?g='+v); render(); poll(); setInterval(poll,1500); } }
+  else if (a==='join'){
+    var nm=(document.getElementById('nm').value||'').trim().slice(0,16); if (!nm) return;
+    jget(code,'meta').then(function(meta){
+      var e = dbErr(meta);
+      if (e){ document.getElementById('err').textContent='Could not reach the database ('+e+'). Ask your teacher to check the Firebase rules.'; return; }
+      if (!meta){ document.getElementById('err').textContent='Game not found, check the code.'; return; }
+      store('name_'+code, nm);
+      jput(code,'players/'+pid,{name:nm, score:0}).then(function(r2){
+        var e2 = dbErr(r2);
+        if (e2){ document.getElementById('err').textContent='Could not join ('+e2+'). Ask your teacher to check the Firebase rules.'; return; }
+        render();
+      });
+    });
+  } else if (a==='pick'){
+    if (mine!==null) return;
+    var i=+b.getAttribute('data-i'); mine=i;
+    jput(code,'ans/'+room.meta.q+'/'+pid,{i:i, t:Date.now()}).then(function(){ render(); });
+  }
+});
+
+render();
+if (code){ poll(); setInterval(poll,1500); }
+})();
+</script>
+</body>
+</html>

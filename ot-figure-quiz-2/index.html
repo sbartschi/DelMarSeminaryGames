@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>/* Practice mode: when this page runs inside the site's practice page, use its pretend database and give this screen its own storage. Does nothing otherwise. */
+(function(){try{var P=window.parent!==window&&window.parent.PRACTICE;if(!P)return;window.fetch=P.fetch;var s=P.storage(window.name||location.href);Object.defineProperty(window,'localStorage',{configurable:true,get:function(){return s.local;}});Object.defineProperty(window,'sessionStorage',{configurable:true,get:function(){return s.session;}});}catch(e){}})();</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<title>Which Prophet or Psalmist Are You?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  :root{
+    color-scheme:light;
+    --bg-page:#FAF7F0;
+    --bg-panel:#FFFFFF;
+    --bg-panel-raised:#F2ECDE;
+    --accent:#C8693A;
+    --accent-strong:#8A3B17;
+    --accent-2:#3E6B78;
+    --accent-2-strong:#3E6B78;
+    --text-primary:#2C2A22;
+    --text-muted:#726F5E;
+    --line-soft:rgba(44,42,34,0.13);
+    --warn:#C97B4A;
+    --radius:14px;
+    box-sizing:border-box;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  html{scroll-padding-top:env(safe-area-inset-top,0px);}
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg-page);color:var(--text-primary);font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;}
+  h1,h2,h3{font-family:'Fraunces',Georgia,'Times New Roman',serif;margin:0 0 8px;letter-spacing:-0.01em;}
+  h1{font-size:28px;line-height:1.15;} h2{font-size:22px;line-height:1.2;} h3{font-size:16px;}
+  p{line-height:1.5;margin:0 0 10px;}
+  .muted{color:var(--text-muted);}
+  .wrap{max-width:560px;margin:0 auto;padding:20px 18px 40px;}
+  .wrap.wide{max-width:760px;}
+  .eyebrow{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:12px;letter-spacing:0.08em;color:var(--accent-strong);margin-bottom:6px;text-transform:uppercase;}
+  .card{background:var(--bg-panel);border:1px solid var(--line-soft);border-radius:var(--radius);padding:20px 20px;margin-bottom:14px;}
+  .btn{font-family:'Inter',sans-serif;font-weight:600;font-size:15px;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;}
+  .btn.primary{background:var(--accent);color:#fff;}
+  .btn.primary:hover{background:var(--accent-strong);}
+  .btn.ghost{background:transparent;color:var(--text-muted);border:1px solid var(--line-soft);}
+  .btn.ghost:hover{color:var(--text-primary);border-color:var(--text-primary);}
+  .btn:disabled{opacity:.35;cursor:not-allowed;}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+  .row input{flex:1;min-width:200px;padding:11px 12px;border-radius:10px;border:1px solid var(--line-soft);background:var(--bg-panel-raised);color:var(--text-primary);font-size:14px;}
+  .qr-box{display:flex;justify-content:center;padding:18px;background:#fff;border-radius:12px;margin:14px 0;border:1px solid var(--line-soft);}
+  .hidden{display:none !important;}
+
+  .progress-track{height:8px;border-radius:6px;background:var(--bg-panel-raised);overflow:hidden;margin:8px 0 18px;}
+  .progress-fill{height:100%;background:var(--accent);border-radius:6px;transition:width .3s;}
+  .q-top{display:flex;justify-content:space-between;align-items:center;}
+  .q-count{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--text-muted);}
+  .opt{display:block;width:100%;text-align:left;padding:14px 16px;margin-bottom:10px;border-radius:12px;border:1px solid var(--line-soft);background:var(--bg-panel);cursor:pointer;font-size:15px;line-height:1.4;color:var(--text-primary);font-family:'Inter',sans-serif;}
+  .opt:hover{border-color:var(--accent);}
+  .opt.picked{border-color:var(--accent);background:rgba(200,105,58,0.12);}
+  .q-text{font-family:'Fraunces',Georgia,serif;font-size:22px;line-height:1.25;margin:0 0 16px;font-weight:600;}
+
+  .result-hero{text-align:center;padding:26px 18px;background:var(--bg-panel);border:1px solid var(--accent);border-radius:var(--radius);margin-bottom:14px;}
+  .result-hero .big{font-family:'Fraunces',Georgia,serif;font-size:44px;font-weight:700;color:var(--accent-strong);margin:4px 0;line-height:1.1;}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:10px;}
+  .chip{padding:6px 12px;border-radius:999px;background:var(--bg-panel-raised);border:1px solid var(--line-soft);font-size:13px;}
+  ul.plain{margin:6px 0 0;padding-left:18px;}
+  ul.plain li{margin-bottom:6px;font-size:14px;color:var(--text-primary);}
+  details.scripture-reveal{margin-top:10px;}
+  details.scripture-reveal summary{cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--accent-2-strong);list-style:none;padding:8px 12px;background:var(--bg-panel-raised);border-radius:8px;border-left:3px solid var(--accent-2);}
+  details.scripture-reveal summary::-webkit-details-marker{display:none;}
+  details.scripture-reveal summary::before{content:"+ ";}
+  details.scripture-reveal[open] summary::before{content:"- ";}
+  details.scripture-reveal .verse-text{margin-top:4px;padding:10px 12px;background:var(--bg-panel-raised);border-radius:0 8px 8px 8px;border-left:3px solid var(--accent-2);}
+  details.scripture-reveal .verse-text p{margin:0;font-size:14px;font-style:italic;}
+  .bar-row{margin-bottom:10px;}
+  .bar-label{display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;}
+  .bar-track{height:10px;border-radius:6px;background:var(--bg-panel-raised);overflow:hidden;}
+  .bar-fill{height:100%;background:var(--accent-2);border-radius:6px;}
+  .pill{display:inline-block;padding:5px 12px;border-radius:999px;margin:0 6px 6px 0;font-size:13px;background:var(--bg-panel-raised);border:1px solid var(--line-soft);}
+</style>
+</head>
+<body>
+
+<!-- TEACHER SCREEN: shown on the projector. Students never see this when they scan the QR code. -->
+<div class="wrap wide" id="teacher-view">
+  <div class="eyebrow">Old Testament seminary game</div>
+  <h1>Which Prophet or Psalmist Are You?</h1>
+  <p class="muted">Ten questions, one match. Scan the QR code, answer from your gut, and find out which prophet or psalmist from the later Old Testament thinks like you</p>
+  <div class="card">
+    <h3>Scan to join on your phone</h3>
+    <div id="qr-holder"></div>
+  </div>
+  <div class="card">
+    <h3>Step 2: everyone plays</h3>
+    <p class="muted">There is no waiting room and no scoreboard. Each student gets their own result on their own phone. After everyone finishes, go around the room and ask who matched with whom, then ask why</p>
+    <div class="row">
+      <button class="btn primary" id="play-here">Play on this device</button>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Discussion ideas for the debrief</h3>
+    <ul class="plain">
+      <li>Who was surprised by their result, and which question do you think tipped it</li>
+      <li>Which figure did you hope to get, and what does that say about what you admire</li>
+      <li>Which of these people made a mistake, and what did God do next</li>
+    </ul>
+  </div>
+</div>
+
+<!-- STUDENT GAME -->
+<div class="wrap hidden" id="game-view">
+  <div id="game-app"></div>
+</div>
+
+<script>
+(function(){
+
+  /* ===== CHARACTERS ===== */
+  var CHARS = {
+ "isaiah": {
+  "name": "Isaiah",
+  "traits": [
+   "Visionary",
+   "Ready to volunteer",
+   "Sees the big picture"
+  ],
+  "story": "Isaiah was a prophet in Jerusalem for about 40 years during the reigns of several kings of Judah. In a vision he saw the Lord in the temple, felt unworthy, and was cleansed when a seraph touched his lips with a live coal. When the Lord asked whom He should send, Isaiah volunteered right away. He counseled King Hezekiah when Assyria surrounded Jerusalem, and he prophesied more about Jesus Christ than almost any other Old Testament prophet, including His birth and His Atonement.",
+  "ref": "Isaiah 6:8",
+  "verse": "Also I heard the voice of the Lord, saying, Whom shall I send, and who will go for us? Then said I, Here am I; send me.",
+  "tie": "The Savior told the Nephites \"great are the words of Isaiah\" (3 Nephi 23:1), and the Book of Mormon quotes Isaiah more than any other prophet",
+  "read": "Isaiah 6, 9, and 53"
+ },
+ "jeremiah": {
+  "name": "Jeremiah",
+  "traits": [
+   "Honest about hard things",
+   "Keeps going when unpopular",
+   "Deeply caring"
+  ],
+  "story": "Jeremiah was called as a young man and felt he was too young to speak. The Lord told him he had been ordained a prophet before he was born. For about 40 years he warned Judah to repent before Babylon came, and he was mocked, put in stocks, and even lowered into a muddy dungeon. He sometimes wanted to quit, but he said the word of the Lord was like a fire shut up in his bones. He also prophesied of a day when the Lord would gather Israel and write His law in their hearts.",
+  "ref": "Jeremiah 20:9",
+  "verse": "Then I said, I will not make mention of him, nor speak any more in his name. But his word was in mine heart as a burning fire shut up in my bones, and I was weary with forbearing, and I could not stay.",
+  "tie": "Jeremiah lived at the same time as Lehi, and Nephi mentions that the Jews had cast Jeremiah into prison (1 Nephi 7:14)",
+  "read": "Jeremiah 1, 18, and 38"
+ },
+ "ezekiel": {
+  "name": "Ezekiel",
+  "traits": [
+   "Creative",
+   "Sees what others miss",
+   "Takes responsibility seriously"
+  ],
+  "story": "Ezekiel was a priest carried captive to Babylon. The Lord called him to be a watchman for Israel, warning people so they could choose to repent. He taught with unforgettable visions and object lessons: a valley of dry bones coming to life, two sticks joined into one, and a river flowing from the temple that brought healing wherever it went.",
+  "ref": "Ezekiel 3:17",
+  "verse": "Son of man, I have made thee a watchman unto the house of Israel: therefore hear the word at my mouth, and give them warning from me.",
+  "tie": "Latter-day Saints understand the stick of Joseph in Ezekiel 37 as the Book of Mormon, joined with the Bible",
+  "read": "Ezekiel 3, 37, and 47"
+ },
+ "job": {
+  "name": "Job",
+  "traits": [
+   "Endures with faith",
+   "Asks real questions",
+   "Loyal to God in the hardest times"
+  ],
+  "story": "Job was a good man who lost his wealth, his children, and his health. His friends insisted he must have sinned to deserve it, but Job held on to his integrity. He asked God honest questions about his suffering, and the Lord answered him out of a whirlwind. In the end the Lord blessed Job with twice as much as he had before.",
+  "ref": "Job 19:25",
+  "verse": "For I know that my redeemer liveth, and that he shall stand at the latter day upon the earth:",
+  "tie": "In Liberty Jail the Lord comforted Joseph Smith with the words \"thou art not yet as Job\" (D&C 121:10)",
+  "read": "Job 1, 19, and 38 to 42"
+ },
+ "nehemiah": {
+  "name": "Nehemiah",
+  "traits": [
+   "Gets things done",
+   "Prayerful planner",
+   "Will not be distracted"
+  ],
+  "story": "Nehemiah served as cupbearer to the king of Persia. When he heard the walls of Jerusalem were broken down, he wept, fasted, and prayed, then asked the king for permission to go rebuild them. He organized the people by families, and when enemies threatened, the workers built with one hand and held a weapon with the other. When his enemies tried to lure him away, he answered that he was doing a great work and could not come down. The wall was finished in 52 days.",
+  "ref": "Nehemiah 6:3",
+  "verse": "And I sent messengers unto them, saying, I am doing a great work, so that I cannot come down: why should the work cease, whilst I leave it, and come down to you?",
+  "tie": "",
+  "read": "Nehemiah 1, 2, 4, and 6"
+ },
+ "ezra": {
+  "name": "Ezra",
+  "traits": [
+   "Studious",
+   "Teacher at heart",
+   "Builds others up through the word"
+  ],
+  "story": "Ezra was a priest and scribe who led a group of Jews from Babylon back to Jerusalem. He set his heart on learning the law of the Lord, living it, and teaching it. Back in Jerusalem, he helped the people commit to keep their covenants. Later he read the law aloud to all the people from morning until midday, and they wept and rejoiced as they understood it.",
+  "ref": "Ezra 7:10",
+  "verse": "For Ezra had prepared his heart to seek the law of the LORD, and to do it, and to teach in Israel statutes and judgments.",
+  "tie": "",
+  "read": "Ezra 7 and Nehemiah 8"
+ },
+ "hezekiah": {
+  "name": "Hezekiah",
+  "traits": [
+   "Turns to God first",
+   "Reformer",
+   "Humble in a crisis"
+  ],
+  "story": "Hezekiah was a king of Judah who cleaned out the temple and destroyed idols. When the mighty Assyrian army surrounded Jerusalem and mocked the Lord, Hezekiah took their threatening letter to the temple, spread it before the Lord, and prayed. Isaiah told him the Lord would defend the city, and the Assyrians were defeated. Later, when he was sick unto death, he prayed with tears and the Lord added fifteen years to his life.",
+  "ref": "Isaiah 38:5",
+  "verse": "Go, and say to Hezekiah, Thus saith the LORD, the God of David thy father, I have heard thy prayer, I have seen thy tears: behold, I will add unto thy days fifteen years.",
+  "tie": "",
+  "read": "2 Kings 18 to 20 and Isaiah 36 to 38"
+ },
+ "mordecai": {
+  "name": "Mordecai",
+  "traits": [
+   "Principled",
+   "Protective of family",
+   "Wise counselor"
+  ],
+  "story": "Mordecai was a Jew living in Persia who raised his orphaned cousin Esther as his own daughter. He uncovered a plot to kill the king, and he refused to bow down to the proud Haman. When Haman plotted to destroy all the Jews, Mordecai urged Esther to speak to the king, asking whether she had come to the kingdom \"for such a time as this.\" In the end he was honored and became a leader who sought the good of his people.",
+  "ref": "Esther 3:2",
+  "verse": "And all the king's servants, that were in the king's gate, bowed, and reverenced Haman: for the king had so commanded concerning him. But Mordecai bowed not, nor did him reverence.",
+  "tie": "",
+  "read": "Esther 2 to 10"
+ },
+ "three": {
+  "name": "Shadrach, Meshach, and Abed-nego",
+  "traits": [
+   "Stand together",
+   "Unshakable",
+   "Faith without conditions"
+  ],
+  "story": "These three young Jewish men were captives in Babylon and friends of Daniel. When King Nebuchadnezzar commanded everyone to worship a golden image, they refused. They told the king that God was able to deliver them, but even if He did not, they still would not worship the image. They were thrown into a furnace heated seven times hotter, and the king saw four men walking in the fire, the fourth like the Son of God. They came out without even the smell of fire.",
+  "ref": "Daniel 3:17-18",
+  "verse": "If it be so, our God whom we serve is able to deliver us from the burning fiery furnace, and he will deliver us out of thine hand, O king. But if not, be it known unto thee, O king, that we will not serve thy gods, nor worship the golden image which thou hast set up.",
+  "tie": "",
+  "read": "Daniel 1 and 3"
+ },
+ "david": {
+  "name": "David the Psalmist",
+  "traits": [
+   "Expressive",
+   "Honest with God",
+   "Finds strength in worship"
+  ],
+  "story": "David was a shepherd, musician, warrior, and king, and many of the Psalms are his. He wrote songs of praise and trust like Psalm 23, and when he sinned with Bathsheba he wrote Psalm 51, pleading for a clean heart. His psalms show every feeling, from fear and sorrow to joy, and they always turn back to the Lord.",
+  "ref": "Psalm 51:10",
+  "verse": "Create in me a clean heart, O God; and renew a right spirit within me.",
+  "tie": "On the cross, Jesus cried out the words of Psalm 22:1, \"My God, my God, why hast thou forsaken me?\" (Matthew 27:46)",
+  "read": "Psalms 23, 51, and 139"
+ }
+};
+
+  var QUESTIONS = [
+ {
+  "short": "Era",
+  "prompt": "Which setting would you most want to live in?",
+  "options": [
+   {
+    "t": "The royal court of Jerusalem, advising kings",
+    "s": {
+     "isaiah": 2,
+     "hezekiah": 2,
+     "jeremiah": 1
+    }
+   },
+   {
+    "t": "The palaces of Persia, where one word to the king could change everything",
+    "s": {
+     "mordecai": 3,
+     "nehemiah": 2
+    }
+   },
+   {
+    "t": "Babylon, far from home but full of chances to stand out",
+    "s": {
+     "three": 2,
+     "ezekiel": 2
+    }
+   },
+   {
+    "t": "Back in Jerusalem after the exile, rebuilding everything from scratch",
+    "s": {
+     "ezra": 2,
+     "nehemiah": 2
+    }
+   }
+  ]
+ },
+ {
+  "short": "Big assignment",
+  "prompt": "Your leader asks for a volunteer for a hard assignment. What do you do?",
+  "options": [
+   {
+    "t": "Raise my hand right away: \"Here am I, send me\"",
+    "s": {
+     "isaiah": 3
+    }
+   },
+   {
+    "t": "Say I feel too young or unready, but go anyway",
+    "s": {
+     "jeremiah": 3
+    }
+   },
+   {
+    "t": "Pray first, then make a detailed plan before I start",
+    "s": {
+     "nehemiah": 2,
+     "ezra": 1,
+     "hezekiah": 1
+    }
+   },
+   {
+    "t": "Ask a couple of friends to take it on with me",
+    "s": {
+     "three": 3
+    }
+   }
+  ]
+ },
+ {
+  "short": "Hard times",
+  "prompt": "Something really hard happens in your life. What do you do first?",
+  "options": [
+   {
+    "t": "Ask God honest questions, even if I do not get answers right away",
+    "s": {
+     "job": 3,
+     "david": 1
+    }
+   },
+   {
+    "t": "Write or play music to sort out my feelings",
+    "s": {
+     "david": 3
+    }
+   },
+   {
+    "t": "Take it straight to the temple and lay it before the Lord",
+    "s": {
+     "hezekiah": 3,
+     "ezra": 1
+    }
+   },
+   {
+    "t": "Keep working; staying busy keeps me going",
+    "s": {
+     "nehemiah": 2,
+     "jeremiah": 1
+    }
+   }
+  ]
+ },
+ {
+  "short": "Pressure",
+  "prompt": "Everyone at a party is doing something you know is wrong. What do you do?",
+  "options": [
+   {
+    "t": "Calmly refuse and accept whatever happens",
+    "s": {
+     "three": 3,
+     "mordecai": 1
+    }
+   },
+   {
+    "t": "Refuse to go along, even if it makes someone powerful mad",
+    "s": {
+     "mordecai": 3
+    }
+   },
+   {
+    "t": "Warn my friends kindly so they can choose better",
+    "s": {
+     "ezekiel": 2,
+     "jeremiah": 2
+    }
+   },
+   {
+    "t": "Leave and go do something better",
+    "s": {
+     "nehemiah": 2,
+     "ezra": 1
+    }
+   }
+  ]
+ },
+ {
+  "short": "Team role",
+  "prompt": "On a team, which role do you naturally play?",
+  "options": [
+   {
+    "t": "The organizer who assigns tasks and keeps it on track",
+    "s": {
+     "nehemiah": 3
+    }
+   },
+   {
+    "t": "The teacher who helps everyone understand",
+    "s": {
+     "ezra": 3
+    }
+   },
+   {
+    "t": "The visionary who sees where this is all going",
+    "s": {
+     "isaiah": 2,
+     "ezekiel": 2
+    }
+   },
+   {
+    "t": "The one who encourages everyone and keeps morale up",
+    "s": {
+     "david": 2,
+     "mordecai": 1,
+     "hezekiah": 1
+    }
+   }
+  ]
+ },
+ {
+  "short": "Learning style",
+  "prompt": "How do you learn best?",
+  "options": [
+   {
+    "t": "Reading and studying on my own until I really get it",
+    "s": {
+     "ezra": 3
+    }
+   },
+   {
+    "t": "Pictures, symbols, and object lessons",
+    "s": {
+     "ezekiel": 3
+    }
+   },
+   {
+    "t": "Songs, poetry, and creative writing",
+    "s": {
+     "david": 2,
+     "isaiah": 1
+    }
+   },
+   {
+    "t": "Talking it through and asking lots of questions",
+    "s": {
+     "job": 2,
+     "jeremiah": 1
+    }
+   }
+  ]
+ },
+ {
+  "short": "Speaking up",
+  "prompt": "Someone you care about is heading for trouble. What do you do?",
+  "options": [
+   {
+    "t": "Warn them clearly; it is my responsibility",
+    "s": {
+     "ezekiel": 3,
+     "jeremiah": 1
+    }
+   },
+   {
+    "t": "Keep telling them, even if they get annoyed with me",
+    "s": {
+     "jeremiah": 3
+    }
+   },
+   {
+    "t": "Give them wise advice at just the right moment",
+    "s": {
+     "mordecai": 2,
+     "isaiah": 1
+    }
+   },
+   {
+    "t": "Pray for them and keep being a good example",
+    "s": {
+     "job": 1,
+     "hezekiah": 1,
+     "three": 1
+    }
+   }
+  ]
+ },
+ {
+  "short": "Distractions",
+  "prompt": "You are working on something important and people keep trying to pull you away. You say:",
+  "options": [
+   {
+    "t": "\"I am doing a great work, so I cannot come down\"",
+    "s": {
+     "nehemiah": 3
+    }
+   },
+   {
+    "t": "\"Let me finish, then I will teach you what I learned\"",
+    "s": {
+     "ezra": 2
+    }
+   },
+   {
+    "t": "\"Come help me instead\"",
+    "s": {
+     "hezekiah": 1,
+     "three": 1,
+     "david": 1
+    }
+   },
+   {
+    "t": "Nothing; I just keep going",
+    "s": {
+     "job": 1,
+     "jeremiah": 1,
+     "mordecai": 1
+    }
+   }
+  ]
+ },
+ {
+  "short": "Faith",
+  "prompt": "Which statement sounds most like your faith?",
+  "options": [
+   {
+    "t": "\"God is able to deliver me, but if not, I will still follow Him\"",
+    "s": {
+     "three": 3
+    }
+   },
+   {
+    "t": "\"I know that my Redeemer liveth\"",
+    "s": {
+     "job": 3
+    }
+   },
+   {
+    "t": "\"The Lord is my shepherd; I shall not want\"",
+    "s": {
+     "david": 3
+    }
+   },
+   {
+    "t": "\"With his stripes we are healed\"",
+    "s": {
+     "isaiah": 3
+    }
+   }
+  ]
+ },
+ {
+  "short": "Your motto",
+  "prompt": "Which motto fits you best?",
+  "options": [
+   {
+    "t": "For such a time as this",
+    "s": {
+     "mordecai": 3
+    }
+   },
+   {
+    "t": "Prepare your heart, then teach",
+    "s": {
+     "ezra": 2,
+     "jeremiah": 1
+    }
+   },
+   {
+    "t": "Sound the warning",
+    "s": {
+     "ezekiel": 2,
+     "jeremiah": 1
+    }
+   },
+   {
+    "t": "Pray, then act",
+    "s": {
+     "hezekiah": 2,
+     "nehemiah": 1
+    }
+   }
+  ]
+ }
+];
+
+  /* ===== APP ===== */
+  var ids = Object.keys(CHARS);
+  var answers = [];
+  var qi = 0;
+  var app = document.getElementById('game-app');
+
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  function showView(play){
+    document.getElementById('teacher-view').classList.toggle('hidden', play);
+    document.getElementById('game-view').classList.toggle('hidden', !play);
+    window.scrollTo(0,0);
+    if (play){ startGame(); }
+  }
+
+  function startGame(){
+    answers = []; qi = 0;
+    app.innerHTML =
+      '<div class="eyebrow">Old Testament seminary game</div>' +
+      '<h1>Which Prophet or Psalmist Are You?</h1>' +
+      '<p class="muted">Ten quick questions. There are no right answers, so go with your first instinct. At the end you will find out which prophet or psalmist from the later Old Testament thinks most like you</p>' +
+      '<button class="btn primary" id="begin-btn" style="width:100%;margin-top:8px;">Start</button>';
+    document.getElementById('begin-btn').addEventListener('click', renderQuestion);
+  }
+
+  function renderQuestion(){
+    var q = QUESTIONS[qi];
+    var pct = Math.round((qi / QUESTIONS.length) * 100);
+    app.innerHTML =
+      '<div class="q-top"><span class="eyebrow" style="margin:0;">Question</span><span class="q-count">' + (qi + 1) + ' of ' + QUESTIONS.length + '</span></div>' +
+      '<div class="progress-track"><div class="progress-fill" style="width:' + pct + '%;"></div></div>' +
+      '<p class="q-text">' + esc(q.prompt) + '</p>' +
+      '<div id="opts"></div>' +
+      '<div class="row" style="margin-top:6px;"><button class="btn ghost" id="back-btn"' + (qi === 0 ? ' disabled' : '') + '>Back</button><button class="btn ghost" id="restart-btn">Start over</button></div>';
+    var holder = document.getElementById('opts');
+    holder.innerHTML = q.options.map(function(o, i){
+      return '<button class="opt' + (answers[qi] === i ? ' picked' : '') + '" data-i="' + i + '">' + esc(o.t) + '</button>';
+    }).join('');
+    Array.prototype.forEach.call(holder.querySelectorAll('.opt'), function(btn){
+      btn.addEventListener('click', function(){
+        answers[qi] = parseInt(btn.getAttribute('data-i'), 10);
+        Array.prototype.forEach.call(holder.querySelectorAll('.opt'), function(b){ b.classList.remove('picked'); });
+        btn.classList.add('picked');
+        setTimeout(function(){
+          if (qi < QUESTIONS.length - 1){ qi++; renderQuestion(); } else { renderResult(); }
+        }, 220);
+      });
+    });
+    document.getElementById('back-btn').addEventListener('click', function(){ if (qi > 0){ qi--; renderQuestion(); } });
+    document.getElementById('restart-btn').addEventListener('click', startGame);
+  }
+
+  function score(){
+    var totals = {}; ids.forEach(function(id){ totals[id] = 0; });
+    var maxPossible = {}; ids.forEach(function(id){ maxPossible[id] = 0; });
+    QUESTIONS.forEach(function(q, k){
+      q.options.forEach(function(o){ Object.keys(o.s).forEach(function(id){ if (o.s[id] > (q._max && q._max[id] || 0)){ q._max = q._max || {}; q._max[id] = o.s[id]; } }); });
+      ids.forEach(function(id){ maxPossible[id] += (q._max && q._max[id]) || 0; });
+      var a = answers[k];
+      if (a === undefined) return;
+      var s = q.options[a].s;
+      Object.keys(s).forEach(function(id){ totals[id] += s[id]; });
+    });
+    return { totals: totals, maxPossible: maxPossible };
+  }
+
+  function renderResult(){
+    var r = score();
+    var ranked = ids.slice().sort(function(a, b){ return r.totals[b] - r.totals[a]; });
+    var topScore = r.totals[ranked[0]];
+    var tied = ranked.filter(function(id){ return r.totals[id] === topScore; });
+    var winner = tied[Math.floor(Math.random() * tied.length)];
+    ranked = [winner].concat(ranked.filter(function(id){ return id !== winner; }));
+    var c = CHARS[winner];
+
+    var because = [];
+    QUESTIONS.forEach(function(q, k){
+      var a = answers[k];
+      if (a === undefined) return;
+      var pts = q.options[a].s[winner] || 0;
+      if (pts > 0) because.push({ pts: pts, text: q.short + ': ' + q.options[a].t });
+    });
+    because.sort(function(a, b){ return b.pts - a.pts; });
+    because = because.slice(0, 3);
+
+    var others = ranked.slice(1, 4);
+    var barsHtml = ranked.slice(0, 4).map(function(id){
+      var p = Math.max(5, Math.round((r.totals[id] / r.maxPossible[id]) * 100));
+      return '<div class="bar-row"><div class="bar-label"><span>' + CHARS[id].name + '</span><span>' + p + '% match</span></div><div class="bar-track"><div class="bar-fill" style="width:' + p + '%;"></div></div></div>';
+    }).join('');
+
+    app.innerHTML =
+      '<div class="result-hero">' +
+        '<div class="eyebrow">You matched with</div>' +
+        '<div class="big">' + c.name + '</div>' +
+        '<div class="chips">' + c.traits.map(function(t){ return '<span class="chip">' + esc(t) + '</span>'; }).join('') + '</div>' +
+      '</div>' +
+      '<div class="card"><h3>Why you matched</h3><ul class="plain">' +
+        because.map(function(b){ return '<li>' + esc(b.text) + '</li>'; }).join('') +
+      '</ul></div>' +
+      '<div class="card"><h3>Their story</h3><p>' + esc(c.story) + '</p>' +
+        '<details class="scripture-reveal"><summary>' + esc(c.ref) + '</summary><div class="verse-text"><p>' + esc(c.verse) + '</p></div></details>' +
+        '<p class="muted" style="margin-top:12px;font-size:13px;">Read more: ' + esc(c.read) + '</p>' +
+        (c.tie ? '<p class="muted" style="font-size:13px;margin:0;">Latter-day connection: ' + esc(c.tie) + '</p>' : '') +
+      '</div>' +
+      '<div class="card"><h3>You also share traits with</h3>' +
+        others.map(function(id){ return '<span class="pill">' + CHARS[id].name + '</span>'; }).join('') +
+        '<div style="margin-top:12px;">' + barsHtml + '</div>' +
+      '</div>' +
+      '<button class="btn ghost" id="again-btn" style="width:100%;">Play again</button>';
+    window.scrollTo(0,0);
+    document.getElementById('again-btn').addEventListener('click', startGame);
+  }
+
+  /* ===== TEACHER VIEW ===== */
+  (function drawQr(){
+    var link = location.href.split('#')[0].split('?')[0] + '#play';
+    var holder = document.getElementById('qr-holder');
+    if (typeof QRCode === 'undefined'){ holder.innerHTML = '<p class="muted">The QR library did not load. Check your connection and try again</p>'; return; }
+    holder.innerHTML = '<div class="qr-box" id="qr-box"></div><p class="muted" style="text-align:center;font-size:13px;">Scan to start the game</p>';
+    new QRCode(document.getElementById('qr-box'), { text: link, width: 220, height: 220 });
+  })();
+  document.getElementById('play-here').addEventListener('click', function(){ location.hash = 'play'; showView(true); });
+
+  function route(){ showView(location.hash === '#play'); }
+  window.addEventListener('hashchange', route);
+  route();
+})();
+</script>
+</body>
+</html>
