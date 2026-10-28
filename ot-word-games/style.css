@@ -169,3 +169,9 @@ button { font: inherit; color: inherit; }
 
 @media (max-width: 760px) { .lobby { grid-template-columns: 1fr; } .tile { width: 44px; height: 44px; font-size: 22px; } .boxes.host .box { width: 30px; height: 42px; font-size: 22px; } }
 @media (prefers-reduced-motion: reduce) { .reveal .tile, .shake { animation: none; } .toast { transition: none; } }
+
+/* Enter key: always green so students know where to submit, and it glows once the word is complete */
+.key[data-k="ENTER"]{background:#2f9e5b;color:#fff;font-size:14px}
+.key[data-k="ENTER"].ready{box-shadow:0 0 0 3px #b8f0cc,0 0 18px rgba(47,158,91,.75);animation:entergl 1.2s ease-in-out infinite}
+@keyframes entergl{50%{box-shadow:0 0 0 3px #b8f0cc,0 0 6px rgba(47,158,91,.3)}}
+@media (prefers-reduced-motion:reduce){.key[data-k="ENTER"].ready{animation:none}}

@@ -17,6 +17,7 @@
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --night:#0D1528; } }
 :root[data-theme="dark"]{ --night:#0D1528; }
 *,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 body{margin:0;background:var(--night);color:var(--ink);font-family:Manrope,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;line-height:1.5;
   background-image:radial-gradient(900px 520px at 85% -8%,rgba(31,181,168,.20),transparent 60%),radial-gradient(700px 480px at -5% 20%,rgba(62,142,247,.16),transparent 60%),radial-gradient(800px 500px at 50% 110%,rgba(240,84,92,.12),transparent 60%);background-attachment:fixed}

@@ -278,6 +278,7 @@ function mountPhone(el, db, opts) {
     st.guesses.forEach(g => { const p = evaluate(g, w.w); g.split('').forEach((c, i) => { if (!map[c] || rank[p[i]] > rank[map[c]]) map[c] = p[i]; }); });
     S.kb.paint(map);
     el.querySelector('#after').innerHTML = solved ? 'Solved! <b>+' + C.num(st.pts || 0) + '</b> points. Watch the screen.' : fin ? 'Out of guesses. The word appears on the screen soon.' : '';
+    const ek = el.querySelector('.key[data-k="ENTER"]'); if (ek) ek.classList.toggle('ready', st.cur.length >= L);
   }
 
   return { getPid: () => S.pid };

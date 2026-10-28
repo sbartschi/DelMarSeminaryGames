@@ -73,7 +73,7 @@ th.cur, td.cur { background: #fbf4e0; }
 #playbar { display: flex; justify-content: space-between; align-items: center; padding: 6px 12px; font-size: 13px; border-bottom: 1px solid var(--line); background: var(--bg-panel); }
 #frame { flex: 1; width: 100%; border: 0; background: var(--bg-page); }
 .foot { text-align: center; margin: 18px 0 6px; }
-</style>
+#board .tm,table .tm{display:block;font-size:.75em;opacity:.7;font-weight:600}.vcard{border-left:5px solid #b8860b}.vcard .vref{font-weight:800;color:#8a6200;margin-bottom:6px}.vcard p{margin:0;font-family:Georgia,"Times New Roman",serif;font-size:1.05rem;line-height:1.55}</style>
 </head>
 <body>
 <div class="wrap" id="main">
@@ -283,13 +283,13 @@ table.res th { color: var(--muted); }
       verse: "And it came to pass that I beheld others pressing forward, and they came forth and caught hold of the end of the rod of iron; and they did press forward through the mist of darkness, clinging to the rod of iron, even until they did come forth and partake of the fruit of the tree.",
       tref: "Matthew 6:20",
       tverse: "But lay up for yourselves treasures in heaven, where neither moth nor rust doth corrupt, and where thieves do not break through nor steal:" },
-    { title: "The Mist Rises", mistP: 0.15, n: 8, fogD: 9, rodR: 3.5, gaps: 0, bld: 2, bridges: 1, items: 4, cap: 40, wall: [112, 106, 122],
+    { title: "The Mist Rises", mistP: 0.15, n: 8, fogD: 9, rodR: 5, gaps: 0, bld: 2, bridges: 1, items: 4, cap: 40, wall: [112, 106, 122],
       hint: "The mist of darkness is rising. Stay close to the rod and watch for the chest.",
       ref: "1 Nephi 8:30",
       verse: "But, to be short in writing, behold, he saw other multitudes pressing forward; and they came and caught hold of the end of the rod of iron; and they did press their way forward, continually holding fast to the rod of iron, until they came forth and fell down and partook of the fruit of the tree.",
       tref: "Matthew 6:21",
       tverse: "For where your treasure is, there will your heart be also." },
-    { title: "Hold Fast", mistP: 0.18, n: 10, fogD: 6, rodR: 2.5, gaps: 0.25, bld: 3, bridges: 2, items: 5, cap: 50, wall: [78, 84, 108],
+    { title: "Hold Fast", mistP: 0.18, n: 10, fogD: 6, rodR: 4, gaps: 0.2, bld: 3, bridges: 2, items: 5, cap: 50, wall: [78, 84, 108],
       hint: "A great mist! Hold fast to the rod, even where it fades.",
       ref: "1 Nephi 11:25",
       verse: "And it came to pass that I beheld that the rod of iron, which my father had seen, was the word of God, which led to the fountain of living waters, or to the tree of life; which waters are a representation of the love of God; and I also beheld that the tree of life was a representation of the love of God.",
@@ -476,7 +476,7 @@ table.res th { color: var(--muted); }
     var pick = offp.slice(0, k1).concat(onp).concat(offp.slice(k1)).slice(0, lv.items);
     pick.forEach(function (kk2) { itemMap[kk2] = { got: false }; });
     var gaps = {};
-    for (i = 2; i < path.length - 3; i++) if (r() < lv.gaps) gaps[i] = true;
+    for (var run = 0, i = 2; i < path.length - 3; i++) { if (run < 2 && r() < lv.gaps) { gaps[i] = true; run++; } else run = 0; }
 
     // block grid for the raycaster: cells sit on odd blocks, walls and openings on even blocks
     var M = 2 * N + 1, map = new Uint8Array(M * M).fill(1), ftype = new Uint8Array(M * M), rodg = new Uint8Array(M * M);
@@ -548,9 +548,9 @@ table.res th { color: var(--muted); }
             var rip = (((u * 6) | 0) + ((v * 6) | 0)) & 1;
             r = rip ? 59 : 80; g = rip ? 125 : 150; b = rip ? 216 : 230;
           }
-          if (G.rodg[bi] && !G.mist) {
-            var ddx = fx - px, ddy = fy - py;
-            if (G.lit || ddx * ddx + ddy * ddy <= lv.rodR * lv.rodR * 4) {
+          if (G.rodg[bi]) {
+            var ddx = fx - px, ddy = fy - py, dd = ddx * ddx + ddy * ddy, rr = Math.max(lv.rodR, G.mist ? 5 : 0);
+            if (G.lit || ((!G.mist || dd > 25) && dd <= rr * rr * 4)) {
               var au, av;
               var m;
               if ((bxi & 1) && (byi & 1)) {
@@ -700,7 +700,7 @@ table.res th { color: var(--muted); }
       "<h1>THE IRON ROD MAZE</h1>" +
       "<p>FIRST PERSON</p>" +
       "<p>Walk through the mist of darkness as Lehi did. Follow the iron rod on the floor to the tree of life.</p>" +
-      "<p>Avoid the great and spacious building. Cross bridges straight, go under them to switch paths, and hunt for the treasure chest. Sometimes a mist will hide the iron rod for a step or two.</p><p>Collect golden fruit for points, or race to the tree for a speed bonus.</p>" +
+      "<p>Avoid the great and spacious building. Cross bridges straight, go under them to switch paths, and hunt for the treasure chest. Sometimes a mist hides the iron rod right around you for a step or two, but you can still see where it leads.</p><p>Collect golden fruit for points, or race to the tree for a speed bonus.</p>" +
       "<button class=\"btn primary\" data-act=\"start\" type=\"button\">PRESS START</button>"
     );
   }
@@ -728,7 +728,7 @@ table.res th { color: var(--muted); }
       "<div class=\"verse\"><span class=\"ref\">" + lv.ref.toUpperCase() + "</span>" + lv.verse + "</div>" +
       tre +
       (CFG
-        ? "<p class=\"note\">Score sent: " + score + " points, plus a speed bonus if you finished among the first three. Head back to the lobby to see the standings.</p><button class=\"btn primary\" data-act=\"exit\" type=\"button\">BACK TO LOBBY</button>"
+        ? "<p class=\"note\">Score sent: " + score + " points, plus a speed bonus if you finished among the first three. You will go back to the standings when your teacher shows the results.</p><button class=\"btn primary\" data-act=\"exit\" type=\"button\">BACK TO LOBBY</button>"
         : "<button class=\"btn primary\" data-act=\"" + (last ? "finish" : "next") + "\" type=\"button\">" + (last ? "FINISH" : "NEXT LEVEL") + "</button>" +
           "<button class=\"btn\" data-act=\"replay\" type=\"button\">REPLAY</button>")
     );
@@ -788,7 +788,7 @@ table.res th { color: var(--muted); }
     }
     if (G.mist > 0) { G.mist--; if (!G.mist) flashToast("THE MIST CLEARS"); }
     else if (G.cool > 0) { G.cool--; }
-    else if (!G.lit && Math.random() < G.lv.mistP) { G.mist = Math.random() < 0.5 ? 1 : 2; G.cool = 4; flashToast("MIST HIDES THE IRON ROD!"); }
+    else if (!G.lit && Math.random() < G.lv.mistP) { G.mist = Math.random() < 0.5 ? 1 : 2; G.cool = 4; flashToast("MIST HIDES THE ROD NEAR YOU. KEEP GOING!"); }
     hud();
     if (G.cx === G.N - 1 && G.cy === G.N - 1) win();
   }
@@ -995,20 +995,23 @@ function useFirebase(root) {
     if (!rows.length) return "<p class=\"muted\">No players yet.</p>";
     var round = boardMode === "round";
     var h = "<table><tr><th>#</th><th class=\"name\">Player</th>";
-    if (round) h += "<th>Fruit</th><th>Chest</th><th>Time</th><th>Speed bonus</th><th>Round pts</th>";
+    var fin = rows.filter(function (x) { return (x.p.rounds || {})[rd]; }).map(function (x) { return x.p.rounds[rd].time; }).sort(function (a, b) { return a - b; });
+    var ord = function (n) { return n + (n % 10 === 1 && n % 100 !== 11 ? "st" : n % 10 === 2 && n % 100 !== 12 ? "nd" : n % 10 === 3 && n % 100 !== 13 ? "rd" : "th"); };
+    if (round) h += "<th>Fruit</th><th>Chest</th><th>Time</th><th>Place</th><th>Speed bonus</th><th>Round pts</th>";
     else for (var c = 1; c <= cols; c++) h += "<th class=\"" + (c === rd ? "cur" : "") + "\">R" + c + "</th>";
-    h += "<th>Total</th></tr>";
+    h += (round ? "" : "<th>Total time</th>") + "<th>Total</th></tr>";
     var shown = limit ? rows.slice(0, limit) : rows;
     if (limit && mine) { var mi = rows.findIndex(function (r) { return r.p.name === mine; }); if (mi >= limit) shown = shown.concat([rows[mi]]); }
     shown.forEach(function (r) {
       var rank = rows.indexOf(r) + 1, rec = (r.p.rounds || {})[rd];
       h += "<tr class=\"" + (mine && r.p.name === mine ? "me" : "") + "\"><td>" + medal(rank) + "</td><td class=\"name\">" + esc(r.p.name) + "</td>";
       if (round) {
-        h += "<td>" + (rec ? rec.items + "/" + rec.nItems : "-") + "</td><td>" + (rec ? (rec.treasure ? "Yes" : "No") : "-") + "</td><td>" + (rec ? fmt(rec.time) : "-") + "</td><td>" + (rec ? (r.bon[rd][r.p.name] ? "+" + r.bon[rd][r.p.name] : "-") : "-") + "</td><td>" + (rec ? r.per[rd] : "-") + "</td>";
+        h += "<td>" + (rec ? rec.items + "/" + rec.nItems : "-") + "</td><td>" + (rec ? (rec.treasure ? "Yes" : "No") : "-") + "</td><td>" + (rec ? fmt(rec.time) : "-") + "</td><td>" + (rec ? ord(fin.indexOf(rec.time) + 1) : "-") + "</td><td>" + (rec ? (r.bon[rd][r.p.name] ? "+" + r.bon[rd][r.p.name] : "-") : "-") + "</td><td>" + (rec ? r.per[rd] : "-") + "</td>";
       } else {
-        for (var c2 = 1; c2 <= cols; c2++) h += "<td class=\"" + (c2 === rd ? "cur" : "") + "\">" + (r.per[c2] != null ? r.per[c2] : "-") + "</td>";
+        for (var c2 = 1; c2 <= cols; c2++) h += "<td class=\"" + (c2 === rd ? "cur" : "") + "\">" + (r.per[c2] != null ? r.per[c2] + "<small class=\"tm\">" + fmt(r.p.rounds[c2].time) + "</small>" : "-") + "</td>";
+        h += "";
       }
-      h += "<td class=\"total\">" + r.total + "</td></tr>";
+      h += (round ? "" : "<td>" + (r.time ? fmt(r.time) : "-") + "</td>") + "<td class=\"total\">" + r.total + "</td></tr>";
     });
     return h + "</table>";
   }
@@ -1057,9 +1060,12 @@ function useFirebase(root) {
     else msg = "<span class=\"px\">ROUND " + r + " RESULTS</span><br>" + (r >= ROUNDS ? "Final standings below." : "Waiting for the next round.");
     h += "<div class=\"status\" style=\"margin-top:10px\">" + msg + "</div>";
     h += "<button class=\"btn primary big\" data-act=\"play\" type=\"button\"" + (st === "open" && !done ? "" : " disabled") + ">PLAY ROUND " + r + "</button></div>";
-    if (st === "results") { var bm = boardMode; boardMode = "total"; h += "<div class=\"card\"><h2>Standings</h2>" + boardHtml(r >= ROUNDS ? 0 : 5, me) + "</div>"; boardMode = bm; }
+    if (st === "results") { var bm = boardMode; boardMode = "total"; h += verseCard(r) + "<div class=\"card\"><h2>Standings</h2>" + boardHtml(r >= ROUNDS ? 0 : 5, me) + "</div>"; boardMode = bm; }
     return h;
   }
+  var RVERSE = {"1": ["1 Nephi 8:24", "And it came to pass that I beheld others pressing forward, and they came forth and caught hold of the end of the rod of iron; and they did press forward through the mist of darkness, clinging to the rod of iron, even until they did come forth and partake of the fruit of the tree."], "2": ["1 Nephi 8:30", "But, to be short in writing, behold, he saw other multitudes pressing forward; and they came and caught hold of the end of the rod of iron; and they did press their way forward, continually holding fast to the rod of iron, until they came forth and fell down and partook of the fruit of the tree."], "3": ["1 Nephi 11:25", "And it came to pass that I beheld that the rod of iron, which my father had seen, was the word of God, which led to the fountain of living waters, or to the tree of life; which waters are a representation of the love of God; and I also beheld that the tree of life was a representation of the love of God."]}, FINALV = ["1 Nephi 15:24", "And I said unto them that it was the word of God; and whoso would hearken unto the word of God, and would hold fast unto it, they would never perish; neither could the temptations and the fiery darts of the adversary overpower them unto blindness, to lead them away to destruction."];
+  function verseCard(r) { var v = RVERSE[r], h = ""; if (v) h += "<div class=\"card vcard\"><div class=\"vref\">" + esc(v[0]) + "</div><p>" + esc(v[1]) + "</p></div>";
+    if (r >= ROUNDS) h += "<div class=\"card vcard\"><div class=\"vref\">Hold fast: " + esc(FINALV[0]) + "</div><p>" + esc(FINALV[1]) + "</p></div>"; return h; }
   function hostHtml() {
     var r = session.round, st = session.status;
     if (st === "setup") {
@@ -1081,6 +1087,7 @@ function useFirebase(root) {
     h += "<div class=\"card\"><h2>Round control</h2>" + btn;
     if (st === "open" && waiting.length) h += "<p class=\"muted\" style=\"margin-top:10px\">Still playing: " + waiting.join(", ") + "</p>";
     h += "<div class=\"row\" style=\"margin-top:10px\">" + "<button class=\"btn\" data-act=\"reset\" type=\"button\">" + (resetArm ? "Tap again to erase everything" : "Reset game") + "</button></div></div>";
+    if (st === "results") h += verseCard(r);
     h += "</div><div class=\"card\"><div class=\"row\" style=\"justify-content:space-between\"><h2 style=\"margin:0\">Leaderboard</h2><div class=\"tabs\" style=\"margin:0\">" +
       "<button class=\"tab " + (boardMode === "total" ? "sel" : "") + "\" data-act=\"bm\" data-m=\"total\" type=\"button\">Total</button>" +
       "<button class=\"tab " + (boardMode === "round" ? "sel" : "") + "\" data-act=\"bm\" data-m=\"round\" type=\"button\">This round</button></div></div>" +
@@ -1098,15 +1105,22 @@ function useFirebase(root) {
   function startPlay() {
     if (session.status !== "open" || !GAMES[session.game] || submitted(me, session.round)) return;
     var game = session.game;
-    playing = { round: session.round, game: game };
+    playing = { round: session.round, game: game, seed: session.seed };
     var cfg = "window.IR_CFG={level:" + session.round + ",seed:" + ((session.seed | 0) || 12345) + "};";
     $("#frame").srcdoc = GAMES[game].src.replace("/*IRCFG*/", cfg);
     $("#playinfo").textContent = me + "  |  Round " + session.round + "  |  " + GAMES[game].label;
     view = "play"; $("#playview").classList.remove("hidden"); $("#main").classList.add("hidden");
   }
-  function closePlay() {
+  /* Students move with the teacher: opening a round drops them straight into the maze, and showing results brings finished players back to the standings. */
+  function autoPlay() {
+    if (hostView || !me || !session) return;
+    if (session.status === "open" && GAMES[session.game] && !submitted(me, session.round)) {
+      if (!playing || playing.round !== session.round || playing.seed !== session.seed) { if (playing) closePlay(true); startPlay(); }
+    } else if (playing && (session.status !== "open" || playing.round !== session.round) && submitted(me, playing.round)) closePlay();
+  }
+  function closePlay(quiet) {
     playing = null; view = "lobby"; $("#frame").srcdoc = "";
-    $("#playview").classList.add("hidden"); $("#main").classList.remove("hidden"); render();
+    $("#playview").classList.add("hidden"); $("#main").classList.remove("hidden"); if (!quiet) render();
   }
   window.addEventListener("message", function (e) {
     if (!playing || e.source !== $("#frame").contentWindow) return;
@@ -1124,7 +1138,7 @@ function useFirebase(root) {
   /* ---------- actions ---------- */
   function setName(n) {
     n = String(n || "").trim().slice(0, 20); if (!n) return;
-    me = n; lsSet("ir-name", me);
+    me = n; lsSet("ir-name", me); setTimeout(autoPlay, 300);
     Store.join(me).catch(function () { writeErr = "Could not join. Ask your teacher to open access for players."; banner(); });
     render();
   }
@@ -1155,13 +1169,80 @@ function useFirebase(root) {
   initStore().then(function () {
     ready = true; view = "lobby";
     if (/[?&]host=1/.test(location.search) && canHost) hostView = true;
-    Store.onSession(function (s) { session = s || DEFAULT_SESSION; if (view !== "play") render(); });
-    Store.onPlayers(function (l) { players = l || []; if (view !== "play") render(); });
+    Store.onSession(function (s) { session = s || DEFAULT_SESSION; autoPlay(); if (view !== "play") render(); });
+    Store.onPlayers(function (l) { players = l || []; autoPlay(); if (view !== "play") render(); });
     if (me) Store.join(me).catch(function () {});
     render();
   });
   render();
 })();
+</script>
+<script>
+/* Site helper: an "All games" button for the teacher's screen, and confetti whenever a final standings screen appears. */
+(function () {
+  var inFrame = false; try { inFrame = window.parent !== window; } catch (e) { inFrame = true; }
+  function isPlayer() { return /(^|\/)(play|wordle-play|clues-play)\.html$/.test(location.pathname) || /[?&](play|join)=/.test(location.search) || location.hash === '#play'; }
+  var css = document.createElement('style');
+  css.textContent = '#sgHome{position:fixed;left:12px;top:calc(10px + env(safe-area-inset-top,0px));z-index:9998;display:inline-flex;align-items:center;gap:6px;' +
+    'font:800 13px/1 Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:#EEF3FB;background:rgba(13,21,40,.88);border:1px solid rgba(160,185,230,.3);' +
+    'border-radius:999px;padding:8px 13px;text-decoration:none;box-shadow:0 6px 16px rgba(0,0,0,.25);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}' +
+    '#sgHome:hover{border-color:#1FB5A8}#sgHome:focus-visible{outline:3px solid #fff;outline-offset:2px}' +
+    'body.sg-home{padding-top:48px!important;box-sizing:border-box}@media (max-width:700px){#sgHome{font-size:12px;padding:7px 11px}}';
+  document.head.appendChild(css);
+  if (!inFrame) {
+    var a = document.createElement('a'); a.id = 'sgHome'; a.href = '../'; a.textContent = '\u2190 All games';
+    a.setAttribute('aria-label', 'Back to all seminary games');
+    document.body.appendChild(a);
+    /* shown on every teacher or shared screen; hidden only on student-only pages viewed on a phone */
+    var hide = function () { return isPlayer() && innerWidth <= 700; };
+    var sync = function () { var h = hide(); a.hidden = h; a.style.display = h ? 'none' : ''; document.body.classList.toggle('sg-home', !h); };
+    sync(); window.addEventListener('hashchange', sync); window.addEventListener('resize', sync);
+    /* full-screen layouts: make room for the button strip so the page does not scroll */
+    var fit = function () {
+      if (!document.body.classList.contains('sg-home')) return;
+      var H = innerHeight;
+      [].forEach.call(document.querySelectorAll('body > *, body > * > *, body > * > * > *'), function (el) {
+        if (el.id === 'sgHome' || el.tagName === 'SCRIPT' || el.tagName === 'STYLE') return;
+        var mh = getComputedStyle(el).minHeight;
+        if (/px$/.test(mh) && Math.abs(parseFloat(mh) - H) <= 2) el.style.minHeight = 'calc(100vh - 48px)';
+      });
+    };
+    fit(); window.addEventListener('resize', fit); window.addEventListener('load', fit);
+    var ft = null; new MutationObserver(function () { clearTimeout(ft); ft = setTimeout(fit, 200); }).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'hidden', 'style'] });
+  }
+
+  /* ---------- confetti ---------- */
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function confetti() {
+    if (reduce || window.SG_NO_CONFETTI || document.getElementById('sgConfetti')) return;
+    var c = document.createElement('canvas'), dpr = window.devicePixelRatio || 1, W = innerWidth, H = innerHeight;
+    c.id = 'sgConfetti'; c.setAttribute('aria-hidden', 'true');
+    c.style.cssText = 'position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:9999';
+    c.width = W * dpr; c.height = H * dpr; document.body.appendChild(c);
+    var x = c.getContext('2d'); x.scale(dpr, dpr);
+    var cols = ['#F0545C', '#3E8EF7', '#1FB5A8', '#F4B740', '#8B7CF6', '#E57AC2', '#FFFFFF'], P = [];
+    for (var i = 0; i < 170; i++) P.push({ x: Math.random() * W, y: -20 - Math.random() * H * 0.6, w: 6 + Math.random() * 6, h: 8 + Math.random() * 8,
+      vx: -1.5 + Math.random() * 3, vy: 2 + Math.random() * 3.5, r: Math.random() * 6.3, vr: -0.2 + Math.random() * 0.4, c: cols[i % cols.length] });
+    var t0 = performance.now();
+    (function frame(t) {
+      var age = t - t0; x.clearRect(0, 0, W, H);
+      P.forEach(function (p) { p.x += p.vx; p.y += p.vy; p.vy += 0.03; p.r += p.vr;
+        x.save(); x.translate(p.x, p.y); x.rotate(p.r); x.globalAlpha = age > 3800 ? Math.max(0, 1 - (age - 3800) / 700) : 1; x.fillStyle = p.c; x.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); x.restore(); });
+      if (age < 4500) requestAnimationFrame(frame); else c.remove();
+    })(t0);
+  }
+  window.sgConfetti = confetti;
+  var FINAL = /^\s*(final (standings|results|rank|leaderboard|scores)|game over)\b/i, was = false, timer = null;
+  function check() {
+    var els = document.querySelectorAll('h1,h2,h3,.eyebrow,.title,.big'), now = false;
+    for (var i = 0; i < els.length && !now; i++) { var e = els[i]; if (e.offsetParent !== null && FINAL.test(e.textContent || '')) now = true; }
+    if (now && !was) confetti();
+    was = now;
+  }
+  new MutationObserver(function () { clearTimeout(timer); timer = setTimeout(check, 250); }).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'hidden', 'style'] });
+  setTimeout(check, 600);
+})();
+
 </script>
 </body>
 </html>

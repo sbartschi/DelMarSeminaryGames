@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en"><head>
 <script>/* Practice mode: when this page runs inside the site's practice page, use its pretend database and give this screen its own storage. Does nothing otherwise. */
-(function(){try{var P=window.parent!==window&&window.parent.PRACTICE;if(!P)return;window.fetch=P.fetch;var s=P.storage(window.name||location.href);Object.defineProperty(window,'localStorage',{configurable:true,get:function(){return s.local;}});Object.defineProperty(window,'sessionStorage',{configurable:true,get:function(){return s.session;}});}catch(e){}})();</script><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+(function(){try{var P=window.parent!==window&&window.parent.PRACTICE;if(!P)return;window.fetch=P.fetch;var s=P.storage(window.name||location.href);Object.defineProperty(window,'localStorage',{configurable:true,get:function(){return s.local;}});Object.defineProperty(window,'sessionStorage',{configurable:true,get:function(){return s.session;}});}catch(e){}})();</script><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Hold the Wall</title>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 <style>:root{--bg:#f6f1e7;--panel:#fffdf8;--panel2:#efe7d6;--ink:#2a2219;--muted:#7a6f60;--gold:#b7791f;--line:#dccfb6;--btn:#b7791f;--btnink:#fff;color-scheme:light dark}
@@ -35,7 +35,7 @@ input{width:100%;font-size:1.05rem;padding:.7em;border-radius:10px;border:1px so
 .banner{position:fixed;left:50%;top:18px;transform:translate(-50%,-160px);background:var(--gold);color:#1a1408;padding:.7em 1.6em;border-radius:14px;font-size:1.6rem;font-weight:800;z-index:30;transition:transform .45s;box-shadow:0 8px 24px rgba(0,0,0,.35);max-width:92vw;text-align:center}
 .banner.on{transform:translate(-50%,0)}
 .lobby{display:grid;grid-template-columns:minmax(260px,380px) 1fr;gap:32px;align-items:start}
-.qrbox{background:#fff;padding:10px;border-radius:14px;width:100%;max-width:340px;margin:12px 0}.qrbox svg{width:100%;height:auto;display:block}
+.qrbox{background:#fff;padding:10px;border-radius:14px;width:100%;max-width:340px;margin:12px 0}.qrbox svg{width:100%;height:auto;display:block}.miniqr{display:flex;align-items:center;gap:8px;background:#fff;color:#1d1b16;border-radius:10px;padding:5px 9px 5px 5px}.miniqr .mq svg{width:84px;height:84px;display:block}.miniqr .mqt{font-size:12px;line-height:1.25}.miniqr .mqt b{display:block;font-size:20px;letter-spacing:.12em}.bottomrow{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}.tops h3{margin:0 0 6px}.tops .lrow b{margin-left:auto}.overtops{margin:14px 0}
 .codebox{font-size:1.4rem}.codebox b{font-size:3rem;letter-spacing:.2em;color:var(--gold);font-family:Georgia,serif}
 .sub{font-size:1.1rem;color:var(--muted)}
 .lobTop{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}.btns{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
@@ -63,7 +63,7 @@ input{width:100%;font-size:1.05rem;padding:.7em;border-radius:10px;border:1px so
 .orows{text-align:left;margin-bottom:20px;font-size:1.05rem}
 @media (max-width:900px){.lobby{grid-template-columns:1fr}.tv{padding:12px}.podium{flex-direction:column}}
 /* Phone game */
-body.ingame{overflow:hidden;overscroll-behavior:none;-webkit-user-select:none;user-select:none}
+html,body{touch-action:manipulation}body.ingame{overflow:hidden;overscroll-behavior:none;-webkit-user-select:none;user-select:none;touch-action:none}body.ingame *{touch-action:none}
 .gm{--gbg:#13121b;--gpanel:#1f1d2b;--gtxt:#f2eee3;--gmuted:#b3ab98;--gacc:#f2c14e;background:var(--gbg);color:var(--gtxt);font-family:"Press Start 2P",ui-monospace,Menlo,Consolas,monospace;height:100dvh;max-width:560px;margin:0 auto;display:flex;flex-direction:column;padding:8px 10px 10px;gap:6px;position:fixed;inset:0;box-sizing:border-box;padding-top:max(8px,env(safe-area-inset-top,0px));padding-bottom:max(10px,env(safe-area-inset-bottom,0px))}
 @supports not (height:100dvh){.gm{height:100vh}}
 .gm[hidden]{display:none}
@@ -98,7 +98,7 @@ body.ingame{overflow:hidden;overscroll-behavior:none;-webkit-user-select:none;us
 .gm-act{display:flex;flex-direction:column;gap:6px;align-items:stretch;flex:1;max-width:190px}
 .gm #bAct{font-family:inherit;font-size:12px;height:calc(var(--s,66px) + 4px);min-height:66px;background:#c0392b;color:#fff;border:0;box-shadow:3px 3px 0 #000;touch-action:none;cursor:pointer;border-radius:0}
 .gm .tools{display:flex;gap:6px}.gm .tl{flex:1;font-size:20px;padding:6px 0;background:#3a3850;border:3px solid #000;cursor:pointer;touch-action:none;border-radius:0}
-.gm .tl.on{background:var(--gacc);box-shadow:0 0 0 2px #fff}
+.gm .tl.on{background:var(--gacc);box-shadow:0 0 0 2px #fff}.joy{display:none;flex:none;width:min(33vw,128px);height:min(33vw,128px);border-radius:50%;background:radial-gradient(#3a3850,#24223a);border:3px solid #000;position:relative;touch-action:none;box-shadow:3px 3px 0 #000}.joy i{position:absolute;left:30%;top:30%;width:40%;height:40%;border-radius:50%;background:#6a6890;box-shadow:2px 2px 0 #000}.joy span{position:absolute;bottom:-17px;left:0;right:0;text-align:center;font-size:9px;color:#b8b6d0}body.joymode .gm-pad{display:none}body.joymode .joy{display:block}body.joymode .gm-act{max-width:118px}#ctlBtn{font-family:inherit;font-size:9px;background:#3a3850;color:#fff;border:2px solid #000;padding:6px 8px;margin-left:6px;cursor:pointer}.gm-pts{margin-left:auto;font-size:11px;color:var(--gacc)}.tmap{margin:10px auto 4px;max-width:260px;border:3px solid #000;font-size:10px;line-height:1.35;text-align:center}.tmap div{padding:7px 6px}.tmap .g{background:#4a2c46;color:#ffb3c7}.tmap .f{background:#3b6639;color:#e9ffe0}.tmap .w{background:#7a6a55;color:#fff3dc}.tmap .v{background:#cdbb94;color:#3a2a10}.tmap .a{background:#2a2840;color:#ffd970;padding:3px}
 @media (max-height:640px){.gm-pad{--s:min(15vw,50px)}.gm #bAct{min-height:50px}}
 
 .gm-hp{display:flex;align-items:center;gap:8px;font-size:7px;color:var(--gmuted)}
@@ -2410,9 +2410,9 @@ var SIM = (function () {
 'use strict';
 
 var AW = 13, AH = 16, MW = AW + 2, MH = AH + 2;   // playfield and map size (with border)
-var VY = 15;                                      // rows 15 and 16 are the village
-var BY0 = 3, BY1 = 14;                            // rows where blocks may be placed
-var BHP = 4, VMAX = 20;
+var VY = 15, VX0 = 6, VX1 = 8;                    // the village is a few huts in the back middle (columns 6 to 8, rows 15 and 16)
+var BY0 = 3, BY1 = 16;                            // rows where blocks may be placed
+var BHP = 6, VMAX = 20;
 var DX = [1, 0, -1, 0], DY = [0, 1, 0, -1];       // facing: 0 east, 1 south, 2 west, 3 north
 var ROCKS = [[3, 6], [7, 6], [11, 6], [5, 10], [9, 10]];
 var PREP_MS = 60000, REST_MS = 25000, DOWN_MS = 15000, GRACE_MS = 1200, PHP = 5;
@@ -2430,7 +2430,8 @@ var EN = {
   p: { hp: 6,  step: 2300, dmg: 2, atk: 1400, reach: 1, nm: 'Pride' },
   m: { hp: 16, step: 2800, dmg: 3, atk: 1500, reach: 2, nm: 'Mists of Darkness' }
 };
-var DIFF = { easy: { n: 0.7, s: 1.2, h: 1 }, normal: { n: 1, s: 1, h: 1 }, hard: { n: 1.3, s: 0.85, h: 1.3 } };
+/* wd: wall damage per enemy hit (walls have 6 points: easy falls in 3 hits, normal in 2, hard in 1); bh: hits to defeat a basic enemy; r: enemies per player in the biggest wave */
+var DIFF = { easy: { n: 0.7, s: 1.2, h: 1, wd: 2, bh: [1, 1], r: 2 }, normal: { n: 1, s: 1, h: 1, wd: 3, bh: [1, 1], r: 3.5 }, hard: { n: 1.3, s: 0.85, h: 1.3, wd: 6, bh: [2, 3], r: 5 } };
 
 function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
 function rng(seed) { return function () { seed |= 0; seed = seed + 0x6D2B79F5 | 0; var t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
@@ -2438,6 +2439,8 @@ function widx(x, y) { return (y - 1) * AW + (x - 1); }
 function inField(x, y) { return x >= 1 && x <= AW && y >= 1 && y <= AH; }
 function isRock(x, y) { return !inField(x, y) || STATIC[y * MW + x] === 1; }
 function keys(o) { return Object.keys(o || {}); }
+function isVillage(x, y) { return y >= VY && y <= AH && x >= VX0 && x <= VX1; }
+function nearVillage(x, y) { return isVillage(x + 1, y) || isVillage(x - 1, y) || isVillage(x, y + 1) || isVillage(x, y - 1); }
 
 function newTeam(id, opts) {
   opts = opts || {};
@@ -2448,9 +2451,9 @@ function newTeam(id, opts) {
   };
 }
 function say(T, msg) { T.evn++; T.ev.push([T.evn, msg]); if (T.ev.length > 4) T.ev.shift(); }
-function addPlayer(T, pid, name, bot, rnd) {
+function addPlayer(T, pid, name, bot, rnd, wp) {
   var r = rnd || T.rnd;
-  T.pl[pid] = { x: 5 + Math.floor(r() * 5), y: VY, d: 3, tool: 0, name: name, bot: !!bot, cd: 0, mt: 0, hp: PHP };
+  T.pl[pid] = { x: 5 + Math.floor(r() * 5), y: VY - 1, d: 3, tool: 0, name: name, bot: !!bot, cd: 0, mt: 0, hp: PHP, wp: wp === 'bow' ? 'bow' : 'sword' };
   if (!T.ps[pid]) T.ps[pid] = { k: 0, b: 0, r: 0, name: name };
 }
 function nPlayers(T) { return keys(T.pl).length; }
@@ -2458,18 +2461,19 @@ function score(T) { return T.cl * 100 + T.k * 5 + Math.max(0, T.vh) * 3 + (T.ph 
 
 /* ---------- Enemy pathing: cheapest way to the village, chewing through blocks only when it pays ---------- */
 function enter(T, x, y) {
-  if (isRock(x, y)) return 10000;
+  if (isRock(x, y) || isVillage(x, y)) return 10000;
   var h = T.wall[widx(x, y)];
   return h ? 2 + 2 * h : 1;
 }
 function computeFlow(T) {
   var d = T.dist || (T.dist = new Int32Array(MW * MH)), x, y, ch = true, g = 0;
   d.fill(99999);
-  for (y = VY; y <= AH; y++) for (x = 1; x <= AW; x++) d[y * MW + x] = 0;
+  /* goal: any open square next to the village huts; enemies have to walk around to reach it */
+  for (y = 1; y <= AH; y++) for (x = 1; x <= AW; x++) if (!isRock(x, y) && !isVillage(x, y) && nearVillage(x, y)) d[y * MW + x] = 0;
   while (ch && g++ < 300) {
     ch = false;
-    for (y = VY - 1; y >= 1; y--) for (x = 1; x <= AW; x++) {
-      var i = y * MW + x; if (STATIC[i] === 1) continue;
+    for (y = AH; y >= 1; y--) for (x = 1; x <= AW; x++) {
+      var i = y * MW + x; if (STATIC[i] === 1 || isVillage(x, y)) continue;
       var b = d[i], v;
       if (inField(x, y + 1) && STATIC[i + MW] !== 1) { v = enter(T, x, y + 1) + d[i + MW]; if (v < b) b = v; }
       if (inField(x, y - 1) && STATIC[i - MW] !== 1) { v = enter(T, x, y - 1) + d[i - MW]; if (v < b) b = v; }
@@ -2494,7 +2498,8 @@ function pickNext(T, e) {
 
 /* ---------- Waves ---------- */
 function waveList(T) {
-  var w = T.wv, f = clamp(0.55 + 0.17 * nPlayers(T), 0.7, 2.1), total = Math.max(3, Math.round((4 + 2.2 * w) * f * T.diff.n)), list = [], i, r;
+  /* enemies scale with players: about r per player in the last wave (hard 5, normal 3.5, easy 2), fewer in early waves */
+  var w = T.wv, total = Math.max(3, Math.round(Math.max(1, nPlayers(T)) * T.diff.r * (0.55 + 0.45 * w / Math.max(1, T.nw)))), list = [], i, r;
   for (i = 0; i < total; i++) {
     r = T.rnd();
     list.push(w >= 3 && r < 0.2 ? 'p' : (w >= 2 && r < 0.2 + 0.28 ? 'f' : 'd'));
@@ -2509,7 +2514,7 @@ function startWave(T) {
 function spawnOne(T, type) {
   var xs = [], x; for (x = 1; x <= AW; x++) if (!occupied(T, x, 1, null)) xs.push(x);
   if (!xs.length) return false;
-  var st = EN[type], hp = st.hp === 1 ? 1 : Math.max(1, Math.ceil(st.hp * T.diff.h));
+  var st = EN[type], bh = T.diff.bh || [1, 1], hp = st.hp === 1 ? bh[0] + Math.floor(T.rnd() * (bh[1] - bh[0] + 1)) : Math.max(1, Math.ceil(st.hp * T.diff.h));
   T.en.push({ id: T.eid++, t: type, x: xs[Math.floor(T.rnd() * xs.length)], y: 1, hp: hp, mhp: hp, mv: st.step * T.diff.s * 0.8, at: st.atk * 0.6, pc: 900, att: 0 });
   return true;
 }
@@ -2541,13 +2546,13 @@ function tick(T, dt) {
         if (Math.abs(p.x - e.x) + Math.abs(p.y - e.y) <= st.reach) { p.hp -= st.dmg; e.pc = 1500; e.att = 1; T.gr[pid] = GRACE_MS; if (p.hp <= 0) { p.hp = 0; T.sn[pid] = DOWN_MS; say(T, p.name + ' was knocked out'); } break; }
       }
     }
-    if (e.y >= VY) { e.att = 1; if (e.at <= 0) { e.at = st.atk; T.vh -= st.dmg; } continue; }
+    if (nearVillage(e.x, e.y)) { e.att = 1; if (e.at <= 0) { e.at = st.atk; T.vh -= st.dmg; } continue; }
     var nx = pickNext(T, e);
     if (!nx) continue;
     var wi = widx(nx[0], nx[1]), h = T.wall[wi];
     if (h > 0) {
       e.att = 1;
-      if (e.at <= 0) { e.at = st.atk; T.wall[wi] = Math.max(0, h - st.dmg); T.dirty = true; if (!T.wall[wi]) say(T, 'A block of the wall fell'); }
+      if (e.at <= 0) { e.at = st.atk; T.wall[wi] = Math.max(0, h - st.dmg * (T.diff.wd || 1)); T.dirty = true; if (!T.wall[wi]) say(T, 'A block of the wall fell'); }
     } else if (e.mv <= 0) { e.x = nx[0]; e.y = nx[1]; e.mv = st.step * T.diff.s; }
   }
   if (T.vh <= 0) { lose(T); return; }
@@ -2571,7 +2576,7 @@ function act(T, a) {
     for (i = 0; i < T.en.length; i++) if (T.en[i].id === a.e) break;
     if (i === T.en.length) return 'miss';
     var e = T.en[i];
-    if (Math.abs(e.x - p.x) + Math.abs(e.y - p.y) > 4) return 'far';
+    if (Math.abs(e.x - p.x) + Math.abs(e.y - p.y) > (p.wp === 'bow' ? 7 : 3)) return 'far';
     e.hp -= 1;
     if (e.hp <= 0) { T.en.splice(i, 1); T.k++; ps.k++; }
     return 'hit';
@@ -2582,12 +2587,12 @@ function act(T, a) {
   var wi = widx(x, y), cur = T.wall[wi];
   if (a.k === 'b') {
     if (cur === 0) {
-      if (y < BY0 || y > BY1) return 'zone';
+      if (y < BY0 || y > BY1 || isVillage(x, y)) return 'zone';
       if (occupied(T, x, y, null)) return 'occ';
       for (var k in T.pl) if (T.pl[k].x === x && T.pl[k].y === y && k !== a.p) return 'occ';
       T.wall[wi] = BHP; T.dirty = true; ps.b++; return 'built';
     }
-    if (cur < BHP) { T.wall[wi] = cur + 1; T.dirty = true; ps.r++; return 'fixed'; }
+    if (cur < BHP) { T.wall[wi] = Math.min(BHP, cur + 2); T.dirty = true; ps.r++; return 'fixed'; }
     return 'full';
   }
   if (a.k === 'r' && cur === BHP) { T.wall[wi] = 0; T.dirty = true; return 'removed'; }
@@ -2631,12 +2636,13 @@ function wallStr(T) { var s = '', i; for (i = 0; i < T.wall.length; i++) s += T.
 function serialize(T, now, g) {
   var sn = {}, pl = {}, k;
   for (k in T.sn) sn[k] = Math.round(T.sn[k]);
-  for (k in T.pl) { var p = T.pl[k]; pl[k] = [p.x, p.y, p.d, p.tool, p.name, p.bot ? 1 : 0, p.hp]; }
+  for (k in T.pl) { var p = T.pl[k]; pl[k] = [p.x, p.y, p.d, p.tool, p.name, p.bot ? 1 : 0, p.hp, p.wp]; }
+  var pp = {}; for (k in T.ps) pp[k] = (T.ps[k].b || 0) + 2 * (T.ps[k].k || 0);   /* points: 1 per wall built, 2 per enemy defeated */
   var out = {
     ms: g.ms, pa: g.pa ? 1 : 0, ts: now, ph: T.ph, pr: Math.max(0, Math.round(T.pr)), wv: T.wv, nw: T.nw, cl: T.cl, vh: Math.max(0, T.vh), vm: T.vm, k: T.k,
     lf: T.q.length + T.en.length, sc: score(T), w: wallStr(T),
     e: T.en.map(function (e) { return [e.id, e.t, e.x, e.y, e.hp, e.mhp, e.att]; }),
-    ak: T.ak, sn: sn, pl: pl, ev: T.ev
+    ak: T.ak, sn: sn, pl: pl, ev: T.ev, pp: pp
   };
   if (T.ph === 'fallen' || T.ph === 'won') { out.fw = T.fw; out.ps = {}; for (k in T.ps) out.ps[k] = [T.ps[k].k, T.ps[k].b, T.ps[k].r, T.ps[k].name]; }
   return out;
@@ -2654,7 +2660,7 @@ function standings(teams) {
 }
 
 return {
-  AW: AW, AH: AH, MW: MW, MH: MH, VY: VY, BY0: BY0, BY1: BY1, BHP: BHP, VMAX: VMAX, DX: DX, DY: DY, STATIC: STATIC, ROCKS: ROCKS, EN: EN, DIFF: DIFF,
+  AW: AW, AH: AH, MW: MW, MH: MH, VY: VY, VX0: VX0, VX1: VX1, isVillage: isVillage, nearVillage: nearVillage, BY0: BY0, BY1: BY1, BHP: BHP, VMAX: VMAX, DX: DX, DY: DY, STATIC: STATIC, ROCKS: ROCKS, EN: EN, DIFF: DIFF,
   PREP_MS: PREP_MS, REST_MS: REST_MS, DOWN_MS: DOWN_MS, GRACE_MS: GRACE_MS, PHP: PHP,
   rng: rng, widx: widx, inField: inField, isRock: isRock, newTeam: newTeam, addPlayer: addPlayer, nPlayers: nPlayers, score: score,
   tick: tick, act: act, botStep: botStep, serialize: serialize, restore: restore, standings: standings, computeFlow: computeFlow, say: say
@@ -2712,7 +2718,7 @@ function rockTex() {
   return t;
 }
 var TEX = null;
-function initTex() { if (TEX) return; TEX = [null, rockTex(), blockTex(1), blockTex(2), blockTex(3), blockTex(4)]; }
+function initTex() { if (TEX) return; TEX = [null, rockTex()]; var hp; for (hp = 1; hp <= S.BHP; hp++) TEX.push(blockTex(Math.max(1, Math.ceil(hp * 4 / S.BHP)))); }  /* map value = wall strength + 1; strength 1 to 6 shows 4 crack levels */
 
 /* ---------- Sprites ---------- */
 var SPR = null;
@@ -2735,6 +2741,7 @@ var SCALE = { d: 0.78, f: 0.58, p: 0.98, m: 1.55, player: 0.85, hut: 1.0, gate: 
 
 var TOOL = {
   hammer: sprite(['................', '....hhhhhhh.....', '...hHHHHHHHh....', '...hHHHHHHHh....', '....hhhhhhh.....', '......bB........', '......bB........', '......bB........', '......bB........', '......bB........', '......bB........', '......bB........', '......bB........', '......bB........', '.....bBBb.......', '................'], { h: '#3d3f4d', H: '#aab1c0', b: '#5c3a1a', B: '#a8733a' }),
+  bow: sprite(['.........bb.....', '........bBw.....', '.......bB.w.....', '......bB..w.....', '.....bB...w.....', '....bB....w.....', '...bB.....w..t..', '...bB.aaaaaaattt', '...bB.....w..t..', '....bB....w.....', '.....bB...w.....', '......bB..w.....', '.......bB.w.....', '........bBw.....', '.........bb.....', '................'], { b: '#5c3a1a', B: '#a8733a', w: '#f2f5ff', a: '#c9a06a', t: '#d9dde8' }),
   sword: sprite(['..............ww', '.............wWw', '............wWw.', '...........wWw..', '..........wWw...', '.........wWw....', '........wWw.....', '.......wWw......', '..y...wWw.......', '...y.wWw........', '....yWw.........', '.....yy.........', '....bBy.........', '...bB...........', '..bB............', '..b.............'], { w: '#f2f5ff', W: '#a9b3c9', y: '#e8b44a', b: '#5c3a1a', B: '#a8733a' })
 };
 
@@ -2765,7 +2772,7 @@ function create(ctx) {
           var bx = fx | 0, by = fy | 0;
           if (fx < 0 || fy < 0 || bx >= MW || by >= MH) { put(i0 + x, 0, 0, 0, 0); continue; }
           var u = fx - bx, v = fy - by, ck = ((u * 4) | 0) + ((v * 4) | 0) & 1, r2, g2, b2;
-          if (by >= S.VY) { r2 = ck ? 200 : 188; g2 = ck ? 182 : 170; b2 = ck ? 142 : 130; }
+          if (S.isVillage(bx, by)) { r2 = ck ? 200 : 188; g2 = ck ? 182 : 170; b2 = ck ? 142 : 130; }
           else if (by <= 2) { r2 = ck ? 82 : 72; g2 = ck ? 46 : 40; b2 = ck ? 70 : 62; }
           else { r2 = ck ? 70 : 62; g2 = ck ? 108 : 98; b2 = ck ? 64 : 58; }
           if (tint && bx === fx0 && by === fy0) { var m = 0.5; r2 = r2 * (1 - m) + (tint === 1 ? 255 : 255) * m; g2 = g2 * (1 - m) + (tint === 1 ? 214 : 70) * m; b2 = b2 * (1 - m) + (tint === 1 ? 64 : 70) * m; }
@@ -2835,7 +2842,7 @@ function create(ctx) {
   }
 
   function drawTool(W, pix2) {
-    var spr = W.tool === 2 ? TOOL.sword : TOOL.hammer, sc = 3, size = 16 * sc, bx = CW - size - 6, by = CH - size + 4 + (W.bob || 0);
+    var spr = W.tool === 2 ? (W.wp === 'bow' ? TOOL.bow : TOOL.sword) : TOOL.hammer, sc = 3, size = 16 * sc, bx = CW - size - 6, by = CH - size + 4 + (W.bob || 0);
     var sw = W.swing || 0, ang = 0, ox = 0, oy = 0;
     if (sw > 0) { var s2 = Math.sin(sw * Math.PI); ang = (W.tool === 2 ? -1.1 : -0.9) * s2; oy = (W.tool === 2 ? -6 : 10) * s2; ox = (W.tool === 2 ? -14 : -6) * s2; }
     var pvx = size * 0.35, pvy = size * 0.95, ca = Math.cos(ang), sa = Math.sin(ang), x2, y2;
@@ -2930,13 +2937,13 @@ el.innerHTML =
 '<div class="gm" id="vGame" hidden>' +
   '<div class="gm-hud"><div class="grp"><span class="lbl" id="hTeam">TEAM</span><span id="hWave">WAVE</span></div>' +
   '<div class="grp"><span class="lbl" id="hPhase">BUILD</span><span id="hTime">0:00</span></div>' +
-  '<div class="grp"><span class="lbl">VILLAGE</span><span id="hVil">20</span></div><button id="mute" type="button">SOUND ON</button></div>' +
-  '<div class="gm-bar"><i id="vbar"></i></div><div class="gm-hp"><span>YOU</span><div id="hearts"></div></div>' +
+  '<div class="grp"><span class="lbl">VILLAGE</span><span id="hVil">20</span></div><button id="mute" type="button">SOUND ON</button><button id="ctlBtn" type="button">JOYSTICKS</button></div>' +
+  '<div class="gm-bar"><i id="vbar"></i></div><div class="gm-hp"><span>YOU</span><div id="hearts"></div><span class="gm-pts" id="pts">0 pts</span></div>' +
   '<div class="gm-stage" id="stage"><canvas id="cv"></canvas><div class="gm-toast" id="gt"></div>' +
   '<div class="gm-verse hidden" id="verse"></div><div class="gm-down hidden" id="down"></div><div class="gm-overlay hidden" id="ov"><div class="gm-panel" id="pn"></div></div></div>' +
   '<div class="gm-hint" id="hint"></div>' +
-  '<div class="gm-ctl"><div class="gm-pad"><button class="dp" data-c="F" data-d="up" type="button">&#9650;</button><button class="dp" data-c="L" data-d="left" type="button">&#9664;</button><button class="dp" data-c="R" data-d="right" type="button">&#9654;</button><button class="dp" data-c="B" data-d="down" type="button">&#9660;</button></div>' +
-  '<div class="gm-act"><button id="bAct" type="button">HIT</button><div class="tools"><button class="tl on" data-tool="0" type="button">&#128296;</button><button class="tl" data-tool="1" type="button">&#9876;&#65039;</button></div></div></div>' +
+  '<div class="gm-ctl"><div class="joy" id="joyL" aria-label="Move"><i></i><span>MOVE</span></div><div class="gm-pad"><button class="dp" data-c="F" data-d="up" type="button">&#9650;</button><button class="dp" data-c="L" data-d="left" type="button">&#9664;</button><button class="dp" data-c="R" data-d="right" type="button">&#9654;</button><button class="dp" data-c="B" data-d="down" type="button">&#9660;</button></div>' +
+  '<div class="gm-act"><button id="bAct" type="button">HIT</button><div class="tools"><button class="tl on" data-tool="0" type="button">&#128296;</button><button class="tl" data-tool="1" type="button">&#9876;&#65039;</button></div></div><div class="joy" id="joyR" aria-label="Turn"><i></i><span>TURN</span></div></div>' +
 '</div>' +
 '<div class="ph" id="vOver" hidden></div>';
 
@@ -2957,6 +2964,7 @@ var SND = {
   fix: function () { beep(400, 0.06, 'triangle', 0.06); },
   hit: function () { beep(180, 0.09, 'sawtooth', 0.06); },
   miss: function () { beep(120, 0.05, 'sine', 0.03); },
+  jump: function () { beep(300, 0.06, 'triangle', 0.05); beep(520, 0.08, 'triangle', 0.05, 0.07); },
   kill: function () { beep(520, 0.08, 'square', 0.06); beep(780, 0.1, 'square', 0.05, 0.08); },
   hurt: function () { beep(110, 0.25, 'sawtooth', 0.08); },
   wave: function () { beep(196, 0.25, 'sawtooth', 0.07); beep(147, 0.35, 'sawtooth', 0.07, 0.25); },
@@ -2997,13 +3005,18 @@ function pickTeam(code, t) {
   j.innerHTML = '<div class="card pad"><h2>Join game ' + esc(code) + '</h2><label class="muted small" for="jName">Your name</label><input id="jName" maxlength="14" autocomplete="off" placeholder="First name">' +
     '<p class="muted small" style="margin-top:.8em">Pick your team</p><div class="teams">' +
     teams.map(function (tm) { return '<button class="teamBtn" data-t="' + esc(tm.id) + '" style="--c:' + esc(tm.color) + '" type="button"><span class="dot"></span>' + esc(tm.name) + '</button>'; }).join('') +
-    '</div><p class="err" id="jErr2"></p><button class="btn wide" id="jGo" type="button" disabled>Join</button></div>';
+    '</div><p class="muted small" style="margin-top:.8em">Pick your weapon (you keep it for the whole game)</p><div class="teams">' +
+    '<button class="teamBtn wpBtn on" data-w="sword" style="--c:#c0392b" type="button">&#9876;&#65039; Sword: close range, quick</button>' +
+    '<button class="teamBtn wpBtn" data-w="bow" style="--c:#2e86de" type="button">&#127993; Bow: hits enemies far away</button></div>' +
+    '<p class="err" id="jErr2"></p><button class="btn wide" id="jGo" type="button" disabled>Join</button></div>';
+  ST.joinWp = 'sword';
+  Array.prototype.forEach.call(j.querySelectorAll('.wpBtn'), function (b) { b.onclick = function () { Array.prototype.forEach.call(j.querySelectorAll('.wpBtn'), function (x) { x.classList.remove('on'); }); b.classList.add('on'); ST.joinWp = b.getAttribute('data-w'); }; });
   function check() { $('jGo').disabled = !($('jName').value.trim() && ST.joinTeam); }
   $('jName').oninput = check;
-  Array.prototype.forEach.call(j.querySelectorAll('.teamBtn'), function (b) { b.onclick = function () { Array.prototype.forEach.call(j.querySelectorAll('.teamBtn'), function (x) { x.classList.remove('on'); }); b.classList.add('on'); ST.joinTeam = b.getAttribute('data-t'); check(); }; });
+  Array.prototype.forEach.call(j.querySelectorAll('.teamBtn:not(.wpBtn)'), function (b) { b.onclick = function () { Array.prototype.forEach.call(j.querySelectorAll('.teamBtn:not(.wpBtn)'), function (x) { x.classList.remove('on'); }); b.classList.add('on'); ST.joinTeam = b.getAttribute('data-t'); check(); }; });
   $('jGo').onclick = function () {
     var name = $('jName').value.trim().slice(0, 14), pid = WH.uid();
-    db.put(code + '/players/' + pid, { name: name, team: ST.joinTeam, t: now() }).then(function (r) {
+    db.put(code + '/players/' + pid, { name: name, team: ST.joinTeam, wp: ST.joinWp || 'sword', t: now() }).then(function (r) {
       if (r === undefined || (r && r.error)) { $('jErr2').textContent = 'Could not join. Check your Wi-Fi, or ask your teacher to open database access.'; return; }
       sSet({ code: code, pid: pid }); enter(code, pid);
     });
@@ -3020,7 +3033,7 @@ function poll() {
     return db.get(ST.code).then(function (t) {
       if (t === undefined) return;
       if (!t || !t.meta || !t.players || !t.players[ST.pid]) { sDel(); showJoin(''); return; }
-      ST.teams = t.teams || {}; ST.team = t.players[ST.pid].team; ST.name = t.players[ST.pid].name;
+      ST.teams = t.teams || {}; ST.team = t.players[ST.pid].team; ST.name = t.players[ST.pid].name; ST.wp = t.players[ST.pid].wp === 'bow' ? 'bow' : 'sword';
       if (t.meta.state === 'playing') { if (!ST.teams[ST.team]) { renderLobby(t); return; } startGame(); }
       else if (t.meta.state === 'over') showResults();
       else renderLobby(t);
@@ -3033,7 +3046,7 @@ function renderLobby(t) {
   var tm = ST.teams[ST.team] || { name: '?', color: '#888' }, mates = Object.keys(t.players || {}).filter(function (k) { return t.players[k].team === ST.team; }).map(function (k) { return t.players[k].name; });
   $('vLobby').innerHTML = '<div class="card pad center"><h2>You are in!</h2><div class="teamTag" style="justify-content:center"><span class="dot" style="background:' + esc(tm.color) + '"></span>' + esc(tm.name) + '</div>' +
     '<p class="muted">Waiting for your teacher to start the game.</p><p class="small">Teammates: ' + esc(mates.join(', ') || 'just you') + '</p>' +
-    '<p class="note">Build the wall with the hammer. Fight with the sword. Keep the darkness out of the village.</p></div>';
+    '<p class="note">Build the wall with the hammer. Fight with the sword. Walk forward into a wall to jump over it. Keep the darkness out of the village.</p></div>';
 }
 
 /* ---------- Game ---------- */
@@ -3041,9 +3054,10 @@ function startGame() {
   ST.started = true; ST.over = false; show('vGame'); initView();
   var tm = ST.teams[ST.team] || {}; $('hTeam').textContent = (tm.name || 'TEAM').toUpperCase().slice(0, 9); $('hTeam').style.color = tm.color || '#fff';
   var sx = 5 + Math.floor(Math.random() * 5);
-  ST.W = { cx: sx, cy: S.VY, d: 3, vx: sx + 0.5, vy: S.VY + 0.5, va: -Math.PI / 2, anim: null, bob: 0 };
+  var sy = S.VY - 1; ST.W = { cx: sx, cy: sy, d: 3, vx: sx + 0.5, vy: sy + 0.5, va: -Math.PI / 2, anim: null, bob: 0, wp: ST.wp };
+  var wt = el.querySelector('.tl[data-tool="1"]'); if (wt) wt.innerHTML = ST.wp === 'bow' ? '&#127993;' : '&#9876;&#65039;';
   setTool(0); rebuildMap();
-  showOverlay('<h1>Hold the wall</h1><p>&#128296; Hammer: tap HIT to build a block in front of you. Tap a cracked block to repair it.</p><p>&#9876;&#65039; Sword: strike the darkness in front of you. You can hit over the wall.</p><p>Enemies block you and you block them. They can hurt you: you have 5 hearts. At zero you are knocked out and can only turn to look around until you get back up.</p><p>Keep enemies out of the village.</p>' +
+  showOverlay('<h1>Hold the wall</h1><p>&#128296; Hammer: tap BUILD to place a block in front of you. Tap a cracked block to repair it.</p><p>&#9876;&#65039; Weapon: strike the darkness in front of you. The sword reaches 2 squares, the bow reaches 5. Both hit over the wall.</p><p>&#11014;&#65039; Jump: walk forward into a wall to hop over it.</p><div class="tmap" aria-label="Map of the field"><div class="g">DARK GATES (far end): enemies come in here</div><div class="a">&#11015; enemies march toward the village &#11015;</div><div class="f">Open field</div><div class="w">&#129521; BUILD YOUR WALL across the field, between the gates and the village</div><div class="f">You start here, facing the gates</div><div class="v">&#127968; VILLAGE: the huts in the back middle. Protect them!</div></div><p>Enemies block you and you block them. They can hurt you: you have 5 hearts. At zero you are knocked out and can only turn to look around until you get back up.</p><p>Keep enemies out of the village.</p>' +
     '<div class="verse"><span class="ref">Nehemiah 4:17</span>' + esc(WH.VERSES[0].t) + '</div><button class="btn primary" id="begin" type="button">Begin</button>');
   $('begin').onclick = function () { initAudio(); hideOverlay(); };
   requestAnimationFrame(frame);
@@ -3124,13 +3138,28 @@ function setTool(t) {
 function enemyAt(x, y) { for (var i in ST.en) if (ST.en[i].x === x && ST.en[i].y === y) return ST.en[i]; return null; }
 function wallHp(x, y) { var id = ST.map[y * S.MW + x]; return id >= 2 ? id - 1 : 0; }
 function stunned() { return now() < ST.stunUntil; }
+/* sword reaches 2 squares ahead, bow reaches 5; both hit over walls but not through rock */
+function findTarget(W) { var reach = ST.wp === 'bow' ? 5 : 2, i, tg = null; for (i = 1; i <= reach && !tg; i++) { var x = W.cx + S.DX[W.d] * i, y = W.cy + S.DY[W.d] * i; if (S.isRock(x, y)) break; tg = enemyAt(x, y); } return tg; }
 function command(c) {
   var W = ST.W; if (!W || overlayOpen() || ST.over) return;
-  if (stunned() && c === 'F') return;
+  var mv = c === 'F' || c === 'K' || c === 'SL' || c === 'SR';
+  if (stunned() && mv) return;
   if (W.anim) return;
   var t0 = now();
-  if (c === 'F') {
-    var nx = W.cx + S.DX[W.d], ny = W.cy + S.DY[W.d];
+  if (mv) {
+    var dir = c === 'F' ? W.d : c === 'K' ? (W.d + 2) % 4 : c === 'SL' ? (W.d + 3) % 4 : (W.d + 1) % 4;
+    var nx = W.cx + S.DX[dir], ny = W.cy + S.DY[dir];
+    /* walking into a built wall hops over it (up to 3 blocks thick) onto the next open square, so nobody gets boxed in */
+    if (S.inField(nx, ny) && ST.map[ny * S.MW + nx] >= 2) {
+      var land = null;
+      for (var hop = 2; hop <= 4; hop++) {
+        var hx = W.cx + S.DX[dir] * hop, hy = W.cy + S.DY[dir] * hop;
+        if (!S.inField(hx, hy) || S.isRock(hx, hy)) break;
+        var mv2 = ST.map[hy * S.MW + hx];
+        if (mv2 === 0) { if (!enemyAt(hx, hy)) land = [hx, hy, hop]; break; }
+      }
+      if (land) { W.anim = { t0: t0, dur: 260 + 90 * land[2], fx: W.vx, fy: W.vy, tx: land[0] + 0.5, ty: land[1] + 0.5, fa: W.va, ta: W.va, jump: true }; W.cx = land[0]; W.cy = land[1]; SND.jump(); pushPos(); return; }
+    }
     if (!S.inField(nx, ny) || ST.map[ny * S.MW + nx] !== 0 || enemyAt(nx, ny)) { SND.miss(); return; }
     W.anim = { t0: t0, dur: 190, fx: W.vx, fy: W.vy, tx: nx + 0.5, ty: ny + 0.5, fa: W.va, ta: W.va, step: true }; W.cx = nx; W.cy = ny;
   } else {
@@ -3162,7 +3191,7 @@ function doAct() {
     var hp = wallHp(fx, fy);
     if (hp === 0) {
       if (enemyAt(fx, fy)) { toast('An enemy is in the way'); SND.miss(); return; }
-      if (fy < S.BY0 || fy > S.BY1) { toast(fy > S.BY1 ? 'The village is for living, not walls' : 'Too close to the dark gates'); SND.miss(); return; }
+      if (fy < S.BY0 || fy > S.BY1 || S.isVillage(fx, fy)) { toast(S.isVillage(fx, fy) ? 'The village is for living, not walls' : 'Too close to the dark gates'); SND.miss(); return; }
       for (var k in ST.mates) if (Math.round(ST.mates[k].tx - 0.5) === fx && Math.round(ST.mates[k].ty - 0.5) === fy) { toast('A teammate is in the way'); SND.miss(); return; }
       send('b', fx, fy); SND.build(); ST.rmArm = null;
     } else if (hp < S.BHP) { send('b', fx, fy); SND.fix(); ST.rmArm = null; }
@@ -3172,8 +3201,7 @@ function doAct() {
       else { ST.rmArm = { k: key, t: t }; toast('Strong block. Tap again to remove it.'); SND.miss(); }
     }
   } else {
-    ST.cdUntil = t + 420; ST.swingAt = t; var tg = null, i;
-    for (i = 1; i <= 2 && !tg; i++) { var cx2 = W.cx + S.DX[W.d] * i, cy2 = W.cy + S.DY[W.d] * i; if (S.isRock(cx2, cy2)) break; tg = enemyAt(cx2, cy2); }
+    ST.cdUntil = t + (ST.wp === 'bow' ? 650 : 400); ST.swingAt = t; var tg = findTarget(W);
     if (tg) { send('s', 0, 0, +Object.keys(ST.en).filter(function (k2) { return ST.en[k2] === tg; })[0]); tg.fl = t + 170; tg.hp -= 1; if (tg.hp <= 0) SND.kill(); else SND.hit(); }
     else SND.miss();
   }
@@ -3189,20 +3217,20 @@ function frame(tn) {
   if (W.anim) {
     var p = (t - W.anim.t0) / W.anim.dur, a = W.anim;
     if (p >= 1) { W.vx = a.tx; W.vy = a.ty; W.va = a.ta; W.anim = null; W.bob = 0; var full = Math.PI * 2; W.va = ((W.va % full) + full) % full; if (W.va > Math.PI * 1.5) W.va -= full; }
-    else { var e = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2; W.vx = a.fx + (a.tx - a.fx) * e; W.vy = a.fy + (a.ty - a.fy) * e; W.va = a.fa + (a.ta - a.fa) * e; W.bob = a.step ? Math.round(Math.sin(p * Math.PI) * 3) : 0; }
+    else { var e = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2; W.vx = a.fx + (a.tx - a.fx) * e; W.vy = a.fy + (a.ty - a.fy) * e; W.va = a.fa + (a.ta - a.fa) * e; W.bob = a.jump ? Math.round(Math.sin(p * Math.PI) * 18) : (a.step ? Math.round(Math.sin(p * Math.PI) * 3) : 0); }
   }
   var k = 1 - Math.exp(-dt * 9), id;
   for (id in ST.en) { var o = ST.en[id]; o.rx += (o.tx - o.rx) * k; o.ry += (o.ty - o.ry) * k; }
   for (id in ST.mates) { var m = ST.mates[id]; m.rx += (m.tx - m.rx) * k; m.ry += (m.ty - m.ry) * k; }
   var sprites = [], MATECOL = teamColor();
-  [[3, 16, 'hut'], [7, 16, 'hut'], [11, 16, 'hut'], [3, 1, 'gate'], [7, 1, 'gate'], [11, 1, 'gate']].forEach(function (d) { sprites.push({ x: d[0] + 0.5, y: d[1] + 0.5, kind: d[2], spr: VIEW.SPR()[d[2]] }); });
+  [[6, 16, 'hut'], [7, 15, 'hut'], [8, 16, 'hut'], [3, 1, 'gate'], [7, 1, 'gate'], [11, 1, 'gate']].forEach(function (d) { sprites.push({ x: d[0] + 0.5, y: d[1] + 0.5, kind: d[2], spr: VIEW.SPR()[d[2]] }); });
   for (id in ST.en) { var o2 = ST.en[id]; sprites.push({ x: o2.rx, y: o2.ry, kind: o2.t, spr: VIEW.SPR()[o2.t], flash: o2.fl > t, bar: o2.hp < o2.mhp ? Math.max(0, o2.hp) / o2.mhp : null }); }
   for (id in ST.mates) { var m2 = ST.mates[id]; sprites.push({ x: m2.rx, y: m2.ry, kind: 'player', spr: VIEW.playerSprite(MATECOL), label: m2.name }); }
   var fx = W.cx + S.DX[W.d], fy = W.cy + S.DY[W.d], fkind = 0, hint = '';
   if (ST.tool === 0) {
-    if (S.inField(fx, fy) && !S.isRock(fx, fy) && !enemyAt(fx, fy) && wallHp(fx, fy) < S.BHP && fy >= S.BY0 && fy <= S.BY1) { fkind = 1; hint = wallHp(fx, fy) ? 'Cracked block: tap to repair' : 'Open ground: tap to build'; }
+    if (S.inField(fx, fy) && !S.isRock(fx, fy) && !enemyAt(fx, fy) && wallHp(fx, fy) < S.BHP && fy >= S.BY0 && fy <= S.BY1 && !S.isVillage(fx, fy)) { fkind = 1; hint = wallHp(fx, fy) ? 'Cracked block: tap to repair' : 'Open ground: tap to build'; }
     else hint = wallHp(fx, fy) >= S.BHP ? 'Strong block (tap twice to remove)' : 'Cannot build here';
-  } else { var tg = enemyAt(fx, fy) || (!S.isRock(fx, fy) && enemyAt(fx + S.DX[W.d], fy + S.DY[W.d])); fkind = tg ? 2 : 0; hint = tg ? 'Enemy in range: strike!' : 'No enemy in range'; }
+  } else { var tg = findTarget(W); fkind = tg ? 2 : 0; hint = tg ? 'Enemy in range: strike!' : 'No enemy in range'; }
   var sw = 0; if (t - ST.swingAt < 260) sw = (t - ST.swingAt) / 260;
   VIEWOBJ.draw({ map: ST.map, vx: W.vx, vy: W.vy, va: W.va, sprites: sprites, tool: ST.tool + 1, swing: sw, fx: fx, fy: fy, fkind: fkind, hurt: stunned() || now() < ST.hitUntil, bob: W.bob });
   if (t - lastHud > 220) { lastHud = t; hud(hint); }
@@ -3218,6 +3246,7 @@ function hud(hint) {
   var face = ['EAST', 'TOWARD VILLAGE', 'WEST', 'TOWARD ENEMIES'][ST.W.d];
   var dn = $('down'), left2 = Math.ceil((ST.stunUntil - t) / 1000);
   if (stunned()) { dn.innerHTML = 'KNOCKED OUT<br>You can turn and look around.<br>Back up in ' + Math.max(1, left2) + 's, or when the wave is cleared'; dn.classList.remove('hidden'); } else dn.classList.add('hidden');
+  var mp = (ST.st && ST.st.pp && ST.st.pp[ST.pid]) || 0; if ($('pts')) $('pts').textContent = mp + (mp === 1 ? ' pt' : ' pts');
   var hs = String(ST.hp); if (hs !== ST.heartSig) { ST.heartSig = hs; var h = '', q; for (q = 0; q < S.PHP; q++) h += '<i class="' + (q < ST.hp ? '' : 'off') + '"></i>'; $('hearts').innerHTML = h; }
   $('hint').textContent = stunned() ? 'KNOCKED OUT. Turn to look around.' : (s.pa ? 'Paused by teacher' : (t - ST.recvAt > 6000 ? 'Waiting for the teacher screen...' : face + ' | ' + hint));
 }
@@ -3243,6 +3272,27 @@ document.addEventListener('keydown', function (e) {
   var k = e.key, map = { ArrowUp: 'F', w: 'F', ArrowLeft: 'L', a: 'L', ArrowRight: 'R', d: 'R', ArrowDown: 'B', s: 'B' };
   if (map[k]) { e.preventDefault(); command(map[k]); } else if (k === ' ' || k === 'Enter') { e.preventDefault(); doAct(); } else if (k === '1') setTool(0); else if (k === '2') setTool(1); else if (k === 'q') setTool(1 - ST.tool);
 });
+/* two joysticks: left moves (forward, back, side to side), right turns */
+(function () {
+  function joystick(id, map, rate) {
+    var j = $(id); if (!j) return; var k = j.querySelector('i'), a = null, iv = null;
+    function dirOf(dx, dy) { if (Math.hypot(dx, dy) < 16) return null; return Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'r' : 'l') : (dy > 0 ? 'd' : 'u'); }
+    function fire() { if (!a) return; var c = map[dirOf(a.dx, a.dy)]; if (c) command(c); }
+    function move(e) { if (!a || e.pointerId !== a.id) return; var dx = e.clientX - a.cx, dy = e.clientY - a.cy, r = j.offsetWidth * 0.3, d = Math.hypot(dx, dy); if (d > r) { dx *= r / d; dy *= r / d; } a.dx = dx; a.dy = dy; k.style.transform = 'translate(' + dx + 'px,' + dy + 'px)'; }
+    function end() { a = null; clearInterval(iv); iv = null; k.style.transform = ''; }
+    j.addEventListener('pointerdown', function (e) { e.preventDefault(); initAudio(); try { j.setPointerCapture(e.pointerId); } catch (x) {} var r = j.getBoundingClientRect(); a = { cx: r.left + r.width / 2, cy: r.top + r.height / 2, dx: 0, dy: 0, id: e.pointerId }; move(e); fire(); clearInterval(iv); iv = setInterval(fire, rate); });
+    j.addEventListener('pointermove', move);
+    ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(function (ev) { j.addEventListener(ev, end); });
+    j.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+  }
+  joystick('joyL', { u: 'F', d: 'K', l: 'SL', r: 'SR' }, 120);
+  joystick('joyR', { l: 'L', r: 'R', d: 'B' }, 380);
+  var on = false; try { on = localStorage.getItem('hold_joy') === '1'; } catch (e) {}
+  function setJoy(v) { on = v; document.body.classList.toggle('joymode', v); $('ctlBtn').textContent = v ? 'BUTTONS' : 'JOYSTICKS'; try { localStorage.setItem('hold_joy', v ? '1' : '0'); } catch (e) {} }
+  setJoy(on); $('ctlBtn').addEventListener('click', function () { setJoy(!on); });
+  document.addEventListener('dblclick', function (e) { e.preventDefault(); }, { passive: false });
+  document.addEventListener('gesturestart', function (e) { e.preventDefault(); }, { passive: false });
+})();
 $('mute').addEventListener('click', function () { ST.muted = !ST.muted; this.textContent = ST.muted ? 'SOUND OFF' : 'SOUND ON'; initAudio(); });
 
 /* ---------- Start ---------- */
@@ -3280,10 +3330,16 @@ function init() {
   var c = store.getItem('hold_host_code');
   if (!c) return newGame();
   db.get(c).then(function (t) {
-    if (!t || !t.meta || t.meta.state === 'over') return newGame();
+    var age = now() - (t && t.meta ? (t.meta.startedAt || t.meta.created || 0) : 0);
+    /* only reopen a saved room if it is recent: a game started in the last 45 minutes, or a lobby from the last 3 hours */
+    if (!t || !t.meta || t.meta.state === 'over' || (t.meta.state === 'playing' && age > 45 * 60000) || (t.meta.state !== 'playing' && age > 3 * 3600000)) return newGame();
     H.code = c; H.waves = t.meta.waves || 6; H.diff = t.meta.diff || 'normal';
     if (opts.onCode) opts.onCode(c);
-    if (t.meta.state === 'playing') { resume(t); } else { loop(); }
+    if (t.meta.state === 'playing') { resume(t); } else {
+      /* reopening a saved room: clear out test players so the lobby never starts with them (real students stay) */
+      var gone = {}; Object.keys(t.players || {}).forEach(function (k) { var p = t.players[k]; if (p && (p.bot || /^bot/.test(k) || /^Practice \d+$/.test(p.name || ''))) gone[k] = null; });
+      (Object.keys(gone).length ? db.patch(c + '/players', gone) : Promise.resolve()).then(loop);
+    }
   });
 }
 function resume(t) {
@@ -3291,7 +3347,7 @@ function resume(t) {
   var st = t.state || {};
   H.teams.forEach(function (tm) {
     var T = S.newTeam(tm.id, { waves: H.waves, diff: H.diff }); H.sim[tm.id] = T; if (st[tm.id]) S.restore(T, st[tm.id]);
-    Object.keys(t.players || {}).forEach(function (k) { var p = t.players[k]; if (p.team === tm.id) S.addPlayer(T, k, p.name, p.bot); });
+    Object.keys(t.players || {}).forEach(function (k) { var p = t.players[k]; if (p.team === tm.id) S.addPlayer(T, k, p.name, p.bot, null, p.wp); });
   });
   H.last = now(); loop();
 }
@@ -3339,7 +3395,7 @@ function playTick() {
 function teamOf(pid) { for (var i = 0; i < H.teams.length; i++) { var T = H.sim[H.teams[i].id]; if (T.pl[pid]) return T; } return null; }
 function syncPlayers(pls) {
   H.players = pls;
-  Object.keys(pls).forEach(function (k) { var p = pls[k], T = H.sim[p.team]; if (T && !T.pl[k]) S.addPlayer(T, k, p.name, p.bot); });
+  Object.keys(pls).forEach(function (k) { var p = pls[k], T = H.sim[p.team]; if (T && !T.pl[k]) S.addPlayer(T, k, p.name, p.bot, null, p.wp); });
 }
 function collectEvents() {
   H.teams.forEach(function (tm) {
@@ -3371,7 +3427,7 @@ function start() {
     var drop = H.teams.filter(function (tm) { return !(by[tm.id] || []).length; });
     return Promise.all(drop.map(function (tm) { return db.del(H.code + '/teams/' + tm.id); })).then(function () {
       H.teams = full; H.sim = {};
-      full.forEach(function (tm) { var T = S.newTeam(tm.id, { waves: H.waves, diff: H.diff, prepMs: opts.prepMs }); H.sim[tm.id] = T; by[tm.id].forEach(function (k) { S.addPlayer(T, k, H.players[k].name, H.players[k].bot); }); });
+      full.forEach(function (tm) { var T = S.newTeam(tm.id, { waves: H.waves, diff: H.diff, prepMs: opts.prepMs }); H.sim[tm.id] = T; by[tm.id].forEach(function (k) { S.addPlayer(T, k, H.players[k].name, H.players[k].bot, null, H.players[k].wp); }); });
       H.state = 'playing'; H.startedAt = now(); H.last = now(); H.paused = false; H.n = 0; H.feed = []; H.lastEv = {}; H.built = '';
       return db.patch(H.code + '/meta', { state: 'playing', startedAt: H.startedAt, waves: H.waves, diff: H.diff });
     }).then(function () { clearTimeout(H.timer); renderPlay(); loop(); });
@@ -3392,7 +3448,7 @@ function renderLobby() {
     '<div class="sizeRow"><span class="muted">Waves:</span> ' + [4, 6, 8].map(function (n) { return '<button class="btn alt' + (n === H.waves ? ' sel' : '') + '" data-act="waves" data-n="' + n + '" type="button">' + n + ' (about ' + mins[n] + ' min)</button>'; }).join(' ') + '</div>' +
     '<div class="sizeRow"><span class="muted">Difficulty:</span> ' + ['easy', 'normal', 'hard'].map(function (d) { return '<button class="btn alt' + (d === H.diff ? ' sel' : '') + '" data-act="diff" data-d="' + d + '" type="button">' + d.charAt(0).toUpperCase() + d.slice(1) + '</button>'; }).join(' ') + '</div>' +
     '<div class="startRow"><button class="btn big" data-act="start" type="button"' + (total ? '' : ' disabled') + '>Start game</button><span class="muted">Each team gets its own wall and village. First 60 seconds are for building.</span></div>' +
-    '<div class="note"><b>How it plays:</b> students walk in first person, build blocks with the hammer, and fight enemies with the sword. Darkness comes in waves; keep it out of the village.</div></div></div>';
+    '<div class="note"><b>How it plays:</b> students walk in first person, build the wall block by block with the hammer, and fight enemies with the sword. Walk forward into a wall to jump over it. Darkness comes in waves from the dark gates at the far end; keep it away from the village huts in the back middle.</div></div></div>';
 }
 
 /* ---------- Play view ---------- */
@@ -3402,7 +3458,7 @@ function drawArena(cv, T, tm) {
   cv.width = S.MW * CS; cv.height = S.MH * CS;
   for (y = 0; y < S.MH; y++) for (x = 0; x < S.MW; x++) {
     var edge = S.STATIC[y * S.MW + x] === 1;
-    ctx.fillStyle = edge ? '#4b5063' : (y >= S.VY ? '#cdbb94' : (y <= 2 ? '#4a2c46' : ((x + y) % 2 ? '#41703f' : '#3b6639')));
+    ctx.fillStyle = edge ? '#4b5063' : (S.isVillage(x, y) ? '#cdbb94' : (y <= 2 ? '#4a2c46' : ((x + y) % 2 ? '#41703f' : '#3b6639')));
     ctx.fillRect(x * CS, y * CS, CS, CS);
     if (!edge && x >= 1 && x <= S.AW && y >= 1 && y <= S.AH) { var h = T.wall[S.widx(x, y)]; if (h) { ctx.fillStyle = ['', '#9a4a3a', '#b5804a', '#c89c63', '#e0bf86'][h]; ctx.fillRect(x * CS + 1, y * CS + 2, CS - 2, CS - 4); } }
   }
@@ -3417,11 +3473,11 @@ function renderPlay() {
   var rk = ranked(), sig = H.teams.map(function (t) { return t.id; }).join(',');
   if (H.built !== sig || !root.querySelector('.arenas')) {
     H.built = sig;
-    root.innerHTML = '<div class="topbar"><h2>Hold the Wall <span class="muted small">code ' + esc(H.code) + '</span></h2><div class="btns"><span class="muted" id="clock"></span><button class="btn alt" data-act="pause" id="pauseBtn" type="button">Pause</button><button class="btn alt" data-act="end" id="endBtn" type="button">End game</button></div></div>' +
+    root.innerHTML = '<div class="topbar"><h2>Hold the Wall <span class="muted small">code ' + esc(H.code) + '</span></h2>' + (opts.noQr ? '' : '<div class="miniqr" title="Late or rejoining players scan here"><div class="mq">' + WH.qrSvg(WH.baseUrl() + '?play=' + H.code) + '</div><div class="mqt">Join late or rejoin<b>' + esc(H.code) + '</b></div></div>') + '<div class="btns"><span class="muted" id="clock"></span><button class="btn alt" data-act="pause" id="pauseBtn" type="button">Pause</button><button class="btn alt" data-act="end" id="endBtn" type="button">End game</button></div></div>' +
       '<div class="arenas">' + H.teams.map(function (tm) {
         return '<div class="acard" id="ac_' + esc(tm.id) + '" style="--c:' + esc(tm.color) + '"><div class="ahead"><span class="dot"></span><b>' + esc(tm.name) + '</b><span class="rank" data-r></span><span class="score" data-s></span></div><canvas></canvas>' +
           '<div class="phase" data-p></div><div class="vbar"><i data-v></i></div><div class="astat small muted" data-t></div></div>';
-      }).join('') + '</div><div class="feed" id="feed"></div>';
+      }).join('') + '</div><div class="bottomrow"><div class="feed" id="feed"></div><div class="tops" id="tops"></div></div>';
   }
   rk.forEach(function (r, i) {
     var card = root.querySelector('#ac_' + r.tm.id); if (!card) return; var T = r.T;
@@ -3434,8 +3490,16 @@ function renderPlay() {
     drawArena(card.querySelector('canvas'), T, r.tm);
   });
   var ck = root.querySelector('#clock'); if (ck) ck.textContent = 'Elapsed ' + WH.fmt(now() - H.startedAt);
+  var tp = root.querySelector('#tops'); if (tp) { var th = topPlayers(6); if (tp.getAttribute('data-h') !== th) { tp.setAttribute('data-h', th); tp.innerHTML = th; } }
   var pb = root.querySelector('#pauseBtn'); if (pb) pb.textContent = H.paused ? 'Resume' : 'Pause';
   var fd = root.querySelector('#feed'); if (fd) fd.innerHTML = H.feed.slice(0, 5).map(function (f) { return '<div class="frow"><span class="dot" style="background:' + esc(f.c) + '"></span>' + esc(f.t) + '</div>'; }).join('') || '<span class="muted">Activity will show here</span>';
+}
+function topPlayers(n) {
+  var L = [];
+  H.teams.forEach(function (tm) { var T = H.sim[tm.id]; if (!T) return; for (var k in T.ps) { var p = T.ps[k]; L.push({ n: p.name, c: tm.color, b: p.b || 0, k: p.k || 0, pts: (p.b || 0) + 2 * (p.k || 0) }); } });
+  L.sort(function (a, b) { return b.pts - a.pts; });
+  return '<h3>Top players <span class="muted small">1 per wall built, 2 per enemy defeated</span></h3>' + (L.length ? L.slice(0, n).map(function (x, i) {
+    return '<div class="lrow"><span class="dot" style="background:' + esc(x.c) + '"></span><span class="lname">' + (i + 1) + '. ' + esc(x.n) + '</span><span class="muted small">' + x.b + ' walls, ' + x.k + ' defeated</span><b>' + x.pts + '</b></div>'; }).join('') : '<span class="muted">Points appear as players build and fight</span>');
 }
 function renderOver() {
   var rk = ranked(), top = rk.slice(0, 3), medal = ['&#129351;', '&#129352;', '&#129353;'];
@@ -3445,7 +3509,7 @@ function renderOver() {
   }).join('') + '</div><h3>All teams</h3><div class="orows">' + rk.map(function (r, i) {
     var kd = mvp(r.T, 'k'), bd = mvp(r.T, 'b');
     return '<div class="lrow"><span class="dot" style="background:' + esc(r.tm.color) + '"></span><span class="lname">#' + (i + 1) + ' ' + esc(r.tm.name) + '</span><span class="muted small">waves ' + r.T.cl + '/' + r.T.nw + ', defeated ' + r.T.k + (kd && kd.k ? ', top defender ' + esc(kd.name) + ' (' + kd.k + ')' : '') + (bd && (bd.b + bd.r) ? ', top builder ' + esc(bd.name) + ' (' + (bd.b + bd.r) + ')' : '') + '</span><b>&nbsp;' + r.sc + '</b></div>';
-  }).join('') + '</div><button class="btn big" data-act="new" type="button">Play again</button></div>';
+  }).join('') + '</div><div class="tops overtops">' + topPlayers(10) + '</div><button class="btn big" data-act="new" type="button">Play again</button></div>';
 }
 
 /* ---------- Clicks ---------- */
@@ -3473,7 +3537,9 @@ el.addEventListener('click', function (e) {
     var counts = {}; H.teams.forEach(function (x) { counts[x.id] = 0; }); Object.keys(H.players).forEach(function (k) { if (counts[H.players[k].team] != null) counts[H.players[k].team]++; });
     Promise.all(WH.BOT_NAMES.map(function (n, i) { var least = H.teams.slice().sort(function (x, y) { return counts[x.id] - counts[y.id]; })[0]; counts[least.id]++; return db.put(H.code + '/players/bot' + (i + 1) + '_' + (H.bots++), { name: n, team: least.id, bot: true, t: now() }); })).then(refresh);
   } else if (a === 'clearbots') {
-    Promise.all(Object.keys(H.players).filter(function (k) { return H.players[k].bot; }).map(function (k) { return db.del(H.code + '/players/' + k); })).then(refresh);
+    /* one update removes every test player at once (computer players, older untagged ones, and Practice phones) */
+    var gone = {}; Object.keys(H.players).forEach(function (k) { var p = H.players[k]; if (p && (p.bot || /^bot/.test(k) || /^Practice \d+$/.test(p.name || ''))) { gone[k] = null; delete H.players[k]; } });
+    H.sig = ''; (Object.keys(gone).length ? db.patch(H.code + '/players', gone) : Promise.resolve()).then(refresh);
   } else if (a === 'waves') { H.waves = +b.getAttribute('data-n'); H.sig = ''; db.patch(H.code + '/meta', { waves: H.waves }).then(refresh); }
   else if (a === 'diff') { H.diff = b.getAttribute('data-d'); H.sig = ''; db.patch(H.code + '/meta', { diff: H.diff }).then(refresh); }
   else if (a === 'start') start();
@@ -3492,4 +3558,71 @@ return { state: H, stop: stop, start: start, init: init, newGame: newGame, tick:
   if (play !== null || join !== null) WH.mountPhone(app, db, { prefillCode: play || '' });
   else WH.mountHost(app, db, {});
 })();</script>
+<script>
+/* Site helper: an "All games" button for the teacher's screen, and confetti whenever a final standings screen appears. */
+(function () {
+  var inFrame = false; try { inFrame = window.parent !== window; } catch (e) { inFrame = true; }
+  function isPlayer() { return /(^|\/)(play|wordle-play|clues-play)\.html$/.test(location.pathname) || /[?&](play|join)=/.test(location.search) || location.hash === '#play'; }
+  var css = document.createElement('style');
+  css.textContent = '#sgHome{position:fixed;left:12px;top:calc(10px + env(safe-area-inset-top,0px));z-index:9998;display:inline-flex;align-items:center;gap:6px;' +
+    'font:800 13px/1 Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:#EEF3FB;background:rgba(13,21,40,.88);border:1px solid rgba(160,185,230,.3);' +
+    'border-radius:999px;padding:8px 13px;text-decoration:none;box-shadow:0 6px 16px rgba(0,0,0,.25);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}' +
+    '#sgHome:hover{border-color:#1FB5A8}#sgHome:focus-visible{outline:3px solid #fff;outline-offset:2px}' +
+    'body.sg-home{padding-top:48px!important;box-sizing:border-box}@media (max-width:700px){#sgHome{font-size:12px;padding:7px 11px}}';
+  document.head.appendChild(css);
+  if (!inFrame) {
+    var a = document.createElement('a'); a.id = 'sgHome'; a.href = '../'; a.textContent = '\u2190 All games';
+    a.setAttribute('aria-label', 'Back to all seminary games');
+    document.body.appendChild(a);
+    /* shown on every teacher or shared screen; hidden only on student-only pages viewed on a phone */
+    var hide = function () { return isPlayer() && innerWidth <= 700; };
+    var sync = function () { var h = hide(); a.hidden = h; a.style.display = h ? 'none' : ''; document.body.classList.toggle('sg-home', !h); };
+    sync(); window.addEventListener('hashchange', sync); window.addEventListener('resize', sync);
+    /* full-screen layouts: make room for the button strip so the page does not scroll */
+    var fit = function () {
+      if (!document.body.classList.contains('sg-home')) return;
+      var H = innerHeight;
+      [].forEach.call(document.querySelectorAll('body > *, body > * > *, body > * > * > *'), function (el) {
+        if (el.id === 'sgHome' || el.tagName === 'SCRIPT' || el.tagName === 'STYLE') return;
+        var mh = getComputedStyle(el).minHeight;
+        if (/px$/.test(mh) && Math.abs(parseFloat(mh) - H) <= 2) el.style.minHeight = 'calc(100vh - 48px)';
+      });
+    };
+    fit(); window.addEventListener('resize', fit); window.addEventListener('load', fit);
+    var ft = null; new MutationObserver(function () { clearTimeout(ft); ft = setTimeout(fit, 200); }).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'hidden', 'style'] });
+  }
+
+  /* ---------- confetti ---------- */
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function confetti() {
+    if (reduce || window.SG_NO_CONFETTI || document.getElementById('sgConfetti')) return;
+    var c = document.createElement('canvas'), dpr = window.devicePixelRatio || 1, W = innerWidth, H = innerHeight;
+    c.id = 'sgConfetti'; c.setAttribute('aria-hidden', 'true');
+    c.style.cssText = 'position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:9999';
+    c.width = W * dpr; c.height = H * dpr; document.body.appendChild(c);
+    var x = c.getContext('2d'); x.scale(dpr, dpr);
+    var cols = ['#F0545C', '#3E8EF7', '#1FB5A8', '#F4B740', '#8B7CF6', '#E57AC2', '#FFFFFF'], P = [];
+    for (var i = 0; i < 170; i++) P.push({ x: Math.random() * W, y: -20 - Math.random() * H * 0.6, w: 6 + Math.random() * 6, h: 8 + Math.random() * 8,
+      vx: -1.5 + Math.random() * 3, vy: 2 + Math.random() * 3.5, r: Math.random() * 6.3, vr: -0.2 + Math.random() * 0.4, c: cols[i % cols.length] });
+    var t0 = performance.now();
+    (function frame(t) {
+      var age = t - t0; x.clearRect(0, 0, W, H);
+      P.forEach(function (p) { p.x += p.vx; p.y += p.vy; p.vy += 0.03; p.r += p.vr;
+        x.save(); x.translate(p.x, p.y); x.rotate(p.r); x.globalAlpha = age > 3800 ? Math.max(0, 1 - (age - 3800) / 700) : 1; x.fillStyle = p.c; x.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); x.restore(); });
+      if (age < 4500) requestAnimationFrame(frame); else c.remove();
+    })(t0);
+  }
+  window.sgConfetti = confetti;
+  var FINAL = /^\s*(final (standings|results|rank|leaderboard|scores)|game over)\b/i, was = false, timer = null;
+  function check() {
+    var els = document.querySelectorAll('h1,h2,h3,.eyebrow,.title,.big'), now = false;
+    for (var i = 0; i < els.length && !now; i++) { var e = els[i]; if (e.offsetParent !== null && FINAL.test(e.textContent || '')) now = true; }
+    if (now && !was) confetti();
+    was = now;
+  }
+  new MutationObserver(function () { clearTimeout(timer); timer = setTimeout(check, 250); }).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'hidden', 'style'] });
+  setTimeout(check, 600);
+})();
+
+</script>
 </body></html>
