@@ -132,7 +132,7 @@ body.ingame{overflow:auto!important;-webkit-user-select:auto;user-select:auto}
 .dm .gm{position:relative;inset:auto;height:min(82vh,700px);margin:0 auto;border:1px solid var(--line);border-radius:14px}
 .note{background:var(--panel2);border-radius:10px;padding:10px 14px;margin:8px 0;font-size:.9rem;line-height:1.5}
 .rs{text-align:center;margin-top:10px}
-:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}</style></head>
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}.gm-mapbar{display:flex;justify-content:center;margin:4px 0 2px}#mapBtn{font-family:inherit;font-size:10px;background:#3a3850;color:#fff;border:2px solid #000;box-shadow:2px 2px 0 #000;padding:6px 12px;cursor:pointer;touch-action:manipulation}.gm-map{display:flex;justify-content:center;padding:2px 0 4px}.gm-map[hidden]{display:none}#mm{width:min(64vw,30vh,250px);height:min(64vw,30vh,250px);border:3px solid #000;background:#0f0e1c;display:block}</style></head>
 <body><div id="app"></div>
 <script>window.GAME_CONFIG={databaseURL:'https://penny-project-fb5da-default-rtdb.firebaseio.com',root:'seminaryGames/escape-maze',points:[100,60]};</script>
 <script>//---------------------------------------------------------------------
@@ -2459,6 +2459,7 @@ var ITEMS = [
   { id: 'horns', name: 'Rams\u2019 Horns', emoji: '📯', ref: 'Joshua 6:4', clue: 'Seven priests shall bear before the ark seven trumpets of rams\u2019 horns.' }
 ];
 var K = ITEMS.length;
+var ROUNDS = 3, WIN = 2;   /* best of three: the first team to win 2 rounds wins the game */
 
 /* ---------- Utilities ---------- */
 function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
@@ -2617,12 +2618,39 @@ function standings(tree) {
   rest.forEach(function (t) { t.place = null; t.points = 0; });
   return done.concat(rest);
 }
-function isOver(tree) {
-  var m = (tree && tree.meta) || {};
-  if (m.over) return true;
-  var n = teamList(tree).filter(function (t) { return t.doneAt; }).length;
-  return !!m.endAfter && n >= m.endAfter;
+function isOver(tree) { var m = (tree && tree.meta) || {}; return !!m.over || m.state === 'over'; }
+/* a round ends for everyone the moment the first team escapes */
+function roundWinner(tree) { var d = teamList(tree).filter(function (t) { return t.doneAt; }).sort(function (a, b) { return a.doneAt - b.doneAt; }); return d[0] || null; }
+function roundOver(tree) { var m = (tree && tree.meta) || {}; return m.state === 'roundover' || (m.state === 'playing' && !!roundWinner(tree)); }
+function seriesTable(tree) { var w = ((tree && tree.meta) || {}).wins || {}; return teamList(tree).map(function (t) { t.wins = w[t.id] || 0; return t; }).sort(function (a, b) { return b.wins - a.wins || (a.order || 0) - (b.order || 0); }); }
+function seriesLine(tree) { return seriesTable(tree).map(function (t) { return esc(t.name) + ' ' + t.wins; }).join(' &nbsp;|&nbsp; '); }
+/* Bird's-eye map with fog of war: only squares this player has walked on are drawn */
+function drawFogMap(cv, o) {
+  var size = cv.clientWidth || 220, dpr = window.devicePixelRatio || 1, N = o.N, cs = size / N, x, y, c, seen = o.seen;
+  if (o.rod) { seen = {}; for (var sk in o.seen) seen[sk] = 1; o.rod.forEach(function (q) { seen[q[0] + ',' + q[1]] = 1; }); }
+  o = { N: o.N, open: o.open, seen: seen, px: o.px, py: o.py, face: o.face, path: o.path, marks: o.marks, others: o.others, rod: o.rod };
+  cv.width = Math.round(size * dpr); cv.height = Math.round(size * dpr); c = cv.getContext('2d'); c.setTransform(dpr, 0, 0, dpr, 0, 0);
+  c.fillStyle = '#0f0e1c'; c.fillRect(0, 0, size, size);
+  for (y = 0; y < N; y++) for (x = 0; x < N; x++) if (o.seen[x + ',' + y]) { c.fillStyle = '#4a4766'; c.fillRect(x * cs, y * cs, cs + 0.6, cs + 0.6); }
+  c.strokeStyle = '#e9d9b0'; c.lineWidth = Math.max(1.5, cs * 0.12); c.lineCap = 'round';
+  for (y = 0; y < N; y++) for (x = 0; x < N; x++) {
+    if (!o.seen[x + ',' + y]) continue; var op = o.open[y][x], x0 = x * cs, y0 = y * cs; c.beginPath();
+    if (!op.n) { c.moveTo(x0, y0); c.lineTo(x0 + cs, y0); } if (!op.s) { c.moveTo(x0, y0 + cs); c.lineTo(x0 + cs, y0 + cs); }
+    if (!op.w) { c.moveTo(x0, y0); c.lineTo(x0, y0 + cs); } if (!op.e) { c.moveTo(x0 + cs, y0); c.lineTo(x0 + cs, y0 + cs); } c.stroke();
+  }
+  if (o.path) { c.strokeStyle = 'rgba(200,210,226,.75)'; c.lineWidth = Math.max(1.5, cs * 0.14); c.beginPath(); for (var i = 0; i + 1 < o.path.length; i++) { var a = o.path[i], b = o.path[i + 1]; if (o.seen[a[0] + ',' + a[1]] && o.seen[b[0] + ',' + b[1]]) { c.moveTo(a[0] * cs + cs / 2, a[1] * cs + cs / 2); c.lineTo(b[0] * cs + cs / 2, b[1] * cs + cs / 2); } } c.stroke(); }
+  if (o.rod && o.rod.length > 1) {
+    c.save(); c.shadowColor = '#ffd23f'; c.shadowBlur = 8; c.strokeStyle = '#dfe6f2'; c.lineWidth = Math.max(3, cs * 0.24); c.lineJoin = 'round'; c.beginPath();
+    o.rod.forEach(function (q, i) { var qx = q[0] * cs + cs / 2, qy = q[1] * cs + cs / 2; if (i) c.lineTo(qx, qy); else c.moveTo(qx, qy); }); c.stroke(); c.restore();
+  }
+  c.textAlign = 'center'; c.textBaseline = 'middle'; c.font = Math.floor(cs * 0.62) + 'px sans-serif';
+  (o.marks || []).forEach(function (m) { if (!o.seen[m.x + ',' + m.y]) return; c.globalAlpha = m.dim ? 0.4 : 1; c.fillText(m.t, m.x * cs + cs / 2, m.y * cs + cs / 2 + 1); c.globalAlpha = 1; });
+  (o.others || []).forEach(function (p) { if (!o.seen[p.x + ',' + p.y]) return; c.fillStyle = p.c; c.strokeStyle = '#fff'; c.lineWidth = 1.5; c.beginPath(); c.arc(p.x * cs + cs / 2, p.y * cs + cs / 2, cs * 0.2, 0, 6.3); c.fill(); c.stroke(); });
+  var px = o.px * cs + cs / 2, py = o.py * cs + cs / 2, ang = o.face * Math.PI / 2, r = cs * 0.38;
+  c.fillStyle = '#ffd23f'; c.strokeStyle = '#000'; c.lineWidth = 2; c.beginPath(); c.moveTo(px + Math.cos(ang) * r, py + Math.sin(ang) * r);
+  c.lineTo(px + Math.cos(ang + 2.4) * r, py + Math.sin(ang + 2.4) * r); c.lineTo(px + Math.cos(ang - 2.4) * r, py + Math.sin(ang - 2.4) * r); c.closePath(); c.fill(); c.stroke();
 }
+
 function playersByTeam(t) {
   var by = {}; Object.keys(t.players || {}).forEach(function (k) { var p = t.players[k]; (by[p.team] = by[p.team] || []).push({ id: k, name: p.name, bot: p.bot }); });
   return by;
@@ -2638,7 +2666,7 @@ function recordEscape(db, code, team) {
 
 /* Computer players (host test players and the demo) */
 function botTick(db, code, tree) {
-  var m = tree.meta; if (!m || m.state !== 'playing' || isOver(tree)) return;
+  var m = tree.meta; if (!m || m.state !== 'playing' || isOver(tree) || roundOver(tree)) return;
   var maze = buildMaze(m.N, m.seed);
   Object.keys(tree.players || {}).forEach(function (pid) {
     var p = tree.players[pid]; if (!p.bot || Math.random() > (p.sp || 0.5)) return;
@@ -2779,6 +2807,8 @@ function mountPhone(el, db, opts) {
     '<div class="grp"><span class="lbl">EXIT</span><span id="hExit">LOCKED</span></div><div class="grp"><span class="lbl">TIME</span><span id="hTime">0:00</span></div>' +
     '<button id="mute" type="button" aria-label="Toggle sound">SOUND ON</button></div>' +
     '<div class="gm-stage" id="stage"><canvas id="c"></canvas><div class="gm-toast" id="toast"></div><div class="gm-overlay hidden" id="overlay"><div class="gm-panel" id="panel"></div></div></div>' +
+    '<div class="gm-mapbar"><button id="mapBtn" type="button" aria-expanded="false" aria-controls="mapBox">&#128506;&#65039; SHOW MAP</button></div>' +
+    '<div class="gm-map" id="mapBox" hidden><canvas id="mm" role="img" aria-label="Map of the places you have explored"></canvas></div>' +
     '<div class="gm-chips" id="chips"></div>' +
     '<div class="gm-hint" id="hint">UP walks, LEFT and RIGHT turn, DOWN turns around.</div>' +
     '<div class="gm-pad" id="pad"><button class="dp" data-d="up" type="button" aria-label="Walk forward">&#9650;</button><button class="dp" data-d="left" type="button" aria-label="Turn left">&#9664;</button><button class="dp" data-d="right" type="button" aria-label="Turn right">&#9654;</button><button class="dp" data-d="down" type="button" aria-label="Turn around">&#9660;</button></div>' +
@@ -2803,6 +2833,7 @@ function mountPhone(el, db, opts) {
     canvas.style.width = Math.floor(w) + 'px'; canvas.style.height = Math.floor(h) + 'px';
   }
   if (window.ResizeObserver) new ResizeObserver(resize).observe(stage);
+  $('mapBtn').addEventListener('click', function () { setMap($('mapBox').hidden); });
   window.addEventListener('resize', resize);
   function fmt(ms) { var s = Math.max(0, Math.floor(ms / 1000)); return Math.floor(s / 60) + ':' + ('0' + (s % 60)).slice(-2); }
 
@@ -2843,7 +2874,7 @@ function mountPhone(el, db, opts) {
     stopLoop();
     db.get(S.code).then(function (t) {
       if (t === undefined) { S.timer = setTimeout(tick, 2500); return; }
-      S.tree = t || {}; update();
+      S.tree = t || {}; try { update(); } catch (err) { if (window.console) console.error(err); }
       S.timer = setTimeout(tick, opts.pollMs || 1000);
     });
   }
@@ -2870,8 +2901,11 @@ function mountPhone(el, db, opts) {
       return;
     }
     if (isOver(t)) { renderOver(t, team); return; }
+    if (roundOver(t)) { renderRoundOver(t, team); return; }
+    if (S.round !== (t.meta.round || 1)) { S.round = t.meta.round || 1; S.intro = false; S.escShown = false; S.seenItems = null; S.rsig = ''; S.rodShown = false; }
     ensureWorld(me, t.meta);
     if ($('vGame').hidden) show('vGame');
+    markSeen();
     var items = team.items || {}, n = foundCount(items);
     // teammate finds
     if (S.seenItems) Object.keys(items).forEach(function (k) { if (!S.seenItems[k] && items[k].p !== S.pid) { toast(items[k].n + ' found ' + ITEMS[k].name + '!'); beep(660, 0.08, 'square', 0.04); } });
@@ -2879,6 +2913,7 @@ function mountPhone(el, db, opts) {
     $('hTeam').innerHTML = '<span style="color:' + esc(team.color) + '">' + esc(team.name.toUpperCase()) + '</span>';
     $('hItems').textContent = n + '/' + K;
     $('hExit').textContent = team.doneAt ? 'ESCAPED' : n >= K ? 'OPEN' : 'LOCKED';
+    drawMap();
     $('chips').innerHTML = ITEMS.map(function (it, i) { return '<span class="chip' + (items[i] ? ' on' : '') + '" title="' + esc(it.name) + '">' + (items[i] ? it.emoji : '?') + '</span>'; }).join('');
     // other players: set targets
     var seen = {};
@@ -2890,6 +2925,7 @@ function mountPhone(el, db, opts) {
     });
     Object.keys(S.others).forEach(function (k) { if (!seen[k]) delete S.others[k]; });
     S.team = team; S.items = items; S.nTeam = n;
+    rodCheck();
     if (team.doneAt && !S.escShown) {
       S.escShown = true;
       var st = standings(t), mine = st.filter(function (x) { return x.id === team.id; })[0];
@@ -2897,21 +2933,45 @@ function mountPhone(el, db, opts) {
       beep(784, 0.12, 'square', 0.05); beep(1047, 0.2, 'square', 0.05, 0.12);
     } else if (!S.intro && !team.doneAt) {
       S.intro = true;
-      showOverlay('<h1>ESCAPE THE WILDERNESS</h1><p>Your team is lost in a maze. Find all ' + K + ' items from Israel\u2019s journey hidden in the dead ends. Teammates share what they find.</p><p>When your team has every item, the golden door opens at the far side of the maze. The first 2 teams out score points!</p><button class="btn primary" data-act="start" type="button">START</button>');
+      showOverlay('<h1>ESCAPE THE WILDERNESS</h1><p class="note">ROUND ' + (t.meta.round || 1) + ' OF ' + ROUNDS + ': the first team to escape wins the round. Win ' + WIN + ' rounds to win the game.</p><p>Your team is lost in a maze. Find all ' + K + ' items from Israel\u2019s journey hidden in the dead ends. Teammates share what they find.</p><p>When your team has every item, the golden door opens at the far side of the maze, and an iron rod appears on your map to lead you there. The first team out wins the round!</p><button class="btn primary" data-act="start" type="button">START</button>');
     }
   }
-  function renderOver(t, team) {
-    show('vOver');
-    var st = standings(t), mine = st.filter(function (x) { return x.id === team.id; })[0];
-    $('vOver').innerHTML = '<h2>Game over!</h2>' + (mine && mine.place
-      ? '<p class="bigTxt">Team ' + esc(team.name) + ' escaped in place ' + mine.place + ' and earned <b>' + mine.points + ' points</b>.</p>'
-      : '<p class="bigTxt">Team ' + esc(team.name) + ' did not get out in time, so no points this round. Great effort!</p>') +
-      '<h3>Final results</h3>' + st.map(function (tm) {
-        return '<div class="lrow"><span class="dot" style="background:' + esc(tm.color) + '"></span><span class="lname">' + esc(tm.name) + '</span><span class="muted small">' + (tm.place ? 'Place ' + tm.place + ', ' + tm.points + ' pts' : tm.found + '/' + K + ' items, 0 pts') + '</span></div>';
-      }).join('');
+  function renderRoundOver(t, team) {
+    show('vOver'); var m = t.meta, w = roundWinner(t) || (t.teams || {})[m.last], won = w && (w.id === team.id || m.last === team.id);
+    var sig = JSON.stringify([m.round, m.state, m.wins, w && w.id]); if (S.rsig === sig) return; S.rsig = sig;
+    $('vOver').innerHTML = '<h2>Round ' + (m.round || 1) + ' of ' + ROUNDS + ' is over</h2>' +
+      (w ? '<p class="bigTxt">' + (won ? 'Your team escaped first and won the round!' : 'Team ' + esc(w.name) + ' escaped first.') + '</p>' : '') +
+      '<p><b>Rounds won:</b> ' + seriesLine(t) + '</p><p class="muted">Best of ' + ROUNDS + ', first to ' + WIN + ' wins. Watch the big screen: the next round starts when your teacher is ready.</p>';
+    if (won) { beep(784, 0.12, 'square', 0.05); beep(1047, 0.2, 'square', 0.05, 0.12); }
   }
-
-  /* movement (same feel as the original first-person maze) */
+  function renderOver(t, team) {
+    show('vOver'); var st = seriesTable(t), champ = st[0], mine = st.filter(function (x) { return x.id === team.id; })[0];
+    var sig = 'over' + JSON.stringify(t.meta.wins); if (S.osig === sig) return; S.osig = sig;
+    $('vOver').innerHTML = '<h2>Game over!</h2>' + (champ ? '<p class="bigTxt">' + (champ.id === team.id ? 'Your team won the game!' : 'Team ' + esc(champ.name) + ' won the game.') + '</p>' : '') +
+      '<p><b>Rounds won:</b> ' + seriesLine(t) + '</p>' + (mine ? '<p class="muted">Team ' + esc(team.name) + ' won ' + mine.wins + (mine.wins === 1 ? ' round.' : ' rounds.') + '</p>' : '') +
+      '<p class="muted">Thanks for playing. Look at the big screen for the final standings.</p>';
+  }
+  /* ---------- explored map (fog of war) ---------- */
+  function setMap(open) { var box = $('mapBox'), btn = $('mapBtn'); if (!box) return; box.hidden = !open; btn.setAttribute('aria-expanded', String(open)); btn.innerHTML = open ? '&#128506;&#65039; HIDE MAP' : '&#128506;&#65039; SHOW MAP'; resize(); drawMap(); }
+  function rodCheck() {
+    if (S.rodShown || !S.team || S.team.doneAt || (S.nTeam || 0) < K) return;
+    S.rodShown = true; setMap(true); toast('THE IRON ROD APPEARED ON YOUR MAP. FOLLOW IT TO THE GOLDEN DOOR!'); beep(988, 0.1, 'square', 0.05); beep(1319, 0.14, 'square', 0.05, 0.1);
+  }
+  function seenKey() { return 'esc_seen_' + S.code + '_' + (S.W ? S.W.seed : ''); }
+  function markSeen() {
+    if (!S.W) return;
+    if (!S.seen || S.seenSeed !== S.W.seed) { S.seen = sGet(seenKey()) || {}; S.seenSeed = S.W.seed; }
+    var k = S.W.cx + ',' + S.W.cy; if (!S.seen[k]) { S.seen[k] = 1; sSet(seenKey(), S.seen); }
+    drawMap();
+  }
+  function drawMap() {
+    var box = $('mapBox'); if (!box || box.hidden || !S.W || !S.seen) return;
+    var mz = S.W.maze, items = S.items || {}, col = S.team ? S.team.color : '', others = [];
+    Object.keys(S.others || {}).forEach(function (k) { var o = S.others[k]; if (o.color === col) others.push({ x: Math.round((o.tx - 1.5) / 2), y: Math.round((o.ty - 1.5) / 2), c: o.color }); });
+    var rod = (S.nTeam >= K && !(S.team && S.team.doneAt)) ? bfsStep(mz, [S.W.cx, S.W.cy], [mz.exit.x, mz.exit.y]) : null;
+    drawFogMap($('mm'), { N: mz.N, open: mz.open, seen: S.seen, px: S.W.cx, py: S.W.cy, face: S.W.face, others: others, rod: rod,
+      marks: mz.items.map(function (it) { return { x: it.x, y: it.y, t: ITEMS[it.i].emoji, dim: !!items[it.i] }; }).concat([{ x: mz.exit.x, y: mz.exit.y, t: '\ud83d\udeaa' }]) });
+  }
   function pushPos() {
     if (S.pushT) return;
     S.pushT = setTimeout(function () { S.pushT = null; if (S.W) db.patch(S.code + '/players/' + S.pid, { cx: S.W.cx, cy: S.W.cy }); }, 350);
@@ -2931,6 +2991,7 @@ function mountPhone(el, db, opts) {
     W.cx += DX[d]; W.cy += DY[d]; beep(330, 0.04, 'square', 0.02); pushPos();
   }
   function arrive() {
+    markSeen();
     var W = S.W, team = S.team, k = W.maze.byCell[W.cx + ',' + W.cy];
     if (k != null && !(S.items || {})[k]) {
       var it = ITEMS[k], me = S.tree.players[S.pid];
@@ -2938,6 +2999,7 @@ function mountPhone(el, db, opts) {
       recordItem(db, S.code, S.pid, me.name, me.team, k);
       beep(880, 0.06, 'square', 0.04); beep(1319, 0.08, 'square', 0.05, 0.05);
       $('hItems').textContent = S.nTeam + '/' + K;
+      setTimeout(rodCheck, 50);
       showOverlay('<h2>YOU FOUND: ' + esc(it.name.toUpperCase()) + '</h2><div class="bigEmoji">' + it.emoji + '</div><div class="verse"><span class="ref">' + esc(it.ref.toUpperCase()) + '</span>' + esc(it.clue) + '</div><p class="note">Your whole team has this now: ' + S.nTeam + ' of ' + K + '.' + (S.nTeam >= K ? ' The golden door is open!' : '') + '</p><button class="btn primary" data-act="close" type="button">KEEP GOING</button>');
     }
     if (W.cx === W.maze.exit.x && W.cy === W.maze.exit.y) {
@@ -3060,9 +3122,17 @@ function mountHost(el, db, opts) {
     var ev = Object.keys(t.events || {}); if (ev.length > 60) ev.sort().slice(0, ev.length - 40).forEach(function (k) { db.del(S.code + '/events/' + k); });
   }
   function render() {
-    var t = S.tree, m = t.meta, view = m.state === 'lobby' ? 'lobby' : isOver(t) ? 'over' : 'play';
+    var t = S.tree, m = t.meta;
+    /* the first team to escape wins the round; the teacher screen records it once */
+    if (m.state === 'playing' && roundWinner(t) && !S.ending) {
+      S.ending = true; var w = roundWinner(t), wins = {}, k; for (k in (m.wins || {})) wins[k] = m.wins[k]; wins[w.id] = (wins[w.id] || 0) + 1;
+      var fin = wins[w.id] >= WIN || (m.round || 1) >= ROUNDS;
+      db.patch(S.code + '/meta', fin ? { state: 'over', over: true, wins: wins, last: w.id } : { state: 'roundover', wins: wins, last: w.id }).then(function () { S.ending = false; tick(true); });
+      bannerMsg('Team ' + w.name + ' escaped first and wins round ' + (m.round || 1) + '!');
+    }
+    var view = m.state === 'lobby' ? 'lobby' : isOver(t) ? 'over' : roundOver(t) ? 'round' : 'play';
     if (view !== S.view) { S.view = view; S.sig = ''; body.innerHTML = ''; S.mapEl = null; }
-    if (view === 'lobby') renderLobby(t); else if (view === 'play') renderPlay(t); else renderOver(t);
+    if (view === 'lobby') renderLobby(t); else if (view === 'play') renderPlay(t); else if (view === 'round') renderRound(t); else renderOver(t);
   }
 
   function renderLobby(t) {
@@ -3089,7 +3159,7 @@ function mountHost(el, db, opts) {
     var m = t.meta;
     if (!S.mapEl) {
       body.innerHTML = '<div class="play"><div class="playL"><div class="mapCard" id="mapCard"></div><div class="feed" id="feed"></div></div>' +
-        '<div class="playR"><h2>Leaderboard</h2><div id="board"></div><div class="hostbtns"><button class="btn alt small" data-act="togglemap">Show maze map</button> <button class="btn alt small" data-act="endnow">End game now</button> <button class="btn alt small" data-act="newgame">New game</button></div></div></div>';
+        '<div class="playR"><h2>Round ' + (m.round || 1) + ' of ' + ROUNDS + '</h2><p class="muted small">First team to escape wins the round. Rounds won: ' + seriesLine(t) + '</p><h3 style="margin:10px 0 6px">Leaderboard</h3><div id="board"></div><div class="hostbtns"><button class="btn alt small" data-act="togglemap">Show maze map</button> <button class="btn alt small" data-act="endnow">End game now</button> <button class="btn alt small" data-act="newgame">New game</button></div></div></div>';
       S.mapEl = true;
     }
     var st = standings(t), by = playersByTeam(t), prev = S.prevEsc, now_ = {};
@@ -3146,13 +3216,20 @@ function mountHost(el, db, opts) {
       ctx.fillStyle = tm.color; ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc((p.cx != null ? p.cx : maze.start.x) * cs + cs / 2 + jx, (p.cy != null ? p.cy : maze.start.y) * cs + cs / 2 + jy, cs * 0.18, 0, 6.3); ctx.fill(); ctx.stroke();
     });
   }
+  function renderRound(t) {
+    var m = t.meta, w = roundWinner(t) || (t.teams || {})[m.last], sig = JSON.stringify([m.round, m.state, m.wins]); if (sig === S.sig) return; S.sig = sig;
+    body.innerHTML = '<div class="over"><h1>Round ' + (m.round || 1) + ' of ' + ROUNDS + ' complete</h1>' + (w ? '<p class="sub">Team <b style="color:' + esc(w.color) + '">' + esc(w.name) + '</b> escaped first and wins the round!</p>' : '') +
+      '<h3>Rounds won (first to ' + WIN + ')</h3><div class="orows">' + seriesTable(t).map(function (tm) {
+        return '<div class="lrow"><span class="dot" style="background:' + esc(tm.color) + '"></span><span class="lname">' + esc(tm.name) + '</span><span class="muted">' + tm.wins + (tm.wins === 1 ? ' round' : ' rounds') + '</span></div>'; }).join('') +
+      '</div><button class="btn big" data-act="nextround">Start round ' + ((m.round || 1) + 1) + '</button> <button class="btn alt" data-act="endnow">End the game</button></div>';
+  }
   function renderOver(t) {
-    var sig = JSON.stringify([t.teams]); if (sig === S.sig) return; S.sig = sig;
-    var st = standings(t), top = st.filter(function (x) { return x.place; });
-    body.innerHTML = '<div class="over"><h1>Game over!</h1><div class="podium">' + top.slice(0, 2).map(function (tm) {
-      return '<div class="pcard p' + tm.place + '" style="--c:' + esc(tm.color) + '"><div class="medal">' + (tm.place === 1 ? '🥇' : '🥈') + '</div><h2>' + esc(tm.name) + '</h2><div class="pts">' + tm.points + ' points</div></div>';
-    }).join('') + '</div><h3>All teams</h3><div class="orows">' + st.map(function (tm) {
-      return '<div class="lrow"><span class="dot" style="background:' + esc(tm.color) + '"></span><span class="lname">' + esc(tm.name) + '</span><span class="muted">' + (tm.place ? 'Place ' + tm.place + ', ' + tm.points + ' pts' : tm.found + ' of ' + K + ' items, 0 pts') + '</span></div>';
+    var sig = JSON.stringify([t.teams, t.meta.wins]); if (sig === S.sig) return; S.sig = sig;
+    var st = seriesTable(t), medal = ['\ud83e\udd47', '\ud83e\udd48', '\ud83e\udd49'];
+    body.innerHTML = '<div class="over"><h1>Game over!</h1><div class="podium">' + st.slice(0, 3).map(function (tm, i) {
+      return '<div class="pcard p' + (i + 1) + '" style="--c:' + esc(tm.color) + '"><div class="medal">' + medal[i] + '</div><h2>' + esc(tm.name) + '</h2><div class="pts">' + tm.wins + (tm.wins === 1 ? ' round won' : ' rounds won') + '</div></div>';
+    }).join('') + '</div><h3>All teams</h3><div class="orows">' + st.map(function (tm, i) {
+      return '<div class="lrow"><span class="dot" style="background:' + esc(tm.color) + '"></span><span class="lname">' + esc(tm.name) + '</span><span class="muted">Place ' + (i + 1) + ', ' + tm.wins + (tm.wins === 1 ? ' round won' : ' rounds won') + '</span></div>';
     }).join('') + '</div><button class="btn big" data-act="newgame">Play again</button></div>';
   }
 
@@ -3191,14 +3268,19 @@ function mountHost(el, db, opts) {
       if (full.length < 2) { bannerMsg('You need players on at least 2 teams to start.'); return; }
       var size = t.meta.size || 'medium';
       Promise.all(teams.filter(function (x) { return !(by[x.id] || []).length; }).map(function (x) { return db.del(S.code + '/teams/' + x.id); }))
-        .then(function () { return db.patch(S.code + '/meta', { state: 'playing', startedAt: now(), endAfter: Math.min(2, full.length), N: SIZES[size], seed: Math.floor(Math.random() * 1e9) }); }).then(refresh);
+        .then(function () { return db.patch(S.code + '/meta', { state: 'playing', startedAt: now(), endAfter: 1, round: 1, wins: null, last: null, over: null, N: SIZES[size], seed: Math.floor(Math.random() * 1e9) }); }).then(refresh);
     } else if (act === 'force') {
       var tid = b.getAttribute('data-team'), put = {}; ITEMS.forEach(function (it, i) { if (!((t.teams[tid].items || {})[i])) put[i] = { p: 'host', n: 'Teacher', t: now() }; });
       db.patch(S.code + '/teams/' + tid + '/items', put).then(refresh);
     } else if (act === 'togglemap') {
       S.showMap = !S.showMap; b.textContent = S.showMap ? 'Hide maze map' : 'Show maze map';
       var card = body.querySelector('#mapCard'); if (card) card.innerHTML = ''; refresh();
-    } else if (act === 'endnow') { db.patch(S.code + '/meta', { over: true }).then(refresh);
+    } else if (act === 'nextround') {
+      var resets = [];
+      teams.forEach(function (x) { resets.push(db.del(S.code + '/teams/' + x.id + '/items')); resets.push(db.del(S.code + '/teams/' + x.id + '/doneAt')); });
+      Object.keys(t.players || {}).forEach(function (k) { resets.push(db.patch(S.code + '/players/' + k, { cx: null, cy: null })); });
+      Promise.all(resets).then(function () { return db.patch(S.code + '/meta', { state: 'playing', round: (t.meta.round || 1) + 1, startedAt: now(), last: null, seed: Math.floor(Math.random() * 1e9) }); }).then(function () { S.sig = ''; S.mapEl = null; S.prevEsc = null; refresh(); });
+    } else if (act === 'endnow') { db.patch(S.code + '/meta', { over: true, state: 'over' }).then(refresh);
     } else if (act === 'newgame') { S.showMap = false; newGame(); }
   });
   init();

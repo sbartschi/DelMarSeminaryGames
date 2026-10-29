@@ -58,7 +58,7 @@ button { font: inherit; color: inherit; }
 .spacer { flex: 1; }
 .screen-title { font-size: clamp(28px, 4vw, 44px); text-align: center; margin-top: 8px; }
 .screen-title + .muted { text-align: center; }
-.lobby { display: grid; gap: 18px; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; margin-top: 12px; }
+.lobby { display: grid; gap: 18px; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); align-items: start; margin-top: 12px; }
 .joinbox { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 20px; display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
 .joinbox .qr { width: min(300px, 100%); background: #fff; border-radius: 12px; padding: 8px; }
 .joinbox .qr svg { width: 100%; height: auto; display: block; }
@@ -175,3 +175,9 @@ button { font: inherit; color: inherit; }
 .key[data-k="ENTER"].ready{box-shadow:0 0 0 3px #b8f0cc,0 0 18px rgba(47,158,91,.75);animation:entergl 1.2s ease-in-out infinite}
 @keyframes entergl{50%{box-shadow:0 0 0 3px #b8f0cc,0 0 6px rgba(47,158,91,.3)}}
 @media (prefers-reduced-motion:reduce){.key[data-k="ENTER"].ready{animation:none}}
+
+/* Room code sizes itself to the space beside the QR code, so it never spills out of the box */
+.joininfo { flex: 1 1 200px; min-width: 0; container-type: inline-size; }
+.joininfo .code { font-size: clamp(40px, 4.4vw, 76px); letter-spacing: .08em; white-space: nowrap; }
+@supports (font-size: 1cqw) { .joininfo .code { font-size: min(84px, 26cqw); } }
+.joininfo p, .joininfo a { overflow-wrap: anywhere; }

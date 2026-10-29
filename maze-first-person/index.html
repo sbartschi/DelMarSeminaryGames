@@ -235,6 +235,10 @@ table.res th { color: var(--muted); }
 .dp[data-d="right"] { grid-column: 3; grid-row: 2; }
 .dp[data-d="down"] { grid-column: 2; grid-row: 3; }
 @media (max-height: 640px) { #pad { --s: min(17vw, 56px); } }
+#mapbar { display: flex; justify-content: center; margin: 4px 0 2px; }
+#mapBtn { font-family: inherit; font-size: 9px; background: var(--btn, #3a3850); color: #fff; border: 2px solid #000; box-shadow: 2px 2px 0 #000; padding: 6px 12px; cursor: pointer; touch-action: manipulation; }
+#mapBox { display: flex; justify-content: center; padding: 2px 0 4px; } #mapBox[hidden] { display: none; }
+#mm { width: min(62vw, 28vh, 240px); height: min(62vw, 28vh, 240px); border: 3px solid #000; background: #0f0e1c; display: block; }
 </style>
 </head>
 <body>
@@ -252,6 +256,8 @@ table.res th { color: var(--muted); }
     <div id="toast">TREASURE FOUND!</div>
     <div id="overlay"><div class="panel" id="panel"></div></div>
   </div>
+  <div id="mapbar"><button id="mapBtn" type="button" aria-expanded="false" aria-controls="mapBox">&#128506;&#65039; SHOW MAP</button></div>
+  <div id="mapBox" hidden><canvas id="mm" role="img" aria-label="Map of the places you have explored"></canvas></div>
   <div id="hint"></div>
   <div id="pad">
     <button class="dp" data-d="up" type="button" aria-label="Walk forward">&#9650;</button>
@@ -687,14 +693,14 @@ table.res th { color: var(--muted); }
   }
 
   function startLevel(i) {
-    li = i; G = build(LEVELS[i], seeds[i]); state = "play";
+    li = i; G = build(LEVELS[i], seeds[i]); state = "play"; G.mapSeen = {}; markSeen();
     if (CFG) { G.started = true; G.t0 = Date.now(); }
     $("#hint").textContent = (i === 0 ? "UP walks, LEFT and RIGHT turn, DOWN turns around. " : "") + LEVELS[i].hint;
     hideOverlay(); resize(); hud();
   }
   function showTitle() {
     state = "title"; li = 0; results = []; newSeeds();
-    G = build(LEVELS[0], seeds[0]); $("#hint").textContent = "UP walks, LEFT and RIGHT turn, DOWN turns around.";
+    G = build(LEVELS[0], seeds[0]); G.mapSeen = {}; $("#hint").textContent = "UP walks, LEFT and RIGHT turn, DOWN turns around.";
     resize(); hud();
     showOverlay(
       "<h1>THE IRON ROD MAZE</h1>" +
@@ -774,7 +780,41 @@ table.res th { color: var(--muted); }
     G.cx += DX[d]; G.cy += DY[d]; G.lastAxis = axis;
     beep(330, 0.04, "square", 0.02);
   }
+
+/* Bird's-eye map with fog of war: only squares this player has walked on are drawn */
+function drawFogMap(cv, o) {
+  var size = cv.clientWidth || 220, dpr = window.devicePixelRatio || 1, N = o.N, cs = size / N, x, y, c;
+  cv.width = Math.round(size * dpr); cv.height = Math.round(size * dpr); c = cv.getContext('2d'); c.setTransform(dpr, 0, 0, dpr, 0, 0);
+  c.fillStyle = '#0f0e1c'; c.fillRect(0, 0, size, size);
+  for (y = 0; y < N; y++) for (x = 0; x < N; x++) if (o.seen[x + ',' + y]) { c.fillStyle = '#4a4766'; c.fillRect(x * cs, y * cs, cs + 0.6, cs + 0.6); }
+  c.strokeStyle = '#e9d9b0'; c.lineWidth = Math.max(1.5, cs * 0.12); c.lineCap = 'round';
+  for (y = 0; y < N; y++) for (x = 0; x < N; x++) {
+    if (!o.seen[x + ',' + y]) continue; var op = o.open[y][x], x0 = x * cs, y0 = y * cs; c.beginPath();
+    if (!op.n) { c.moveTo(x0, y0); c.lineTo(x0 + cs, y0); } if (!op.s) { c.moveTo(x0, y0 + cs); c.lineTo(x0 + cs, y0 + cs); }
+    if (!op.w) { c.moveTo(x0, y0); c.lineTo(x0, y0 + cs); } if (!op.e) { c.moveTo(x0 + cs, y0); c.lineTo(x0 + cs, y0 + cs); } c.stroke();
+  }
+  if (o.path) { c.strokeStyle = 'rgba(200,210,226,.75)'; c.lineWidth = Math.max(1.5, cs * 0.14); c.beginPath(); for (var i = 0; i + 1 < o.path.length; i++) { var a = o.path[i], b = o.path[i + 1]; if (o.seen[a[0] + ',' + a[1]] && o.seen[b[0] + ',' + b[1]]) { c.moveTo(a[0] * cs + cs / 2, a[1] * cs + cs / 2); c.lineTo(b[0] * cs + cs / 2, b[1] * cs + cs / 2); } } c.stroke(); }
+  c.textAlign = 'center'; c.textBaseline = 'middle'; c.font = Math.floor(cs * 0.62) + 'px sans-serif';
+  (o.marks || []).forEach(function (m) { if (!o.seen[m.x + ',' + m.y]) return; c.globalAlpha = m.dim ? 0.4 : 1; c.fillText(m.t, m.x * cs + cs / 2, m.y * cs + cs / 2 + 1); c.globalAlpha = 1; });
+  (o.others || []).forEach(function (p) { if (!o.seen[p.x + ',' + p.y]) return; c.fillStyle = p.c; c.strokeStyle = '#fff'; c.lineWidth = 1.5; c.beginPath(); c.arc(p.x * cs + cs / 2, p.y * cs + cs / 2, cs * 0.2, 0, 6.3); c.fill(); c.stroke(); });
+  var px = o.px * cs + cs / 2, py = o.py * cs + cs / 2, ang = o.face * Math.PI / 2, r = cs * 0.38;
+  c.fillStyle = '#ffd23f'; c.strokeStyle = '#000'; c.lineWidth = 2; c.beginPath(); c.moveTo(px + Math.cos(ang) * r, py + Math.sin(ang) * r);
+  c.lineTo(px + Math.cos(ang + 2.4) * r, py + Math.sin(ang + 2.4) * r); c.lineTo(px + Math.cos(ang - 2.4) * r, py + Math.sin(ang - 2.4) * r); c.closePath(); c.fill(); c.stroke();
+}
+
+  /* explored map (fog of war): only squares you have walked on show up */
+  function markSeen() { if (!G) return; if (!G.mapSeen) G.mapSeen = {}; G.mapSeen[G.cx + "," + G.cy] = 1; drawMap(); }
+  function drawMap() {
+    var box = $("#mapBox"); if (!box || box.hidden || !G || !G.mapSeen) return;
+    var marks = [], k;
+    for (k in G.items) { var it = G.items[k], xy = k.split(","); if (!it.got && !it.gone) marks.push({ x: +xy[0], y: +xy[1], t: "\ud83c\udf4f" }); }
+    for (k in G.blds) { var bxy = k.split(","); marks.push({ x: +bxy[0], y: +bxy[1], t: "\ud83c\udfe2" }); }
+    if (G.chest && !G.chest.got) marks.push({ x: G.chest.x, y: G.chest.y, t: "\ud83e\uddf0" });
+    var gl = G.goal || [G.N - 1, G.N - 1]; marks.push({ x: gl[0], y: gl[1], t: "\ud83c\udf33" });
+    drawFogMap($("#mm"), { N: G.N, open: G.open, seen: G.mapSeen, px: G.cx, py: G.cy, face: G.face, path: G.path, marks: marks });
+  }
   function arrive() {
+    markSeen();
     var ik = G.cx + "," + G.cy;
     if (G.items[ik] && !G.items[ik].got && !G.items[ik].gone) { G.items[ik].got = true; G.got++; beep(880, 0.06, "square", 0.04); beep(1319, 0.08, "square", 0.05, 0.05); }
     var b = G.blds[G.cx + "," + G.cy];
@@ -866,6 +906,7 @@ table.res th { color: var(--muted); }
   });
 
   if (window.ResizeObserver) new ResizeObserver(resize).observe(stage);
+  $("#mapBtn").addEventListener("click", function () { var box = $("#mapBox"), open = box.hidden; box.hidden = !open; this.setAttribute("aria-expanded", String(open)); this.innerHTML = open ? "&#128506;&#65039; HIDE MAP" : "&#128506;&#65039; SHOW MAP"; resize(); drawMap(); });
   window.addEventListener("resize", resize);
   showTitle();
   if (CFG) { if (CFG.seed) seeds = [CFG.seed, CFG.seed, CFG.seed]; startLevel(Math.max(0, Math.min(2, (CFG.level || 1) - 1))); }
